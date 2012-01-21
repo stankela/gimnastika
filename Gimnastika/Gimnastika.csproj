@@ -1,0 +1,394 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{61BB2653-C59C-4E9F-8ACE-A2D398B0E57E}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gimnastika</RootNamespace>
+    <AssemblyName>Gimnastika</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualBasic">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SqlServerCe, Version=9.0.242.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\System.Data.SqlServerCe.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BindingListView.cs" />
+    <Compile Include="ColumnAdder.cs" />
+    <Compile Include="Dao\DAO.cs" />
+    <Compile Include="Dao\Database.cs" />
+    <Compile Include="Dao\ElementDAO.cs" />
+    <Compile Include="Dao\GimnasticarDAO.cs" />
+    <Compile Include="Dao\GrupaDAO.cs" />
+    <Compile Include="Dao\PraviloOceneVezbeDAO.cs" />
+    <Compile Include="Dao\VezbaDAO.cs" />
+    <Compile Include="DatabaseConstraintsValidator.cs" />
+    <Compile Include="DatabaseUpdater.cs" />
+    <Compile Include="DataContext.cs" />
+    <Compile Include="DateUtilities.cs" />
+    <Compile Include="ElementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ElementForm.Designer.cs">
+      <DependentUpon>ElementForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ElementsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ElementsForm.Designer.cs">
+      <DependentUpon>ElementsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ElementTableItem.cs" />
+    <Compile Include="Entities\DomainObject.cs" />
+    <Compile Include="Entities\Element.cs" />
+    <Compile Include="Entities\ElementVezbe.cs" />
+    <Compile Include="Entities\File.cs" />
+    <Compile Include="Entities\Gimnasticar.cs" />
+    <Compile Include="Entities\Grupa.cs" />
+    <Compile Include="Entities\PraviloOceneVezbe.cs" />
+    <Compile Include="Entities\Slika.cs" />
+    <Compile Include="Entities\Vezba.cs" />
+    <Compile Include="Entities\Video.cs" />
+    <Compile Include="Exceptions\DatabaseConstraintException.cs" />
+    <Compile Include="Exceptions\DatabaseException.cs" />
+    <Compile Include="Exceptions\GridException.cs" />
+    <Compile Include="Exceptions\InvalidFormatException.cs" />
+    <Compile Include="Exceptions\InvalidPropertyException.cs" />
+    <Compile Include="Exceptions\PageSizeToSmallException.cs" />
+    <Compile Include="Exceptions\VideoException.cs" />
+    <Compile Include="GimnasticarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GimnasticarForm.Designer.cs">
+      <DependentUpon>GimnasticarForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GimnasticariForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GimnasticariForm.Designer.cs">
+      <DependentUpon>GimnasticariForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GrupeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GrupeForm.Designer.cs">
+      <DependentUpon>GrupeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HMergedCell.cs" />
+    <Compile Include="IVezbaEditorView.cs" />
+    <Compile Include="IzaberiElementeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IzaberiElementeForm.Designer.cs">
+      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Izvestaj.cs" />
+    <Compile Include="Language.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Opcije.cs" />
+    <Compile Include="PictureBoxPlus.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PocetnaOcenaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PocetnaOcenaForm.Designer.cs">
+      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SlikeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SlikeForm.Designer.cs">
+      <DependentUpon>SlikeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VezaForm.Designer.cs">
+      <DependentUpon>VezaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezbaEditorBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VezbaEditorBaseForm.designer.cs">
+      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezbaEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VezbaEditorForm.Designer.cs">
+      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezbaEditorFormTabela.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VezbaEditorFormTabela.Designer.cs">
+      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezbaEditorPresenter.cs" />
+    <Compile Include="VezbaIzvestaj.cs" />
+    <Compile Include="PravilaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PravilaForm.Designer.cs">
+      <DependentUpon>PravilaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PraviloForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PraviloForm.Designer.cs">
+      <DependentUpon>PraviloForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OsnovniPodaciVezbeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OsnovniPodaciVezbeForm.Designer.cs">
+      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OtvoriVezbuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OtvoriVezbuForm.designer.cs">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OpcijeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OpcijeForm.Designer.cs">
+      <DependentUpon>OpcijeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PrintPreviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PrintPreviewForm.Designer.cs">
+      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SelectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectForm.Designer.cs">
+      <DependentUpon>SelectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ElementForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ElementForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ElementsForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ElementsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GimnasticarForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>GimnasticarForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GimnasticariForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>GimnasticariForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GrupeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>GrupeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IzaberiElementeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PocetnaOcenaForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PravilaForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PravilaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PraviloForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PraviloForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OsnovniPodaciVezbeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OtvoriVezbuForm.resx">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpcijeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>OpcijeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PrintPreviewForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SelectForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SelectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ElementBrowserControl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SelektujElementeControl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SlikeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SlikeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TabelaElemenataForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VezaForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>VezaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VezbaEditorBaseForm.resx">
+      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VezbaEditorForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VezbaEditorFormTabela.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VezbaForm.resx">
+      <DependentUpon>VezbaForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="App.config">
+    </None>
+    <None Include="Data\CreateAllObjects.sqlce" />
+    <None Include="Data\DeleteAllData.sqlce" />
+    <None Include="Data\DropAllObjects.sqlce" />
+    <None Include="Images\Thumbs.db" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Resursi.cs" />
+    <Compile Include="SelektujElementeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SelektujElementeControl.Designer.cs">
+      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SingleInstanceApplication.cs" />
+    <Compile Include="SortComparer.cs" />
+    <Compile Include="ElementBrowserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ElementBrowserControl.Designer.cs">
+      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabelaElemenataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TabelaElemenataForm.Designer.cs">
+      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ValidationError.cs" />
+    <Compile Include="VezbaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VezbaForm.designer.cs">
+      <DependentUpon>VezbaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VezbaTabela.cs" />
+    <Compile Include="VMergedCell.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Arrow.png" />
+    <Content Include="Images\BuilderDialog_add.bmp" />
+    <Content Include="Images\BuilderDialog_AddAll.bmp" />
+    <Content Include="Images\BuilderDialog_delete.bmp" />
+    <Content Include="Images\BuilderDialog_movedown.bmp" />
+    <Content Include="Images\BuilderDialog_moveup.bmp" />
+    <Content Include="Images\CalculatorHS.png" />
+    <Content Include="Images\Checkmark.bmp" />
+    <Content Include="Images\Checkmark.png" />
+    <Content Include="Images\delete.bmp" />
+    <Content Include="Images\DropDown.bmp" />
+    <Content Include="Images\NewDocument.bmp" />
+    <Content Include="Images\OpenFolder.bmp" />
+    <Content Include="Images\Save.bmp" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(ProjectDir)..\Libs\sqlce*.dll" "$(ProjectDir)$(OutDir)"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

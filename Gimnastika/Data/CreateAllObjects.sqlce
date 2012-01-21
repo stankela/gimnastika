@@ -1,0 +1,91 @@
+--DROP TABLE Gimnasticari;
+--DROP TABLE Elementi;
+--DROP TABLE Vezbe;
+--DROP TABLE ElementiVezbe;
+--DROP TABLE PravilaOceneVezbe;
+--DROP TABLE PocetneOceneIzvedbe;
+
+CREATE TABLE Gimnasticari (
+	Id int IDENTITY(1,1) PRIMARY KEY,
+	Ime nvarchar(16) NOT NULL,
+	Prezime nvarchar(32) NOT NULL
+);
+
+CREATE TABLE Elementi (
+	Id int IDENTITY(1,1) PRIMARY KEY,
+	Sprava tinyint NOT NULL,
+	Naziv nvarchar(128) NOT NULL,
+	EngleskiNaziv nvarchar(128),
+    NazivPoGimnasticaru nvarchar(64),
+	TablicniElement bit NOT NULL,
+	Grupa tinyint,
+	Tezina tinyint,
+	Broj smallint,
+	PodBroj tinyint,
+	ParentId int
+);
+
+CREATE TABLE Vezbe (
+	Id int IDENTITY(1,1) PRIMARY KEY,
+	Sprava tinyint NOT NULL,
+	Naziv nvarchar(128) NOT NULL,
+	GimnasticarId int,
+	Odbitak real,
+	Penalizacija real,
+	PraviloId int NOT NULL
+);
+
+CREATE TABLE ElementiVezbe (
+	VezbaId int NOT NULL,
+	RedBroj tinyint NOT NULL,
+	BodujeSe bit NOT NULL,
+	VezaSaPrethodnim real,
+	Zahtev real,
+	Odbitak real,
+	Penalizacija real,
+
+-- duplicated from Elementi
+	Naziv nvarchar(128),
+	EngleskiNaziv nvarchar(128),
+	TablicniElement bit,
+	Grupa tinyint,
+	Tezina tinyint,
+	Broj smallint,
+	PodBroj tinyint
+);
+
+CREATE TABLE PravilaOceneVezbe (
+	Id int IDENTITY(1,1) PRIMARY KEY,
+	Naziv nvarchar(64) NOT NULL,
+	BrojBodovanihElemenata int NOT NULL,
+	MaxIstaGrupa int NOT NULL
+);
+
+CREATE TABLE PocetneOceneIzvedbe (
+	PraviloId int NOT NULL,
+	MinBrojElemenata int NOT NULL,
+	MaxBrojElemenata int,
+	PocetnaOcena real NOT NULL
+);
+
+CREATE TABLE Video (
+	Id int IDENTITY(1,1) PRIMARY  KEY,
+	RelFileNamePath nvarchar(256) NOT NULL,
+	ElementId int
+);
+
+CREATE TABLE Slike (
+	Id int IDENTITY(1,1) PRIMARY  KEY,
+	RelFileNamePath nvarchar(256) NOT NULL,
+	Podrazumevana bit NOT NULL,
+	ElementId int,
+	ProcenatRedukcije tinyint
+);
+
+CREATE TABLE Grupe (
+	Grupa tinyint NOT NULL,
+	Sprava tinyint NOT NULL,
+	Naziv nvarchar(128),
+	EngNaziv nvarchar(128),
+	PRIMARY KEY (Grupa, Sprava)
+);
