@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing.Imaging;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using System.Windows.Forms;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
@@ -56,7 +56,7 @@ namespace Gimnastika
             }
             else
             {
-                vezba = new VezbaDAO().getById(vezbaId.Value);
+                vezba = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindById(vezbaId.Value);
                 original = (Vezba)vezba.Clone(new TypeAsocijacijaPair[] { 
                     new TypeAsocijacijaPair(typeof(Vezba)), 
                     new TypeAsocijacijaPair(typeof(ElementVezbe)) });
@@ -124,7 +124,7 @@ namespace Gimnastika
             if (selectedElement != null)
             {
                 byte redBroj = selectedElement.RedBroj;
-                if (vezba.moveElementUp(redBroj))
+                if (vezba.moveElementDown(redBroj))
                 {
                     view.updateElementRow(redBroj - 1, vezba.Elementi[redBroj - 2]);
                     view.updateElementRow(redBroj, vezba.Elementi[redBroj - 1]);
@@ -140,7 +140,7 @@ namespace Gimnastika
             if (selectedElement != null)
             {
                 byte redBroj = selectedElement.RedBroj;
-                if (vezba.moveElementDown(redBroj))
+                if (vezba.moveElementUp(redBroj))
                 {
                     view.updateElementRow(redBroj, vezba.Elementi[redBroj - 1]);
                     view.updateElementRow(redBroj + 1, vezba.Elementi[redBroj]);
@@ -360,11 +360,11 @@ namespace Gimnastika
                     return false;
                 if (existsInDatabase)
                 {
-                    new VezbaDAO().update(vezba, original);
+                    DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent(vezba);
                 }
                 else
                 {
-                    new VezbaDAO().insert(vezba);
+                    DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent(vezba);
                     existsInDatabase = true;
                 }
                 modified = false;
@@ -442,7 +442,7 @@ namespace Gimnastika
                 return true;
             try
             {
-                new VezbaDAO().delete(vezba);
+                DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakeTransient(vezba);
                 existsInDatabase = false;
                 modified = false;
                 return true;

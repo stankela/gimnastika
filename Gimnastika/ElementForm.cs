@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using Gimnastika.Exceptions;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 using System.IO;
 

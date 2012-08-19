@@ -1,0 +1,3 @@
+ALTER TABLE ElementiVezbe ADD COLUMN ElementVezbeId int
+update ElementiVezbe set ElementVezbeId = VezbaId*100 + RedBroj
+

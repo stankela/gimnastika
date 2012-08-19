@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Data;
 using System.Windows.Forms;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using System.Collections.Generic;
 
 namespace Gimnastika

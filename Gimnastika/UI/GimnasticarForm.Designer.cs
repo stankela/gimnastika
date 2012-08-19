@@ -1,4 +1,4 @@
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     partial class GimnasticarForm
     {
@@ -110,7 +110,6 @@ namespace Gimnastika
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GimnasticarForm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GimnasticarForm_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

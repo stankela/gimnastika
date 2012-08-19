@@ -1,4 +1,4 @@
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     partial class GimnasticariForm
     {
@@ -96,7 +96,6 @@ namespace Gimnastika
             this.Controls.Add(this.btnNovi);
             this.Name = "GimnasticariForm";
             this.Text = "GimnasticariForm";
-            this.Shown += new System.EventHandler(this.GimnasticariForm_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.gridView)).EndInit();
             this.ResumeLayout(false);
 

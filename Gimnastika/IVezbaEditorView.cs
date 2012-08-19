@@ -1,5 +1,5 @@
 ﻿using System;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 
 namespace Gimnastika
 {

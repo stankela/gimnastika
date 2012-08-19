@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Gimnastika"
+                   namespace="Gimnastika.Domain">
+
+  <class name="Gimnasticar" table="Gimnasticari" lazy="true">
+    <id name="Id" column="Id">
+      <generator class="identity" />
+    </id>
+    <property name="Ime" column="Ime" />
+    <property name="Prezime" column="Prezime" />
+  </class>
+
+</hibernate-mapping>

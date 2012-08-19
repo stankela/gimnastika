@@ -7,10 +7,10 @@ using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     public partial class MainForm : Form
     {
@@ -45,6 +45,7 @@ namespace Gimnastika
 
         private void mnDatotekaKraj_Click(object sender, EventArgs e)
         {
+            // TODO: Vidi zasto sam ovo stavio.
             throw new Exception();
             Close();
         }

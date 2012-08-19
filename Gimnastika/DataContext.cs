@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 
 namespace Gimnastika
 {

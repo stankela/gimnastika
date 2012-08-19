@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 
 namespace Gimnastika

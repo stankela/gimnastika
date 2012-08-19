@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 
 namespace Gimnastika
@@ -48,7 +48,7 @@ namespace Gimnastika
         {
             this.Text = "Osnovni podaci o vezbi";
 
-            cmbGimnasticar.DataSource = new GimnasticarDAO().getAll();
+            cmbGimnasticar.DataSource = DAOFactoryFactory.DAOFactory.GetGimnasticarDAO().FindAll();
             cmbGimnasticar.DisplayMember = "PrezimeIme";
             cmbGimnasticar.ValueMember = "Id";
             cmbGimnasticar.SelectedIndex = -1;
@@ -77,7 +77,8 @@ namespace Gimnastika
                 return;
             }
             if (cmbGimnasticar.SelectedIndex != -1)
-                gimnasticar = new GimnasticarDAO().getById((int)cmbGimnasticar.SelectedValue);
+                gimnasticar = DAOFactoryFactory.DAOFactory.GetGimnasticarDAO()
+                    .FindById( ((Gimnasticar)cmbGimnasticar.SelectedItem).Id );
             else
                 gimnasticar = null;
             sprava = (Sprava)cmbSprava.SelectedValue;

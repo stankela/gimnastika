@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 
 using Microsoft.VisualBasic.ApplicationServices;
+using Gimnastika.Data;
+using Gimnastika.UI;
 
 namespace Gimnastika
 {
@@ -31,6 +33,9 @@ namespace Gimnastika
 
         protected override void OnCreateMainForm()
         {
+            // Do your initialization here
+            new DataAccessProviderFactory().GetDataContext();
+
             this.MainForm = new MainForm();
         }
     }

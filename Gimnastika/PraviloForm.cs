@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
 

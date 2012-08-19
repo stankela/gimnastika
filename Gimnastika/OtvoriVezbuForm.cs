@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
 
@@ -29,7 +29,8 @@ namespace Gimnastika
             initUI();
             try
             {
-                vezbe = new BindingListView<Vezba>(new VezbaDAO().getAll());
+                vezbe = new BindingListView<Vezba>(new List<Vezba>
+                    (DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindAll()));
                 gridView.DataSource = vezbe;
             }
             catch (DatabaseException ex)

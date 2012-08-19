@@ -5,10 +5,12 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{61BB2653-C59C-4E9F-8ACE-A2D398B0E57E}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gimnastika</RootNamespace>
     <AssemblyName>Gimnastika</AssemblyName>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,12 +30,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ReportViewer.Common, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.ReportViewer.WinForms, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualBasic">
       <Private>False</Private>
     </Reference>
+    <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.ByteCode.LinFu, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\NHibernate.ByteCode.LinFu.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SqlServerCe, Version=9.0.242.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -51,16 +66,43 @@
   <ItemGroup>
     <Compile Include="BindingListView.cs" />
     <Compile Include="ColumnAdder.cs" />
-    <Compile Include="Dao\DAO.cs" />
-    <Compile Include="Dao\Database.cs" />
-    <Compile Include="Dao\ElementDAO.cs" />
+    <Compile Include="Dao\DAOFactory.cs" />
+    <Compile Include="Dao\DAOFactoryFactory.cs" />
+    <Compile Include="Dao\GenericDAO.cs" />
     <Compile Include="Dao\GimnasticarDAO.cs" />
-    <Compile Include="Dao\GrupaDAO.cs" />
-    <Compile Include="Dao\PraviloOceneVezbeDAO.cs" />
+    <Compile Include="Dao\NHibernate\GenericNHibernateDAO.cs" />
+    <Compile Include="Dao\NHibernate\GimnasticarDAOImpl.cs" />
+    <Compile Include="Dao\NHibernate\NHibernateDAOFactory.cs" />
+    <Compile Include="Dao\NHibernate\VezbaDAOImpl.cs" />
+    <Compile Include="Dao\Old\DAO.cs" />
+    <Compile Include="Dao\Old\Database.cs" />
+    <Compile Include="Dao\Old\ElementDAO.cs" />
+    <Compile Include="Dao\Old\GimnasticarDAO.cs" />
+    <Compile Include="Dao\Old\GrupaDAO.cs" />
+    <Compile Include="Dao\Old\PraviloOceneVezbeDAO.cs" />
+    <Compile Include="Dao\Old\VezbaDAO.cs" />
     <Compile Include="Dao\VezbaDAO.cs" />
     <Compile Include="DatabaseConstraintsValidator.cs" />
     <Compile Include="DatabaseUpdater.cs" />
     <Compile Include="DataContext.cs" />
+    <Compile Include="Data\DataAccessProviderFactory.cs" />
+    <Compile Include="Data\IDataContext.cs" />
+    <Compile Include="Data\IDataProviderFactory.cs" />
+    <Compile Include="Data\NHibernate\DataProviderFactory.cs" />
+    <Compile Include="Data\NHibernate\NHibernateDataContext.cs" />
+    <Compile Include="Data\NHibernate\NHibernateHelper.cs" />
+    <Compile Include="Data\NHibernate\PersistentConfigurationBuilder.cs" />
+    <Compile Include="Data\NHibernate\QueryTranslator.cs" />
+    <Compile Include="Data\QueryLanguageType.cs" />
+    <Compile Include="Data\QueryModel\AssociationAlias.cs" />
+    <Compile Include="Data\QueryModel\AssociationFetch.cs" />
+    <Compile Include="Data\QueryModel\CriteriaOperator.cs" />
+    <Compile Include="Data\QueryModel\Criterion.cs" />
+    <Compile Include="Data\QueryModel\OrderClause.cs" />
+    <Compile Include="Data\QueryModel\Query.cs" />
+    <Compile Include="Data\QueryModel\QueryOperator.cs" />
+    <Compile Include="Data\QueryModel\StringMatchMode.cs" />
+    <Compile Include="Data\TransactionException.cs" />
     <Compile Include="DateUtilities.cs" />
     <Compile Include="ElementForm.cs">
       <SubType>Form</SubType>
@@ -75,35 +117,25 @@
       <DependentUpon>ElementsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ElementTableItem.cs" />
-    <Compile Include="Entities\DomainObject.cs" />
-    <Compile Include="Entities\Element.cs" />
-    <Compile Include="Entities\ElementVezbe.cs" />
-    <Compile Include="Entities\File.cs" />
-    <Compile Include="Entities\Gimnasticar.cs" />
-    <Compile Include="Entities\Grupa.cs" />
-    <Compile Include="Entities\PraviloOceneVezbe.cs" />
-    <Compile Include="Entities\Slika.cs" />
-    <Compile Include="Entities\Vezba.cs" />
-    <Compile Include="Entities\Video.cs" />
+    <Compile Include="Domain\DomainObject.cs" />
+    <Compile Include="Domain\Element.cs" />
+    <Compile Include="Domain\ElementVezbe.cs" />
+    <Compile Include="Domain\File.cs" />
+    <Compile Include="Domain\Gimnasticar.cs" />
+    <Compile Include="Domain\Grupa.cs" />
+    <Compile Include="Domain\PraviloOceneVezbe.cs" />
+    <Compile Include="Domain\Slika.cs" />
+    <Compile Include="Domain\Vezba.cs" />
+    <Compile Include="Domain\Video.cs" />
+    <Compile Include="Exceptions\BusinessException.cs" />
     <Compile Include="Exceptions\DatabaseConstraintException.cs" />
     <Compile Include="Exceptions\DatabaseException.cs" />
     <Compile Include="Exceptions\GridException.cs" />
+    <Compile Include="Exceptions\InfrastructureException.cs" />
     <Compile Include="Exceptions\InvalidFormatException.cs" />
     <Compile Include="Exceptions\InvalidPropertyException.cs" />
     <Compile Include="Exceptions\PageSizeToSmallException.cs" />
     <Compile Include="Exceptions\VideoException.cs" />
-    <Compile Include="GimnasticarForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GimnasticarForm.Designer.cs">
-      <DependentUpon>GimnasticarForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GimnasticariForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GimnasticariForm.Designer.cs">
-      <DependentUpon>GimnasticariForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="GrupeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +158,9 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Misc\Notification.cs" />
+    <Compile Include="Misc\NotificationMessage.cs" />
+    <Compile Include="Misc\Strings.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Opcije.cs" />
     <Compile Include="PictureBoxPlus.cs">
@@ -143,6 +178,31 @@
     <Compile Include="SlikeForm.Designer.cs">
       <DependentUpon>SlikeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\EntityDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\EntityDetailForm.designer.cs">
+      <DependentUpon>EntityDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\EntityListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\EntityListForm.designer.cs">
+      <DependentUpon>EntityListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\GimnasticarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\GimnasticarForm.Designer.cs">
+      <DependentUpon>GimnasticarForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\GimnasticariForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\GimnasticariForm.Designer.cs">
+      <DependentUpon>GimnasticariForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MessageDialogs.cs" />
     <Compile Include="VezaForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -221,14 +281,6 @@
       <SubType>Designer</SubType>
       <DependentUpon>ElementsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GimnasticarForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>GimnasticarForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GimnasticariForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>GimnasticariForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="GrupeForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>GrupeForm.cs</DependentUpon>
@@ -294,6 +346,14 @@
       <SubType>Designer</SubType>
       <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\GimnasticarForm.resx">
+      <DependentUpon>GimnasticarForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\GimnasticariForm.resx">
+      <DependentUpon>GimnasticariForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="VezaForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>VezaForm.cs</DependentUpon>
@@ -317,12 +377,11 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="App.config">
     </None>
-    <None Include="Data\CreateAllObjects.sqlce" />
-    <None Include="Data\DeleteAllData.sqlce" />
-    <None Include="Data\DropAllObjects.sqlce" />
+    <None Include="CreateAllObjects.sqlce" />
     <None Include="Images\Thumbs.db" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -365,6 +424,21 @@
     <Compile Include="VMergedCell.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Data\NHibernate\Mappings\Gimnasticar.hbm.xml" />
+    <EmbeddedResource Include="UI\EntityDetailForm.resx">
+      <DependentUpon>EntityDetailForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\EntityListForm.resx">
+      <DependentUpon>EntityListForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Data\NHibernate\Mappings\Vezba.hbm.xml" />
+    <Content Include="DataBaseUpdate.txt" />
+    <EmbeddedResource Include="Data\NHibernate\Mappings\PraviloOceneVezbe.hbm.xml" />
+    <Content Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\Arrow.png" />
     <Content Include="Images\BuilderDialog_add.bmp" />
     <Content Include="Images\BuilderDialog_AddAll.bmp" />

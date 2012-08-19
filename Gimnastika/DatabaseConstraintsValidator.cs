@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using Gimnastika.Exceptions;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 
 namespace Gimnastika
@@ -157,79 +157,6 @@ namespace Gimnastika
             }
         }
 
-        private static void validateProperties(Gimnasticar gimnasticar)
-        {
-            // validate Ime i Prezime
-            if (gimnasticar.Ime.Length == 0 && gimnasticar.Prezime.Length == 0)
-            {
-                string[] invalidProperties = new string[] { "Ime", "Prezime" };
-                // TODO: InvalidPropertyException konstruktor treba da prima i nizove
-                throw new InvalidPropertyException(
-                    "Ime i prezime gimnasticara ne smeju da bude prazni.", "Ime");
-            }
-
-            // validate Ime
-            if (gimnasticar.Ime.Length > 0
-            && gimnasticar.Ime.Length > Gimnasticar.IME_MAX_LENGTH)
-            {
-                throw new InvalidPropertyException("Ime gimnasticara moze da sadrzi maksimalno "
-                    + Gimnasticar.IME_MAX_LENGTH + " znakova.", "Ime");
-            }
-
-            // validate Prezime
-            if (gimnasticar.Prezime.Length > 0
-            & gimnasticar.Prezime.Length > Gimnasticar.PREZIME_MAX_LENGTH)
-            {
-                throw new InvalidPropertyException("Prezime gimnasticara moze da sadrzi maksimalno "
-                    + Gimnasticar.PREZIME_MAX_LENGTH + " znakova.", "Prezime");
-            }
-        }
-
-        // can throw DatabaseException
-        public static void checkInsert(Gimnasticar gimnasticar)
-        {
-            validationErrors = new List<ValidationError>();
-            validateProperties(gimnasticar);
-
-            // TODO: Poredjenja imena i prezimena mora da budu case insensitive
-
-            if (new GimnasticarDAO().postojiGimnasticar(gimnasticar.Ime, gimnasticar.Prezime))
-            {
-                ValidationError error = new ValidationError();
-                error.InvalidProperties = new string[] { "Ime", "Prezime" };
-                error.Message = "Gimnasticar sa datim imenom i prezimenom vec postoji.";
-                validationErrors.Add(error);
-            }
-            if (validationErrors.Count > 0)
-            {
-                throw new DatabaseConstraintException(
-                    "Gimnasticar nije validan.", validationErrors);
-            }
-        }
-
-        // can throw DatabaseException
-        public static void checkUpdate(Gimnasticar gimnasticar, Gimnasticar original)
-        {
-            validationErrors = new List<ValidationError>();
-            validateProperties(gimnasticar);
-            if (gimnasticar.Ime != original.Ime
-            || gimnasticar.Prezime != original.Prezime)
-            {
-                if (new GimnasticarDAO().postojiGimnasticar(gimnasticar.Ime, gimnasticar.Prezime))
-                {
-                    ValidationError error = new ValidationError();
-                    error.InvalidProperties = new string[] { "Ime", "Prezime" };
-                    error.Message = "Gimnasticar sa datim imenom i prezimenom vec postoji.";
-                    validationErrors.Add(error);
-                }
-            }
-            if (validationErrors.Count > 0)
-            {
-                throw new DatabaseConstraintException(
-                    "Gimnasticar nije validan.", validationErrors);
-            }
-        }
-
         private static void validateProperties(Vezba vezba)
         {
             // validate Naziv
@@ -253,7 +180,7 @@ namespace Gimnastika
             Nullable<int> gimId = null;
             if (vezba.Gimnasticar != null)
                 gimId = vezba.Gimnasticar.Id;
-            if (new VezbaDAO().postojiVezba(vezba.Sprava, vezba.Naziv, gimId))
+            if (DAOFactoryFactory.DAOFactory.GetVezbaDAO().postojiVezba(vezba.Sprava, vezba.Naziv, gimId))
             {
                 ValidationError error = new ValidationError();
                 error.InvalidProperties = new string[] { "Naziv", "Sprava", "Gimnasticar" };
@@ -285,7 +212,7 @@ namespace Gimnastika
                     && vezba.Gimnasticar.Id != original.Gimnasticar.Id)
             )
             {
-                if (new VezbaDAO().postojiVezba(vezba.Sprava, vezba.Naziv, gimId))
+                if (DAOFactoryFactory.DAOFactory.GetVezbaDAO().postojiVezba(vezba.Sprava, vezba.Naziv, gimId))
                 {
                     ValidationError error = new ValidationError();
                     error.InvalidProperties = new string[] { "Naziv", "Sprava", "Gimnasticar" };

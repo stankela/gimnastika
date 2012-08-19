@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Gimnastika.Entities;
+using Gimnastika.Domain;
 using Gimnastika.Dao;
 
 namespace Gimnastika
@@ -153,7 +153,7 @@ namespace Gimnastika
                             // ne, ne treba brisati ni pravilo)
 
                             bool delete = true;
-                            List<Vezba> vezbe = new VezbaDAO().getAll();
+                            IList<Vezba> vezbe = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindAll();
                             foreach (Vezba v in vezbe)
                             {
                                 if (v.Pravilo != null && v.Pravilo.Id == pravilo.Id)
