@@ -1,4 +1,4 @@
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     partial class VezbaForm
     {

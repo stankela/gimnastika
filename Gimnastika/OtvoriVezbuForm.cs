@@ -9,15 +9,11 @@ using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
 
-namespace Gimnastika
+namespace Gimnastika.UI
 {
-    public partial class OtvoriVezbuForm : Form
+    public partial class OtvoriVezbuForm : EntityListForm
     {
-        private BindingListView<Vezba> vezbe = null;
-        DatabaseException ex = null;
-
         private int vezbaId;
-
         public int VezbaId
         {
             get { return vezbaId; }
@@ -26,87 +22,44 @@ namespace Gimnastika
         public OtvoriVezbuForm()
         {
             InitializeComponent();
-            initUI();
-            try
-            {
-                vezbe = new BindingListView<Vezba>(new List<Vezba>
-                    (DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindAll()));
-                gridView.DataSource = vezbe;
-            }
-            catch (DatabaseException ex)
-            {
-                this.ex = ex;
-            }
+            initialize(typeof(Vezba));
+            //sort(PREZIME);
         }
 
-        private void initUI()
+        protected override DataGridView getDataGridView()
         {
-            gridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            gridView.MultiSelect = false;
-            gridView.AllowUserToAddRows = false;
-            gridView.AllowUserToDeleteRows = false;
-            gridView.AllowUserToResizeRows = false;
-            gridView.ReadOnly = true;
+            return gridView;
+        }
 
+        protected override void initUI()
+        {
+            base.initUI();
             this.Text = "Otvori vezbu";
-
-            setupGrid();
         }
 
-        private void setupGrid()
+        protected override void addGridColumns()
         {
-            gridView.MultiSelect = false;
-            gridView.AllowUserToAddRows = false;
-            gridView.AllowUserToDeleteRows = false;
-            gridView.AllowUserToResizeRows = false;
-            gridView.AutoGenerateColumns = false;
-            gridView.GridColor = Color.Black;
-            gridView.ReadOnly = true;
-            gridView.CellBorderStyle = DataGridViewCellBorderStyle.Single;
-
-            DataGridViewColumn column = new DataGridViewTextBoxColumn();
-            column.DataPropertyName = "Naziv";
-            column.Name = "Naziv";
-            column.HeaderText = "Naziv vezbe";
-            column.Width = 200;
-            gridView.Columns.Add(column);
-
-            column = new DataGridViewTextBoxColumn();
-            column.DataPropertyName = "Sprava";
-            column.Name = "Sprava";
-            column.HeaderText = "Sprava";
-            column.Width = 70;
-            gridView.Columns.Add(column);
-
-            column = new DataGridViewTextBoxColumn();
-            column.DataPropertyName = "Gimnasticar";
-            column.Name = "Gimnasticar";
-            column.HeaderText = "Gimnasticar";
-            column.Width = 100;
-            gridView.Columns.Add(column);
-
-            column = new DataGridViewTextBoxColumn();
-            column.DataPropertyName = "Pravilo";
-            column.Name = "Pravilo";
-            column.HeaderText = "Pravila";
-            column.Width = 100;
-            gridView.Columns.Add(column);
+            AddColumn("Naziv vezbe", "Naziv", 200);
+            AddColumn("Sprava", "Sprava", 70);
+            AddColumn("Gimnasticar", "Gimnasticar", 100);
+            AddColumn("Pravila", "Pravilo", 100);
         }
 
-        private void VezbeForm_Shown(object sender, EventArgs e)
+        protected override List<object> loadEntities()
         {
-            if (vezbe == null)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                Close();
-            }
+            VezbaDAO vezbaDAO = DAOFactoryFactory.DAOFactory.GetVezbaDAO();
+            return new List<Vezba>(vezbaDAO.FindAll()).ConvertAll<object>(
+                delegate(Vezba v)
+                {
+                    return v;
+                });
         }
 
         private void btnOtvori_Click(object sender, EventArgs e)
         {
             if (gridView.Rows.Count > 0)
             {
-                Vezba vezba = vezbe[gridView.CurrentRow.Index];
+                Vezba vezba = (Vezba)entities[gridView.CurrentRow.Index];
                 vezbaId = vezba.Id;
             }
         }

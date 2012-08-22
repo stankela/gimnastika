@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     public partial class VezbaForm : Form
     {

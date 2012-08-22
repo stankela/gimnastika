@@ -36,8 +36,8 @@ CREATE TABLE Vezbe (
 );
 
 CREATE TABLE ElementiVezbe (
-	ElementVezbeId int NOT NULL,   -- TODO: Change this into "IDENTITY(1,1) PRIMARY KEY" column
-	VezbaId int NOT NULL,
+	ElementVezbeId int PRIMARY KEY,   -- TODO: Change this into "IDENTITY(1,1)" column
+	VezbaId int,
 	RedBroj tinyint NOT NULL,
 	BodujeSe bit NOT NULL,
 	VezaSaPrethodnim real,
@@ -65,7 +65,7 @@ CREATE TABLE PravilaOceneVezbe (
 CREATE TABLE PocetneOceneIzvedbe (
 	PraviloId int NOT NULL,
 	MinBrojElemenata int NOT NULL,
-	MaxBrojElemenata int,
+	MaxBrojElemenata int NOT NULL,
 	PocetnaOcena real NOT NULL
 );
 

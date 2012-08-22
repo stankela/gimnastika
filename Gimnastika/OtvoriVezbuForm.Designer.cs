@@ -1,4 +1,4 @@
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     partial class OtvoriVezbuForm
     {
@@ -80,7 +80,6 @@ namespace Gimnastika
             this.Controls.Add(this.gridView);
             this.Name = "OtvoriVezbuForm";
             this.Text = "VezbeForm";
-            this.Shown += new System.EventHandler(this.VezbeForm_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.gridView)).EndInit();
             this.ResumeLayout(false);
 

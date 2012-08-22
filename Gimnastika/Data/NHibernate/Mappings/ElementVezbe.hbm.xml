@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Gimnastika"
+                   namespace="Gimnastika.Domain">
+
+  <class name="ElementVezbe" table="ElementiVezbe" lazy="true">
+    <id name="Id" column="ElementVezbeId">
+      <!-- NOTE: Nije identity vec increment -->
+      <generator class="increment" />
+    </id>
+    <property name="RedBroj" column="RedBroj" type="Byte" not-null="true"/>
+    <property name="BodujeSe" column="BodujeSe" not-null="true"/>
+    <property name="VezaSaPrethodnim" column="VezaSaPrethodnim"/>
+    <property name="Zahtev" column="Zahtev"/>
+    <property name="Odbitak" column="Odbitak"/>
+    <property name="Penalizacija" column="Penalizacija"/>
+    <property name="Naziv" column="Naziv"/>
+    <property name="EngleskiNaziv" column="EngleskiNaziv"/>
+    <property name="IsTablicniElement" column="TablicniElement"/>
+    <property name="Grupa" column="Grupa"/>
+    <property name="Tezina" column="Tezina"/>
+    <property name="Broj" column="Broj"/>
+    <property name="PodBroj" column="PodBroj"/>
+  </class>
+
+</hibernate-mapping>

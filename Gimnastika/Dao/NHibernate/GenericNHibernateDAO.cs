@@ -38,7 +38,7 @@ namespace Gimnastika.Dao.NHibernate
 
         #region GenericDAO<T,ID> Members
 
-        public T FindById(ID id)
+        public virtual T FindById(ID id)
         {
             try
             {

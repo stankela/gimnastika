@@ -18,5 +18,10 @@ namespace Gimnastika.Dao.NHibernate
         {
             return new VezbaDAOImpl();
         }
+
+        public override ElementVezbeDAO GetElementVezbeDAO()
+        {
+            return new ElementVezbeDAOImpl();
+        }
     }
 }

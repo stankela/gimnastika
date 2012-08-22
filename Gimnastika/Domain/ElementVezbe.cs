@@ -6,7 +6,7 @@ using Gimnastika.Exceptions;
 
 namespace Gimnastika.Domain
 {
-    public class ElementVezbe : DomainObject
+    public class ElementVezbe : DomainObject, IComparable
     {
         private byte redBroj;
         public virtual byte RedBroj
@@ -193,5 +193,19 @@ namespace Gimnastika.Domain
             }
         }
 
+
+        #region IComparable Members
+
+        public virtual int CompareTo(object obj)
+        {
+            if (obj is ElementVezbe)
+            {
+                ElementVezbe other = (ElementVezbe)obj;
+                return this.RedBroj.CompareTo(other.RedBroj);
+            }
+            throw new ArgumentException("object is not a ElementVezbe");
+        }
+
+        #endregion
     }
 }

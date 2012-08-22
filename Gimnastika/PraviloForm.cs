@@ -271,6 +271,19 @@ namespace Gimnastika
             pravilo.Naziv = txtNazivPravila.Text.Trim();
             pravilo.BrojBodovanihElemenata = int.Parse(txtBrojBodovanih.Text);
             pravilo.MaxIstaGrupa = int.Parse(txtMaxIstaGrupa.Text);
+
+            // TODO: Sledeca dva if izraza su se nalazila u setterima za svojstva BrojBodovanihElemenata i MaxIstaGrupa
+            // (tacnije nalazila su se u private metodima validateBrojBodovanihElemenata i validateMaxIstaGrupa klase
+            // PraviloOceneVezbe a pozivi ovih metoda su se nalazili u setterim svojstava BrojBodovanihElemenata i 
+            // MaxIstaGrupa)
+            // Izbacio sam ih iz settera (da bi NHibernate radio korektno) i prebacio ovde (ovo je jedino mesto gde se setteri
+            // za BrojBodovanihElemenata i MaxIstaGrupa koriste). Probaj da ova dva if izraza prebacis na neko bolje mesto.
+            if (pravilo.BrojBodovanihElemenata < 1)
+                throw new InvalidPropertyException("Broj elemenata koji se boduju " +
+                    "mora da bude veci od nula.", "BrojBodovanihElemenata");
+            if (pravilo.MaxIstaGrupa < 1)
+                throw new InvalidPropertyException("Maksimalan broj elemenata iz iste " +
+                    "grupe koji se boduju mora da bude veci od nula.", "MaxIstaGrupa");
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

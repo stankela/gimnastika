@@ -10,6 +10,14 @@
     <property name="Naziv" column="Naziv" />
     <property name="BrojBodovanihElemenata" column="BrojBodovanihElemenata" />
     <property name="MaxIstaGrupa" column="MaxIstaGrupa" />
+    <bag name="PocetneOceneIzvedbe" lazy="true" table="PocetneOceneIzvedbe">
+      <key column="PraviloId"/>
+      <composite-element class="PocetnaOcenaIzvedbe">
+        <property name="MinBrojElemenata" column="MinBrojElemenata" not-null="true"/>
+        <property name="MaxBrojElemenata" column="MaxBrojElemenata" not-null="true"/>
+        <property name="PocetnaOcena" column="PocetnaOcena" not-null="true"/>
+      </composite-element>
+    </bag>
   </class>
 
 </hibernate-mapping>

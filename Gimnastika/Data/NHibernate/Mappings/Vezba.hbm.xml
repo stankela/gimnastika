@@ -7,36 +7,16 @@
     <id name="Id" column="Id">
       <generator class="identity" />
     </id>
-    <property name="Sprava" column="Sprava" type="Byte" not-null="true"/>
+    <property name="Sprava" column="Sprava" type="Sprava" not-null="true"/>
     <property name="Naziv" column="Naziv" not-null="true"/>
     <property name="Odbitak" column="Odbitak" />
     <property name="Penalizacija" column="Penalizacija" />
     <many-to-one name="Gimnasticar" class="Gimnasticar" column="GimnasticarId" />
     <many-to-one name="Pravilo" class="PraviloOceneVezbe" column="PraviloId" not-null="true" />
-
-    <!-- TODO: Promeni ovo u pravu parent/child asocijaciju (promeni tabelu ElementiVezbe u bazi (dodaj 
-               IDENTITY(1,1) PRIMARY KEY kolonu), kreiraj fajl ElementVezbe.hbm.xml, itd.) -->
-    <idbag name="Elementi" lazy="true" table="ElementiVezbe">
-      <collection-id type="Int32" column="ElementVezbeId">
-        <generator class="increment"/>
-      </collection-id>
-      <key column="VezbaId"/>
-      <composite-element class="ElementVezbe">
-        <property name="RedBroj" column="RedBroj" type="Byte" not-null="true"/>
-        <property name="BodujeSe" column="BodujeSe" not-null="true"/>
-        <property name="VezaSaPrethodnim" column="VezaSaPrethodnim"/>
-        <property name="Zahtev" column="Zahtev"/>
-        <property name="Odbitak" column="Odbitak"/>
-        <property name="Penalizacija" column="Penalizacija"/>
-        <property name="Naziv" column="Naziv"/>
-        <property name="EngleskiNaziv" column="EngleskiNaziv"/>
-        <property name="IsTablicniElement" column="TablicniElement"/>
-        <property name="Grupa" column="Grupa"/>
-        <property name="Tezina" column="Tezina"/>
-        <property name="Broj" column="Broj"/>
-        <property name="PodBroj" column="PodBroj"/>
-      </composite-element>
-    </idbag>
+    <bag name="Elementi" lazy="true" cascade="all-delete-orphan" >
+      <key column="VezbaId" />
+      <one-to-many class="ElementVezbe" />
+    </bag>
   </class>
 
 </hibernate-mapping>

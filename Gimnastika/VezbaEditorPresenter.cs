@@ -5,6 +5,10 @@ using Gimnastika.Domain;
 using System.Windows.Forms;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
+using NHibernate;
+using NHibernate.Context;
+using Gimnastika.Data;
+using Gimnastika.UI;
 
 namespace Gimnastika
 {
@@ -13,9 +17,12 @@ namespace Gimnastika
         private IVezbaEditorView view;
         private Nullable<int> vezbaId;
         private Vezba vezba;
-        private Vezba original;
         private bool modified;
         private bool existsInDatabase;
+
+        Sprava oldSprava;
+        string oldNaziv;
+        Gimnasticar oldGimnasticar;
 
         public bool Modified
         {
@@ -30,48 +37,66 @@ namespace Gimnastika
 
         public void initialize()
         {
-            if (vezbaId == null)
+            try
             {
-                OsnovniPodaciVezbeForm f = new OsnovniPodaciVezbeForm();
-                if (f.ShowDialog() == DialogResult.OK)
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
-                    vezba = new Vezba();
-                    vezba.Gimnasticar = f.Gimnasticar;
-                    vezba.Sprava = f.Sprava;
-                    vezba.Pravilo = f.Pravilo;
-                    vezba.Naziv = f.Naziv;
+                    CurrentSessionContext.Bind(session);
+                    if (vezbaId == null)
+                    {
+                        OsnovniPodaciVezbeForm f = new OsnovniPodaciVezbeForm();
+                        if (f.ShowDialog() == DialogResult.OK)
+                        {
+                            vezba = new Vezba();
+                            vezba.Gimnasticar = f.Gimnasticar;
+                            vezba.Sprava = f.Sprava;
+                            vezba.Pravilo = f.Pravilo;
+                            vezba.Naziv = f.Naziv;
 
-                    view.Vezba = vezba;
-                    view.updateUI();
+                            view.Vezba = vezba;
+                            view.updateUI();
 
-                    existsInDatabase = false;
-                    modified = false;
-                    view.setCaption(getCaption());
-                    view.Initialized = true;
-                }
-                else
-                {
-                    view.Initialized = false;
+                            existsInDatabase = false;
+                            modified = false;
+                            view.setCaption(getCaption());
+                            view.Initialized = true;
+                        }
+                        else
+                        {
+                            view.Initialized = false;
+                        }
+                    }
+                    else
+                    {
+                        vezba = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindById(vezbaId.Value);
+                        vezba.sortirajElementeByRedBroj();
+                        saveOrigData(vezba);
+                        view.Vezba = vezba;
+                        view.updateUI();
+
+                        existsInDatabase = true;
+                        modified = false;
+                        view.setCaption(getCaption());
+                        if (vezba.Elementi.Count > 0)
+                            view.selectElementCell(1, 0);
+
+                        view.Initialized = true;
+                        // TODO: Treba hvatati database izuzetke i postaviti initalized na false
+                    }
                 }
             }
-            else
+            finally
             {
-                vezba = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindById(vezbaId.Value);
-                original = (Vezba)vezba.Clone(new TypeAsocijacijaPair[] { 
-                    new TypeAsocijacijaPair(typeof(Vezba)), 
-                    new TypeAsocijacijaPair(typeof(ElementVezbe)) });
-                view.Vezba = vezba;
-                view.updateUI();
-
-                existsInDatabase = true;
-                modified = false;
-                view.setCaption(getCaption());
-                if (vezba.Elementi.Count > 0)
-                    view.selectElementCell(1, 0);
-
-                view.Initialized = true;
-                // TODO: Treba hvatati database izuzetke i postaviti initalized na false
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
+        }
+
+        private void saveOrigData(Vezba v)
+        {
+            oldSprava = v.Sprava;
+            oldNaziv = v.Naziv;
+            oldGimnasticar = v.Gimnasticar;
         }
 
         private string getCaption()
@@ -356,78 +381,158 @@ namespace Gimnastika
         {
             try
             {
-                if (!validateVezba())
-                    return false;
-                if (existsInDatabase)
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
-                    DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent(vezba);
-                }
-                else
-                {
-                    DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent(vezba);
-                    existsInDatabase = true;
-                }
-                modified = false;
-                original = (Vezba)vezba.Clone(new TypeAsocijacijaPair[] { 
-                        new TypeAsocijacijaPair(typeof(Vezba)), 
-                        new TypeAsocijacijaPair(typeof(ElementVezbe)) });
-                return true;
-            }
-            catch (DatabaseException)
-            {
-                string message;
-                if (existsInDatabase)
-                {
-                    message = "Neuspesna promena vezbe u bazi.";
-                    //message = string.Format(
-                    //"Neuspesna promena vezbe u bazi. \n{0}", ex.InnerException.Message);
-                }
-                else
-                {
-                    message = "Neuspesan upis nove vezbe u bazu.";
-                    //message = string.Format(
-                    //"Neuspesan upis nove vezbe u bazu. \n{0}", ex.InnerException.Message);
-                }
-                MessageBox.Show(message, "Greska");
-                return false;
-            }
-        }
+                    CurrentSessionContext.Bind(session);
+                    Notification notification = new Notification();
+                    requiredFieldsAndFormatValidation(notification);
+                    if (!notification.IsValid())
+                        throw new BusinessException(notification);
 
-        private bool validateVezba()
-        {
-            try
-            {
-                if (!vezba.validate())
-                    return false;
-                if (existsInDatabase)
-                    DatabaseConstraintsValidator.checkUpdate(vezba, original);
-                else
-                    DatabaseConstraintsValidator.checkInsert(vezba);
-                return true;
+                    if (existsInDatabase)
+                    {
+                        update();
+                    }
+                    else
+                    {
+                        add();
+                        existsInDatabase = true;
+                    }
+                    session.Transaction.Commit();
+                    
+                    modified = false;
+                    saveOrigData(vezba);
+                    return true;
+
+                }
             }
             catch (InvalidPropertyException ex)
             {
-                MessageBox.Show(ex.Message, "Greska");
-                view.setFocus(ex.InvalidProperty);
+                MessageDialogs.showMessage(ex.Message, "Vezba");
                 return false;
             }
-            catch (DatabaseConstraintException ex)
+            catch (BusinessException ex)
             {
-                MessageBox.Show(ex.ValidationErrors[0].Message, "Greska");
-                view.setFocus(ex.ValidationErrors[0].InvalidProperties[0]);
-                return false;
-            }
-            catch (DatabaseException)
-            {
-                string message;
-                if (existsInDatabase)
-                    // TODO: Ovde mozda trebaju drugacije poruke
-                    message = "Neuspesna promena vezbe u bazi.";
+                if (ex.Notification != null)
+                {
+                    NotificationMessage msg = ex.Notification.FirstMessage;
+                    MessageDialogs.showMessage(msg.Message, "Vezba");
+                }
                 else
-                    message = "Neuspesan upis nove vezbe u bazu.";
-                MessageBox.Show(message, "Greska");
+                {
+                    MessageDialogs.showMessage(ex.Message, "Vezba");
+                }
                 return false;
             }
+            catch (InfrastructureException ex)
+            {
+                //discardChanges();
+                MessageDialogs.showMessage(ex.Message, "Vezba");
+                return false;
+            }
+            catch (Exception ex)
+                {
+                //discardChanges();
+                MessageDialogs.showMessage(
+                    Strings.getFullDatabaseAccessExceptionMessage(ex.Message), "Vezba");
+                return false;
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+        }
+
+        private void requiredFieldsAndFormatValidation(Notification notification)
+        {
+            // validate Naziv
+            if (vezba.Naziv.Length == 0)
+            {
+                notification.RegisterMessage(
+                    "Naziv", "Naziv vezbe ne sme da bude prazan.");
+            }
+            if (vezba.Naziv.Length > Vezba.NAZIV_MAX_LENGTH)
+            {
+                notification.RegisterMessage(
+                    "Naziv", "Naziv vezbe moze da sadrzi maksimalno "
+                    + Vezba.NAZIV_MAX_LENGTH + " znakova.");
+            }
+        }
+
+        private void add()
+        {
+            //updateEntityFromUI(entity);
+            validateEntity(vezba);
+            checkBusinessRulesOnAdd(vezba);
+            //if (persistEntity)
+                insertEntity(vezba);
+        }
+
+        private void update()
+        {
+            //updateEntityFromUI(entity);
+            validateEntity(vezba);
+            checkBusinessRulesOnUpdate(vezba);
+            //if (persistEntity)
+                updateEntity(vezba);
+        }
+
+        private void validateEntity(DomainObject entity)
+        {
+            Notification notification = new Notification();
+            entity.validate(notification);
+            if (!notification.IsValid())
+                throw new BusinessException(notification);
+        }
+
+        // TODO: Izgleda da ne radi otvaranje menija desnim klikom misem (dodavanje elementa) kada je vezba prazna
+        
+        private void checkBusinessRulesOnAdd(DomainObject entity)
+        {
+            Vezba v = (Vezba)entity;
+            Notification notification = new Notification();
+
+            VezbaDAO vezbaDAO = DAOFactoryFactory.DAOFactory.GetVezbaDAO();
+            if (vezbaDAO.postojiVezba(v.Sprava, v.Naziv, v.Gimnasticar))
+            {
+                notification.RegisterMessage("Naziv", "Vezba sa datim nazivom i za datu spravu vec postoji " +
+                    "za datog gimnasticara.");
+                throw new BusinessException(notification);
+            }
+        }
+
+        private void checkBusinessRulesOnUpdate(DomainObject entity)
+        {
+            Vezba v = (Vezba)entity;
+            Notification notification = new Notification();
+
+            VezbaDAO vezbaDAO = DAOFactoryFactory.DAOFactory.GetVezbaDAO();
+            bool spravaChanged = (v.Sprava != oldSprava) ? true : false;
+            bool nazivChanged = (v.Naziv != oldNaziv) ? true : false;
+            bool gimnasticarChanged = v.Gimnasticar == null && oldGimnasticar != null
+                || v.Gimnasticar != null && oldGimnasticar == null
+                || v.Gimnasticar != null && oldGimnasticar != null
+                    && v.Gimnasticar.Id != oldGimnasticar.Id;
+            if (nazivChanged || spravaChanged || gimnasticarChanged)
+            {
+                if (vezbaDAO.postojiVezba(v.Sprava, v.Naziv, v.Gimnasticar))
+                {
+                    notification.RegisterMessage("Naziv", "Vezba sa datim nazivom i za datu spravu vec postoji " +
+                        "za datog gimnasticara.");
+                    throw new BusinessException(notification);
+                }
+            }
+        }
+
+        private void insertEntity(DomainObject entity)
+        {
+            DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent((Vezba)entity);
+        }
+
+        private void updateEntity(DomainObject entity)
+        {
+            DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakePersistent((Vezba)entity);
         }
 
         public bool brisiVezbu()
@@ -442,15 +547,51 @@ namespace Gimnastika
                 return true;
             try
             {
-                DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakeTransient(vezba);
-                existsInDatabase = false;
-                modified = false;
-                return true;
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    DAOFactoryFactory.DAOFactory.GetVezbaDAO().MakeTransient(vezba);
+                    existsInDatabase = false;
+                    modified = false;
+                    session.Transaction.Commit();
+                    return true;
+                }
             }
-            catch (DatabaseException ex)
+            catch (InvalidPropertyException ex)
             {
-                MessageBox.Show(ex.Message, "Greska");
+                MessageDialogs.showMessage(ex.Message, "Vezba");
                 return false;
+            }
+            catch (BusinessException ex)
+            {
+                if (ex.Notification != null)
+                {
+                    NotificationMessage msg = ex.Notification.FirstMessage;
+                    MessageDialogs.showMessage(msg.Message, "Vezba");
+                }
+                else
+                {
+                    MessageDialogs.showMessage(ex.Message, "Vezba");
+                }
+                return false;
+            }
+            catch (InfrastructureException ex)
+            {
+                //discardChanges();
+                MessageDialogs.showMessage(ex.Message, "Vezba");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                //discardChanges();
+                MessageDialogs.showMessage(
+                    Strings.getFullDatabaseAccessExceptionMessage(ex.Message), "Vezba");
+                return false;
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
 

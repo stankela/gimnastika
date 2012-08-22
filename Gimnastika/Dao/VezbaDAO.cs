@@ -11,6 +11,6 @@ namespace Gimnastika.Dao
     public interface VezbaDAO : GenericDAO<Vezba, int>
     {
         bool existsVezbaGimnasticar(Gimnasticar g);
-        bool postojiVezba(Sprava sprava, string naziv, Nullable<int> gimId);
+        bool postojiVezba(Sprava sprava, string naziv, Gimnasticar g);
    }
 }

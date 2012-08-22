@@ -7,11 +7,28 @@ namespace Gimnastika.Domain
 {
     public class PocetnaOcenaIzvedbe : DomainObject, IComparable
     {
-        private int minBrojElemenata;
-        private int maxBrojElemenata;
-        private float pocetnaOcena;
+        private readonly int MAX_LIMIT = 999;
 
-        private readonly int MAX_LIMIT = int.MaxValue;
+        private int minBrojElemenata;
+        public virtual int MinBrojElemenata
+        {
+            get { return minBrojElemenata; }
+            set { minBrojElemenata = value; }
+        }
+
+        private int maxBrojElemenata;
+        public virtual int MaxBrojElemenata
+        {
+            get { return maxBrojElemenata; }
+            set { maxBrojElemenata = value; }
+        }
+
+        private float pocetnaOcena;
+        public virtual float PocetnaOcena
+        {
+            get { return pocetnaOcena; }
+            set { pocetnaOcena = value; }
+        }
 
         public PocetnaOcenaIzvedbe()
         {
@@ -57,7 +74,7 @@ namespace Gimnastika.Domain
             return true;
         }
 
-        public bool validate()
+        public virtual bool validate()
         {
             return validate(minBrojElemenata, maxBrojElemenata, pocetnaOcena);
         }
@@ -72,37 +89,19 @@ namespace Gimnastika.Domain
             pocetnaOcena = ocena.pocetnaOcena;
         }
 
-        public int MinBrojElemenata
-        {
-            get { return minBrojElemenata; }
-            set { minBrojElemenata = value; }
-        }
-
-        public int MaxBrojElemenata
-        {
-            get { return maxBrojElemenata; }
-            set { maxBrojElemenata = value; }
-        }
-
-        public float PocetnaOcena
-        {
-            get { return pocetnaOcena; }
-            set { pocetnaOcena = value; }
-        }
-
-        public string OpsegString
+        public virtual string OpsegString
         {
             get
             {
                 if (minBrojElemenata == maxBrojElemenata
-                || maxBrojElemenata == int.MaxValue)
+                || maxBrojElemenata == MAX_LIMIT)
                     return minBrojElemenata.ToString();
                 else
                     return minBrojElemenata + " - " + maxBrojElemenata;
             }
         }
 
-        public string OpsegOcenaString
+        public virtual string OpsegOcenaString
         {
             get
             {
@@ -111,14 +110,14 @@ namespace Gimnastika.Domain
             }
         }
 
-        public bool imaGornjuGranicu()
+        public virtual bool imaGornjuGranicu()
         {
             return maxBrojElemenata != MAX_LIMIT;
         }
 
         #region IComparable Members
 
-        public int CompareTo(object obj)
+        public virtual int CompareTo(object obj)
         {
             if (obj is PocetnaOcenaIzvedbe)
             {
@@ -130,12 +129,36 @@ namespace Gimnastika.Domain
 
         #endregion
 
-        public bool overlaps(PocetnaOcenaIzvedbe ocena)
+        public virtual bool overlaps(PocetnaOcenaIzvedbe ocena)
         {
             return ocena.MinBrojElemenata >= this.minBrojElemenata
                 && ocena.MinBrojElemenata <= this.maxBrojElemenata
             || ocena.MaxBrojElemenata >= this.minBrojElemenata
                 && ocena.MaxBrojElemenata <= this.maxBrojElemenata;
+        }
+
+        // Ova dva metoda su neophodna samo kada asocijaciju od PraviloOceneVezbe ka PocetnaOcenaIzvedbe mapiram kao set.
+        public override bool Equals(object other)
+        {
+            if (object.ReferenceEquals(this, other)) return true;
+            if (!(other is PocetnaOcenaIzvedbe)) return false;
+
+            PocetnaOcenaIzvedbe that = (PocetnaOcenaIzvedbe)other;
+            return this.MinBrojElemenata == that.MinBrojElemenata
+                && this.MaxBrojElemenata == that.MaxBrojElemenata
+                && this.PocetnaOcena == that.PocetnaOcena;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int result = 14;
+                result = 29 * result + MinBrojElemenata.GetHashCode();
+                result = 29 * result + MaxBrojElemenata.GetHashCode();
+                result = 29 * result + PocetnaOcena.GetHashCode();
+                return result;
+            }
         }
     }
 
@@ -154,22 +177,14 @@ namespace Gimnastika.Domain
         public virtual int BrojBodovanihElemenata
         {
             get { return brojBodovanihElemenata; }
-            set
-            {
-                if (validateBrojBodovanihElemenata(value))
-                    brojBodovanihElemenata = value;
-            }
+            set { brojBodovanihElemenata = value; }
         }
 
         private int maxIstaGrupa;
         public virtual int MaxIstaGrupa
         {
             get { return maxIstaGrupa; }
-            set
-            {
-                if (validateMaxIstaGrupa(value))
-                    maxIstaGrupa = value;
-            }
+            set { maxIstaGrupa = value; }
         }
 
         private IList<PocetnaOcenaIzvedbe> pocetneOceneIzvedbe = new List<PocetnaOcenaIzvedbe>();
@@ -248,38 +263,38 @@ namespace Gimnastika.Domain
 
         public override string ToString()
         {
-            return naziv;
+            return Naziv;
         }
 
         public virtual void dodajPocetnuOcenuIzvedbe(PocetnaOcenaIzvedbe ocena)
         {
-            for (int i = 0; i < pocetneOceneIzvedbe.Count; i++)
+            for (int i = 0; i < PocetneOceneIzvedbe.Count; i++)
             {
-                if (pocetneOceneIzvedbe[i].overlaps(ocena))
+                if (PocetneOceneIzvedbe[i].overlaps(ocena))
                     throw new InvalidPropertyException("Opsezi za ocene ne smeju " +
                        "da se preklapaju.", "PocetneOceneIzvedbe");
             }
-            pocetneOceneIzvedbe.Add(ocena);
+            PocetneOceneIzvedbe.Add(ocena);
             sortirajPocetneOceneIzvedbe();
         }
 
         public virtual void ukloniPocetnuOcenuIzvedbe(PocetnaOcenaIzvedbe ocena)
         {
-            pocetneOceneIzvedbe.Remove(ocena);
+            PocetneOceneIzvedbe.Remove(ocena);
         }
 
         private void UkloniPocetneOceneIzvedbe()
         {
-            pocetneOceneIzvedbe.Clear();
+            PocetneOceneIzvedbe.Clear();
         }
 
         public virtual float getPocetnaOcenaIzvedbe(int brojBodovanihElemenata)
         {
-            for (int i = 0; i < pocetneOceneIzvedbe.Count; i++)
+            for (int i = 0; i < PocetneOceneIzvedbe.Count; i++)
             {
-                if (brojBodovanihElemenata >= pocetneOceneIzvedbe[i].MinBrojElemenata
-                && brojBodovanihElemenata <= pocetneOceneIzvedbe[i].MaxBrojElemenata)
-                    return pocetneOceneIzvedbe[i].PocetnaOcena;
+                if (brojBodovanihElemenata >= PocetneOceneIzvedbe[i].MinBrojElemenata
+                && brojBodovanihElemenata <= PocetneOceneIzvedbe[i].MaxBrojElemenata)
+                    return PocetneOceneIzvedbe[i].PocetnaOcena;
             }
             return 0;
         }
@@ -302,19 +317,19 @@ namespace Gimnastika.Domain
             if (!validateMaxIstaGrupa(maxIstaGrupa))
                 return false;
 
-            foreach (PocetnaOcenaIzvedbe pocOcena in pocetneOceneIzvedbe)
+            foreach (PocetnaOcenaIzvedbe pocOcena in PocetneOceneIzvedbe)
             {
                 if (!pocOcena.validate())
                     return false;
             }
 
             sortirajPocetneOceneIzvedbe();
-            for (int i = 0; i < pocetneOceneIzvedbe.Count - 1; i++)
+            for (int i = 0; i < PocetneOceneIzvedbe.Count - 1; i++)
             {
-                for (int j = i + 1; j < pocetneOceneIzvedbe.Count; j++)
+                for (int j = i + 1; j < PocetneOceneIzvedbe.Count; j++)
                 {
-                    if (pocetneOceneIzvedbe[j].MinBrojElemenata <=
-                        pocetneOceneIzvedbe[i].MaxBrojElemenata)
+                    if (PocetneOceneIzvedbe[j].MinBrojElemenata <=
+                        PocetneOceneIzvedbe[i].MaxBrojElemenata)
                         throw new InvalidPropertyException("Opsezi za ocene ne smeju " +
                             "da se preklapaju.", "PocetneOceneIzvedbe");
                 }

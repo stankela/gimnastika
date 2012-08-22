@@ -68,8 +68,10 @@
     <Compile Include="ColumnAdder.cs" />
     <Compile Include="Dao\DAOFactory.cs" />
     <Compile Include="Dao\DAOFactoryFactory.cs" />
+    <Compile Include="Dao\ElementVezbeDAO.cs" />
     <Compile Include="Dao\GenericDAO.cs" />
     <Compile Include="Dao\GimnasticarDAO.cs" />
+    <Compile Include="Dao\NHibernate\ElementVezbeDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\GenericNHibernateDAO.cs" />
     <Compile Include="Dao\NHibernate\GimnasticarDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\NHibernateDAOFactory.cs" />
@@ -163,6 +165,12 @@
     <Compile Include="Misc\Strings.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Opcije.cs" />
+    <Compile Include="OtvoriVezbuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OtvoriVezbuForm.designer.cs">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="PictureBoxPlus.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -247,12 +255,6 @@
     <Compile Include="OsnovniPodaciVezbeForm.Designer.cs">
       <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="OtvoriVezbuForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OtvoriVezbuForm.designer.cs">
-      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="OpcijeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -309,10 +311,6 @@
       <SubType>Designer</SubType>
       <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OtvoriVezbuForm.resx">
-      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="OpcijeForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>OpcijeForm.cs</DependentUpon>
@@ -353,10 +351,6 @@
     <EmbeddedResource Include="UI\GimnasticariForm.resx">
       <DependentUpon>GimnasticariForm.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VezaForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>VezaForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VezbaEditorBaseForm.resx">
       <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
@@ -425,6 +419,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\NHibernate\Mappings\Gimnasticar.hbm.xml" />
+    <EmbeddedResource Include="OtvoriVezbuForm.resx">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\EntityDetailForm.resx">
       <DependentUpon>EntityDetailForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -436,6 +434,11 @@
     <EmbeddedResource Include="Data\NHibernate\Mappings\Vezba.hbm.xml" />
     <Content Include="DataBaseUpdate.txt" />
     <EmbeddedResource Include="Data\NHibernate\Mappings\PraviloOceneVezbe.hbm.xml" />
+    <EmbeddedResource Include="Data\NHibernate\Mappings\ElementVezbe.hbm.xml" />
+    <EmbeddedResource Include="VezaForm.resx">
+      <DependentUpon>VezaForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Content Include="hibernate.cfg.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -102,6 +102,20 @@ namespace Gimnastika.Domain
             }
         }
 
+        public virtual void sortirajElementeByRedBroj()
+        {
+            List<ElementVezbe> copy = new List<ElementVezbe>(Elementi);
+            copy.Sort();
+
+            Elementi.Clear();
+            //while (Elementi.Count > 0)
+              //  Elementi.RemoveAt(0);
+
+            foreach (ElementVezbe e in copy)
+            {
+                Elementi.Add(e);
+            }
+        }
 
         public Vezba()
         {
@@ -411,11 +425,10 @@ namespace Gimnastika.Domain
                 && getBrojBodujeSe(elem.Grupa) < Pravilo.MaxIstaGrupa;
         }
 
-        public virtual bool validate()
+        public override void validate(Notification notification)
         {
             // TODO: Vidi zasto sam ovo stavio.
-            return true;
-            throw new Exception("The method or operation is not implemented.");
+            //throw new Exception("The method or operation is not implemented.");
         }
     }
 }

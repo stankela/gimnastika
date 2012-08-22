@@ -1,3 +1,15 @@
-ALTER TABLE ElementiVezbe ADD COLUMN ElementVezbeId int
-update ElementiVezbe set ElementVezbeId = VezbaId*100 + RedBroj
+ALTER TABLE ElementiVezbe ADD COLUMN ElementVezbeId int  // ne moze odmah NOT NULL
+UPDATE ElementiVezbe SET ElementVezbeId = VezbaId*100 + RedBroj
+ALTER TABLE ElementiVezbe ALTER COLUMN ElementVezbeId int NOT NULL
+ALTER TABLE ElementiVezbe ADD CONSTRAINT PK_ElementiVezbe PRIMARY KEY (ElementVezbeId)
 
+// bez ove izmene (menjanje VezbaId iz NOT NULL u NULL) nece da brise elemente iz vezbe (NHibernate najpre postavi VezbaId
+// na NULL pa tek onda izbrise element)
+ALTER TABLE ElementiVezbe ALTER COLUMN VezbaId int NULL 
+
+// ovo radim zato sto klasu PocetneOceneIzvedbe planiram da mapiram kao komponentnu, a za to je neophodno da sva polja
+// budu NOT NULL. Mada moguce je da je ovo neophodno samo kada se asocijacija prema komponenti mapira kao set, a kada
+// se mapira kao bag ne treba.
+update PocetneOceneIzvedbe set MaxBrojElemenata = 999 where MaxBrojElemenata is null
+
+// Promenio samo i fajl CreateAllObjects.sqlce tako da je kolona MaxBrojElemenata sada NOT NULL,
