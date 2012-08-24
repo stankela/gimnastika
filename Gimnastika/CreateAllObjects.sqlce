@@ -76,17 +76,18 @@ CREATE TABLE Video (
 );
 
 CREATE TABLE Slike (
-	Id int IDENTITY(1,1) PRIMARY  KEY,
+	Id int IDENTITY(1,1) PRIMARY KEY,
 	RelFileNamePath nvarchar(256) NOT NULL,
 	Podrazumevana bit NOT NULL,
 	ElementId int,
 	ProcenatRedukcije tinyint
 );
 
-CREATE TABLE Grupe (
+CREATE TABLE NaziviGrupa (
+    NazivGrupeId int IDENTITY(1,1) PRIMARY KEY,
 	Grupa tinyint NOT NULL,
 	Sprava tinyint NOT NULL,
 	Naziv nvarchar(128),
 	EngNaziv nvarchar(128),
-	PRIMARY KEY (Grupa, Sprava)
+	UNIQUE (Grupa, Sprava)
 );

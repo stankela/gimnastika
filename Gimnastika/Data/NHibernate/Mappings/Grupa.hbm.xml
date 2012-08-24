@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Gimnastika"
+                   namespace="Gimnastika.Domain">
+
+  <class name="Grupa" table="NaziviGrupa" lazy="true">
+    <id name="Id" column="NazivGrupeId">
+      <generator class="identity" />
+    </id>
+    <property name="Sprava" column="Sprava" />
+    <property name="GrupaElemenata" column="Grupa" />
+    <property name="Naziv" column="Naziv" />
+    <property name="EngNaziv" column="EngNaziv" />
+  </class>
+
+</hibernate-mapping>

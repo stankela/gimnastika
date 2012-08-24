@@ -152,7 +152,7 @@ namespace Gimnastika
         ContextMenu contextMenuZoom;
         bool fitWidth = false;
 
-        List<Grupa> grupe;
+        IList<Grupa> grupe;
 
         ElementTableItem clickedItem;
         ElementTableItem changingElement;
@@ -192,7 +192,7 @@ namespace Gimnastika
             try
             {
                 elementi = new BindingListView<Element>(new ElementDAO().getAll());
-                grupe = new GrupaDAO().getAll();
+                grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
 
                 float elementSizeMM = Math.Min(210 / 4, 297 / 4);
                 float tezineHeaderHeightMM = 7;

@@ -9,48 +9,69 @@ using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
 using Gimnastika.Exceptions;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     public partial class GrupeForm : Form
     {
         private Sprava sprava;
         private GrupaElementa grupaElementa;
-        bool editMode;
         Grupa grupa;
-        Grupa original;
+        private bool editMode;
+        IList<Grupa> grupe;
+        private bool closedByOK;
+        private bool closedByCancel;
 
-        List<Grupa> grupe;
+        string oldNaziv;
+        string oldEngNaziv;
 
         public GrupeForm()
         {
             InitializeComponent();
-            initUI();
-
-            grupe = new GrupaDAO().getAll();
-            showGrupaDetails();
-
+            initialize();
         }
 
-        private void showGrupaDetails()
+        private void initialize()
+        {
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
+                    initUI();
+                    showEntityDetails();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+        }
+
+        private void showEntityDetails()
         {
             grupa = findGrupa(sprava, grupaElementa);
             if (grupa == null)
             {
                 grupa = new Grupa(sprava, grupaElementa, "", "");
-                original = null;
                 editMode = false;
             }
             else
             {
                 editMode = true;
-                original = (Grupa)grupa.Copy();
+                oldNaziv = grupa.Naziv;
+                oldEngNaziv = grupa.EngNaziv;
             }
             txtNaziv.Text = grupa.Naziv;
             txtEngNaziv.Text = grupa.EngNaziv;
         }
 
-        private bool updateGrupaFromUI()
+        private bool updateEntityFromUI()
         {
             try
             {
@@ -58,34 +79,58 @@ namespace Gimnastika
                 grupa.EngNaziv = txtEngNaziv.Text.Trim();
                 if (!grupa.validate())
                     return false;
+
+                GrupaDAO grupaDAO = DAOFactoryFactory.DAOFactory.GetGrupaDAO();
                 if (editMode)
                 {
-                    if (grupa.Naziv != original.Naziv || grupa.EngNaziv != original.EngNaziv)
-                        new GrupaDAO().update(grupa, null);
+                    if (grupa.Naziv != oldNaziv || grupa.EngNaziv != oldEngNaziv)
+                    {
+                        grupaDAO.MakePersistent(grupa);
+                        NHibernateHelper.GetCurrentSession().Transaction.Commit();
+                        oldNaziv = grupa.Naziv;
+                        oldEngNaziv = grupa.EngNaziv;
+                    }
                 }
                 else
                 {
-                    new GrupaDAO().insert(grupa);
+                    grupaDAO.MakePersistent(grupa);
+                    NHibernateHelper.GetCurrentSession().Transaction.Commit();
                     grupe.Add(grupa);
                     editMode = true;
-                    original = (Grupa)grupa.Copy();
+                    oldNaziv = grupa.Naziv;
+                    oldEngNaziv = grupa.EngNaziv;
                 }
                 return true;
             }
             catch (InvalidPropertyException ex)
             {
-                MessageBox.Show(ex.Message, "Greska");
+                MessageDialogs.showMessage(ex.Message, this.Text);
                 setFocus(ex.InvalidProperty);
                 return false;
             }
-            catch (DatabaseException)
+            catch (BusinessException ex)
             {
-                string message;
-                if (editMode)
-                    message = "Neuspesna promena grupe u bazi.";
+                if (ex.Notification != null)
+                {
+                    NotificationMessage msg = ex.Notification.FirstMessage;
+                    MessageDialogs.showMessage(msg.Message, this.Text);
+                    setFocus(msg.FieldName);
+                }
                 else
-                    message = "Neuspesan upis nove grupe u bazu.";
-                MessageBox.Show(message, "Greska");
+                {
+                    MessageDialogs.showMessage(ex.Message, this.Text);
+                }
+                return false;
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageDialogs.showMessage(
+                    Strings.getFullDatabaseAccessExceptionMessage(ex.Message), this.Text);
                 return false;
             }
         }
@@ -138,10 +183,38 @@ namespace Gimnastika
 
         void cmbGrupa_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (updateGrupaFromUI())
+            onSelectedEntityChanged();
+        }
+
+        private void onSelectedEntityChanged()
+        {
+            bool updated = false;
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    updated = updateEntityFromUI();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+
+            if (updated)
             {
                 grupaElementa = selectedGrupa();
-                showGrupaDetails();
+                sprava = selectedSprava();
+                if (sprava == Sprava.Parter && selectedGrupa() == GrupaElementa.V)
+                {
+                    grupaElementa = GrupaElementa.I;
+                    disableComboHandlers();
+                    setGrupaCombo(grupaElementa);
+                    enableComboHandlers();
+                }
+                showEntityDetails();
             }
             else
             {
@@ -176,25 +249,7 @@ namespace Gimnastika
 
         void cmbSprava_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (updateGrupaFromUI())
-            {
-                sprava = selectedSprava();
-                if (sprava == Sprava.Parter && selectedGrupa() == GrupaElementa.V)
-                {
-                    grupaElementa = GrupaElementa.I;
-                    disableComboHandlers();
-                    setGrupaCombo(grupaElementa);
-                    enableComboHandlers();
-                }
-                showGrupaDetails();
-            }
-            else
-            {
-                disableComboHandlers();
-                setSpravaCombo(sprava);
-                setGrupaCombo(grupaElementa);
-                enableComboHandlers();
-            }
+            onSelectedEntityChanged();
         }
 
         private void cmbGrupa_DropDown(object sender, EventArgs e)
@@ -225,8 +280,54 @@ namespace Gimnastika
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if (!updateGrupaFromUI())
+            bool updated = false;
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    updated = updateEntityFromUI();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+
+            if (!updated)
                 DialogResult = DialogResult.None;
+            else
+                closedByOK = true;
+        }
+
+        private void GrupeForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (closedByOK || closedByCancel)
+                return;
+            
+            // zatvoreno pomocu X
+            bool updated = false;
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    updated = updateEntityFromUI();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+
+            e.Cancel = !updated;
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            closedByCancel = true;
         }
     }
 }

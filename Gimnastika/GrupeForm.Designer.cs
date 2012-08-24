@@ -1,4 +1,4 @@
-namespace Gimnastika
+namespace Gimnastika.UI
 {
     partial class GrupeForm
     {
@@ -129,6 +129,7 @@ namespace Gimnastika
             this.btnCancel.TabIndex = 9;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // GrupeForm
             // 
@@ -154,6 +155,7 @@ namespace Gimnastika
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GrupeForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GrupeForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -6,7 +6,7 @@ using System.Data.SqlServerCe;
 
 using Gimnastika.Domain;
 
-namespace Gimnastika.Dao
+namespace Gimnastika.Dao.Old
 {
     public class GrupaDAO : DAO<Grupa>
     {

@@ -38,5 +38,7 @@ namespace Gimnastika.Dao
         /// Affects every managed instance in the current persistence context!
         /// </summary>
         void Clear();
+
+        void Attach(T item, bool update);
     }
 }

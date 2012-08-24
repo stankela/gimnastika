@@ -147,6 +147,24 @@ namespace Gimnastika.Dao.NHibernate
             }
         }
 
+        public void Attach(T item, bool update)
+        {
+            if (item == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (update)
+                Session.Update(item);
+            else
+                Session.Lock(item, LockMode.None);
+            
+            // TODO: See what is this doing
+            /*if (!this.IsInTransaction)
+            {
+                Session.Flush();
+            }*/
+        }
+
         #endregion
 
         /// <summary>

@@ -13,3 +13,16 @@ ALTER TABLE ElementiVezbe ALTER COLUMN VezbaId int NULL
 update PocetneOceneIzvedbe set MaxBrojElemenata = 999 where MaxBrojElemenata is null
 
 // Promenio samo i fajl CreateAllObjects.sqlce tako da je kolona MaxBrojElemenata sada NOT NULL,
+
+CREATE TABLE NaziviGrupa (
+    NazivGrupeId int IDENTITY(1,1) PRIMARY KEY,
+	Grupa tinyint NOT NULL,
+	Sprava tinyint NOT NULL,
+	Naziv nvarchar(128),
+	EngNaziv nvarchar(128),
+	UNIQUE (Grupa, Sprava)
+);
+
+INSERT INTO NaziviGrupa(Grupa, Sprava, Naziv, EngNaziv) SELECT Grupa, Sprava, Naziv, EngNaziv FROM Grupe
+
+DROP TABLE Grupe

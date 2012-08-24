@@ -10,28 +10,36 @@ namespace Gimnastika.Domain
         public static int NAZIV_MAX_LENGTH = 128;
 
         Sprava sprava;
-        public Sprava Sprava
+        public virtual Sprava Sprava
         {
             get { return sprava; }
             set { sprava = value; }
         }
+
         GrupaElementa grupa;
-        public GrupaElementa GrupaElemenata
+        public virtual GrupaElementa GrupaElemenata
         {
             get { return grupa; }
             set { grupa = value; }
         }
+
         string naziv;
-        public string Naziv
+        public virtual string Naziv
         {
             get { return naziv; }
             set { naziv = value; }
         }
+
         string engNaziv;
-        public string EngNaziv
+        public virtual string EngNaziv
         {
             get { return engNaziv; }
             set { engNaziv = value; }
+        }
+
+        public Grupa()
+        {
+
         }
 
         public Grupa(Sprava sprava, GrupaElementa grupa, string naziv, string engNaziv)
@@ -42,7 +50,7 @@ namespace Gimnastika.Domain
             this.engNaziv = engNaziv;
         }
 
-        public bool validate()
+        public virtual bool validate()
         {
             if (naziv.Length > Grupa.NAZIV_MAX_LENGTH)
             {

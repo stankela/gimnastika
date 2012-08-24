@@ -35,6 +35,11 @@ namespace Gimnastika
                 MessageBox.Show("Nekorektna vrednost za vezu.", "Greska");
                 DialogResult = DialogResult.None;
             }
+            catch (InvalidPropertyException)
+            {
+                MessageBox.Show("Nekorektna vrednost za vezu.", "Greska");
+                DialogResult = DialogResult.None;
+            }
         }
     }
 }
