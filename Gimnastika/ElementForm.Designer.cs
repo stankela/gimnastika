@@ -29,6 +29,8 @@ namespace Gimnastika
         private void InitializeComponent()
         {
             this.groupBoxElement = new System.Windows.Forms.GroupBox();
+            this.txtNazivGim = new System.Windows.Forms.TextBox();
+            this.lblNazivGim = new System.Windows.Forms.Label();
             this.btnSlike = new System.Windows.Forms.Button();
             this.pictureBoxSlika = new Gimnastika.PictureBoxPlus();
             this.txtEngNaziv = new System.Windows.Forms.TextBox();
@@ -56,8 +58,6 @@ namespace Gimnastika
             this.txtNaziv = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.lblNazivGim = new System.Windows.Forms.Label();
-            this.txtNazivGim = new System.Windows.Forms.TextBox();
             this.groupBoxElement.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSlika)).BeginInit();
             this.SuspendLayout();
@@ -96,6 +96,22 @@ namespace Gimnastika
             this.groupBoxElement.Size = new System.Drawing.Size(552, 489);
             this.groupBoxElement.TabIndex = 1;
             this.groupBoxElement.TabStop = false;
+            // 
+            // txtNazivGim
+            // 
+            this.txtNazivGim.Location = new System.Drawing.Point(177, 109);
+            this.txtNazivGim.Name = "txtNazivGim";
+            this.txtNazivGim.Size = new System.Drawing.Size(149, 20);
+            this.txtNazivGim.TabIndex = 7;
+            // 
+            // lblNazivGim
+            // 
+            this.lblNazivGim.AutoSize = true;
+            this.lblNazivGim.Location = new System.Drawing.Point(174, 93);
+            this.lblNazivGim.Name = "lblNazivGim";
+            this.lblNazivGim.Size = new System.Drawing.Size(111, 13);
+            this.lblNazivGim.TabIndex = 6;
+            this.lblNazivGim.Text = "Naziv po gimnasticaru";
             // 
             // btnSlike
             // 
@@ -351,22 +367,6 @@ namespace Gimnastika
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // lblNazivGim
-            // 
-            this.lblNazivGim.AutoSize = true;
-            this.lblNazivGim.Location = new System.Drawing.Point(174, 93);
-            this.lblNazivGim.Name = "lblNazivGim";
-            this.lblNazivGim.Size = new System.Drawing.Size(111, 13);
-            this.lblNazivGim.TabIndex = 6;
-            this.lblNazivGim.Text = "Naziv po gimnasticaru";
-            // 
-            // txtNazivGim
-            // 
-            this.txtNazivGim.Location = new System.Drawing.Point(177, 109);
-            this.txtNazivGim.Name = "txtNazivGim";
-            this.txtNazivGim.Size = new System.Drawing.Size(149, 20);
-            this.txtNazivGim.TabIndex = 7;
-            // 
             // ElementForm
             // 
             this.AcceptButton = this.btnOK;
@@ -386,6 +386,7 @@ namespace Gimnastika
             this.Text = "ElementForm";
             this.Shown += new System.EventHandler(this.ElementForm_Shown);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ElementForm_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ElementForm_FormClosing);
             this.groupBoxElement.ResumeLayout(false);
             this.groupBoxElement.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSlika)).EndInit();

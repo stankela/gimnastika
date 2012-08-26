@@ -88,7 +88,7 @@ namespace Gimnastika.Dao.NHibernate
                     "{0} \n\n{1}", Strings.DatabaseAccessExceptionMessage, ex.Message);
                 throw new InfrastructureException(message, ex);
             }
-    }
+        }
 
         public T MakePersistent(T entity)
         {

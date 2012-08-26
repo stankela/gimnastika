@@ -10,15 +10,16 @@ using Gimnastika.Exceptions;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
 using System.IO;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
+using Gimnastika.UI;
 
 namespace Gimnastika
 {
     public partial class ElementForm : Form
     {
-        private Element element = null;
-        private Element original;
-        private bool editMode;
-
+        private Element element;
         public Element Element
         {
             get { return element; }
@@ -26,48 +27,118 @@ namespace Gimnastika
 
         private bool varijanta;
         private Element parent;
-        bool persist;
 
-        public ElementForm(Element element, Sprava sprava, bool varijanta,
-            Element parent, bool persist)
+        private bool editMode;
+        bool persistEntity;
+        private bool closedByOK;
+        private bool closedByCancel;
+
+        private Sprava oldSprava;
+        private string oldNaziv;
+        private string oldEngleskiNaziv;
+        private string oldNazivPoGimnasticaru;
+        private GrupaElementa oldGrupa;
+        private TezinaElementa oldTezina;
+        private short oldBroj;
+        private byte oldPodBroj;
+
+        public ElementForm(Nullable<int> elementId, Sprava sprava,
+            Element parent, bool persistEntity)
         {
             InitializeComponent();
 
-            this.varijanta = varijanta;
-            this.parent = parent; // potrebno za varijante
-            initUI();
-
-            this.element = element;
-            this.persist = persist;
-
-            if (element == null)
+            try
             {
-                editMode = false;
-                this.element = new Element();
-                if (sprava != Sprava.Undefined)
-                    setComboSprava(sprava);
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    this.parent = parent;
+                    this.varijanta = parent != null;
+                    initUI();
+                    this.persistEntity = persistEntity;
+
+                    if (elementId == null)
+                    {
+                        editMode = false;
+                        element = createNewEntity();
+                        if (sprava != Sprava.Undefined)
+                            setComboSprava(sprava);
+                    }
+                    else
+                    {
+                        editMode = true;
+                        element = getEntityById(elementId.Value);
+                        saveOldData(element);
+                        updateUIFromEntity(element);
+                    }
+                    initHandlers();
+                }
             }
-            else
+            finally
             {
-                editMode = true;
-
-                // TODO: Umesto objekta, konstruktoru dostavljati ID elementa
-                // (ovo uraditi i u ostalim dijalozima). Ovo prvenstveno treba uraditi
-                // zbog operacije restore koja se poziva kada se iz dijaloga izadje
-                // pritiskom na Cancel. Ako objekat original nije pravilno kloniran,
-                // tj. ako je izostavljen neki tip u pozivu naredbe Clone (a ovo se
-                // lako moze desiti ako je klasa u medjuvremenu modifikovana
-                // tako sto su dodate nove asocijacije), moze se
-                // desiti da objekat koji restore generise nije jednak originalnom
-
-                original = (Element)element.Clone(new TypeAsocijacijaPair[] { 
-                        new TypeAsocijacijaPair(typeof(Video)), 
-                        new TypeAsocijacijaPair(typeof(Slika)), 
-                        new TypeAsocijacijaPair(typeof(Element), "varijante"),
-                        new TypeAsocijacijaPair(typeof(Element), "parent") });
-                updateUIFromEntity(element);
+                // TODO: Dodaj sve catch blokove koji fale (i ovde i u programu za Clanove)
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
-            initHandlers();
+        }
+
+        // konstruktor za situaciju kada se menja varijanta koja jos nije snimljena u bazu
+        public ElementForm(Element varijanta)
+        {
+            InitializeComponent();
+
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    parent = varijanta.Parent;
+                    this.varijanta = true;
+                    initUI();
+                    persistEntity = false;
+
+                    editMode = true;
+                    element = varijanta;
+                    saveOldData(element);
+                    updateUIFromEntity(element);
+                    initHandlers();
+                }
+            }
+            finally
+            {
+                // TODO: Dodaj sve catch blokove koji fale (i ovde i u programu za Clanove)
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+        }
+
+        private Element createNewEntity()
+        {
+            return new Element();
+        }
+
+        private Element getEntityById(int id)
+        {
+            Element result = DAOFactoryFactory.DAOFactory.GetElementDAO().FindById(id);
+            foreach (Element e in result.Varijante)
+            {
+                NHibernateUtil.Initialize(e.Slike);
+                NHibernateUtil.Initialize(e.VideoKlipovi);
+                NHibernateUtil.Initialize(e.Varijante);
+            }
+            return result;
+        }
+
+        private void saveOldData(Element element)
+        {
+            oldSprava = element.Sprava;
+            oldNaziv = element.Naziv;
+            oldEngleskiNaziv = element.EngleskiNaziv;
+            oldNazivPoGimnasticaru = element.NazivPoGimnasticaru;
+            oldGrupa = element.Grupa;
+            oldTezina = element.Tezina;
+            oldBroj = element.Broj;
+            oldPodBroj = element.PodBroj;
         }
 
         private void initHandlers()
@@ -78,72 +149,92 @@ namespace Gimnastika
             chbTablicniElement.CheckedChanged += new EventHandler(chbTablicniElement_CheckedChanged);
         }
 
-        public ElementForm(Element element, Sprava sprava, GrupaElementa grupa,
+        public ElementForm(Nullable<int> elementId, Sprava sprava, GrupaElementa grupa,
             int broj, TezinaElementa tezina)
         {
             InitializeComponent();
 
-            this.varijanta = false;
-            this.parent = null;
-            initUI();
-
-            this.element = element;
-            this.persist = true;
-
-            if (element == null)
+            try
             {
-                editMode = false;
-                this.element = new Element();
-                setComboSprava(sprava);
-                setComboGrupa(grupa);
-                txtBroj.Text = broj.ToString();
-                setComboTezina(tezina);
-                
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    this.varijanta = false;
+                    this.parent = null;
+                    initUI();
+                    this.persistEntity = true;
+
+                    if (elementId == null)
+                    {
+                        editMode = false;
+                        element = createNewEntity();
+                        setComboSprava(sprava);
+                        setComboGrupa(grupa);
+                        txtBroj.Text = broj.ToString();
+                        setComboTezina(tezina);
+
+                    }
+                    else
+                    {
+                        editMode = true;
+                        element = getEntityById(elementId.Value);
+                        saveOldData(element);
+                        updateUIFromEntity(element);
+                    }
+
+                    // TODO: Za rezim rada gde su comboi onemoguceni, probaj da ih zamenis
+                    // sa read-only text boxevima.
+                    cmbSprava.Enabled = false;
+                    chbTablicniElement.Enabled = false;
+                    cmbGrupa.Enabled = false;
+                    cmbTezina.Enabled = false;
+                    txtBroj.Enabled = false;
+
+                    initHandlers();
+                }
             }
-            else
+            finally
             {
-                editMode = true;
-
-                original = (Element)element.Clone(new TypeAsocijacijaPair[] { 
-                        new TypeAsocijacijaPair(typeof(Video)), 
-                        new TypeAsocijacijaPair(typeof(Slika)), 
-                        new TypeAsocijacijaPair(typeof(Element), "varijante"),
-                        new TypeAsocijacijaPair(typeof(Element), "parent") });
-                updateUIFromEntity(element);
+                // TODO: Dodaj sve catch blokove koji fale (i ovde i u programu za Clanove)
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
-
-            // TODO: Za rezim rada gde su comboi onemoguceni, probaj da ih zamenis
-            // sa read-only text boxevima.
-            cmbSprava.Enabled = false;
-            chbTablicniElement.Enabled = false;
-            cmbGrupa.Enabled = false;
-            cmbTezina.Enabled = false;
-            txtBroj.Enabled = false;
-
-            initHandlers();
         }
 
         public ElementForm(Sprava sprava, GrupaElementa grupa)
         {
             InitializeComponent();
 
-            this.varijanta = false;
-            this.parent = null;
-            initUI();
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    this.varijanta = false;
+                    this.parent = null;
+                    initUI();
 
-            this.element = null;
-            this.persist = true;
+                    this.element = null;
+                    this.persistEntity = true;
 
-            editMode = false;
-            this.element = new Element();
-            setComboSprava(sprava);
-            setComboGrupa(grupa);
+                    editMode = false;
+                    this.element = new Element();
+                    setComboSprava(sprava);
+                    setComboGrupa(grupa);
 
-            cmbSprava.Enabled = false;
-            chbTablicniElement.Enabled = false;
-            cmbGrupa.Enabled = false;
+                    cmbSprava.Enabled = false;
+                    chbTablicniElement.Enabled = false;
+                    cmbGrupa.Enabled = false;
 
-            initHandlers();
+                    initHandlers();
+                }
+            }
+            finally
+            {
+                // TODO: Dodaj sve catch blokove koji fale (i ovde i u programu za Clanove)
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void ElementForm_Shown(object sender, EventArgs e)
@@ -194,17 +285,17 @@ namespace Gimnastika
         {
             if (selectedSprava() == Sprava.Parter && selectedGrupa() == GrupaElementa.V)
                 setComboGrupa(GrupaElementa.I);
-            element.Sprava = selectedSprava();
+            element.changeSprava(selectedSprava());
         }
 
         void cmbGrupa_SelectedIndexChanged(object sender, EventArgs e)
         {
-            element.Grupa = selectedGrupa();
+            element.changeGrupa(selectedGrupa());
         }
 
         void cmbTezina_SelectedIndexChanged(object sender, EventArgs e)
         {
-            element.Tezina = selectedTezina();
+            element.changeTezina(selectedTezina());
         }
 
         // inicijalizuj UI za novi element (koji moze da bude i nova varijanta)
@@ -316,61 +407,84 @@ namespace Gimnastika
         {
             try
             {
-                if (!updateElementFromUI())
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
-                    this.DialogResult = DialogResult.None;
-                    return;
-                }
-                if (persist)
-                {
+                    CurrentSessionContext.Bind(session);
+                    Notification notification = new Notification();
+                    requiredFieldsAndFormatValidation(notification);
+                    if (!notification.IsValid())
+                        throw new BusinessException(notification);
+
                     if (editMode)
-                        new ElementDAO().update(element, original);
+                        update();
                     else
-                        new ElementDAO().insert(element);
+                        add();
+                    if (persistEntity)
+                        session.Transaction.Commit();
+                    closedByOK = true;
                 }
             }
-            catch (DatabaseException)
+            catch (InvalidPropertyException ex)
             {
-                string message;
-                if (editMode)
+                MessageDialogs.showMessage(ex.Message, this.Text);
+                setFocus(ex.InvalidProperty);
+                this.DialogResult = DialogResult.None;
+            }
+            catch (BusinessException ex)
+            {
+                if (ex.Notification != null)
                 {
-                    message = "Neuspesna promena elementa u bazi.";
-                    //message = string.Format(
-                    //"Neuspesna promena elementa u bazi. \n{0}", ex.InnerException.Message);
+                    NotificationMessage msg = ex.Notification.FirstMessage;
+                    MessageDialogs.showMessage(msg.Message, this.Text);
+                    setFocus(msg.FieldName);
                 }
                 else
                 {
-                    message = "Neuspesan upis novog elementa u bazu.";
-                    //message = string.Format(
-                    //"Neuspesan upis novog elementa u bazu. \n{0}", ex.InnerException.Message);
+                    MessageDialogs.showMessage(ex.Message, this.Text);
                 }
-                MessageBox.Show(message, "Greska");
-                discardChanges();
-                this.DialogResult = DialogResult.Cancel;
-                return;
+                this.DialogResult = DialogResult.None;
             }
-            catch (Exception)
+            catch (InfrastructureException ex)
             {
-                discardChanges();
-                throw;
+                //discardChanges();
+                MessageDialogs.showMessage(ex.Message, this.Text);
+                this.DialogResult = DialogResult.Cancel;
+                closedByCancel = true;
             }
+            catch (Exception ex)
+            {
+                //discardChanges();
+                MessageDialogs.showMessage(
+                    Strings.getFullDatabaseAccessExceptionMessage(ex.Message), this.Text);
+                this.DialogResult = DialogResult.Cancel;
+                closedByCancel = true;
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
+  
         }
 
         private void discardChanges()
         {
-            if (editMode)
-                element.restore(original);
+
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
             discardChanges();
+            closedByCancel = true;
         }
 
         private void setFocus(string propertyName)
         {
             switch (propertyName)
             {
+                case "Sprava":
+                    cmbSprava.Focus();
+                    break;
                 case "Naziv":
                     txtNaziv.Focus();
                     break;
@@ -379,6 +493,12 @@ namespace Gimnastika
                     break;
                 case "NazivPoGimnasticaru":
                     txtNazivGim.Focus();
+                    break;
+                case "Grupa":
+                    cmbGrupa.Focus();
+                    break;
+                case "Tezina":
+                    cmbTezina.Focus();
                     break;
                 case "Broj":
                     txtBroj.Focus();
@@ -392,113 +512,179 @@ namespace Gimnastika
             }
         }
 
-        private bool validateDialog()
-        {
-            return requiredFieldsValidation();
-        }
-
-        private bool requiredFieldsValidation()
+        private void requiredFieldsAndFormatValidation(Notification notification)
         {
             if (cmbSprava.SelectedIndex == -1)
             {
-                MessageBox.Show("Izaberite spravu.", "Greska");
-                cmbSprava.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "Sprava", "Izaberite spravu.");
             }
             if (txtNaziv.Text.Trim() == String.Empty
             && txtEngNaziv.Text.Trim() == String.Empty
             && txtNazivGim.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite naziv elementa.", "Greska");
-                txtNaziv.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "Naziv", "Unesite naziv elementa.");
             }
             if (chbTablicniElement.Checked)
             {
                 if (cmbGrupa.SelectedIndex == -1)
                 {
-                    MessageBox.Show("Izaberite grupu.", "Greska");
-                    cmbGrupa.Focus();
-                    return false;
+                    notification.RegisterMessage(
+                        "Grupa", "Izaberite grupu.");
                 }
                 if (cmbTezina.SelectedIndex == -1)
                 {
-                    MessageBox.Show("Izaberite tezinu.", "Greska");
-                    cmbTezina.Focus();
-                    return false;
+                    notification.RegisterMessage(
+                       "Tezina", "Izaberite tezinu.");
                 }
                 if (txtBroj.Text.Trim() == String.Empty)
                 {
-                    MessageBox.Show("Unesite broj elementa.", "Greska");
-                    txtBroj.Focus();
-                    return false;
+                    notification.RegisterMessage(
+                       "Broj", "Unesite broj elementa.");
                 }
-            }
-            return true;
-        }
-
-        private bool updateElementFromUI()
-        {
-            if (!validateDialog())
-                return false;
-            try
-            {
-                doUpdateElementFromUI();
-                if (!element.validate())
-                    return false;
-                if (persist)
-                {
-                    if (editMode)
-                        DatabaseConstraintsValidator.checkUpdate(element, original);
-                    else
-                        DatabaseConstraintsValidator.checkInsert(element);
-                }
-                return true;
-            }
-            catch (InvalidPropertyException ex)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                setFocus(ex.InvalidProperty);
-                return false;
-            }
-            catch (DatabaseConstraintException ex)
-            {
-                MessageBox.Show(ex.ValidationErrors[0].Message, "Greska");
-                setFocus(ex.ValidationErrors[0].InvalidProperties[0]);
-                return false;
-            }
-            catch (DatabaseException)
-            {
-                string message;
-                if (editMode)
-                    message = "Neuspesna promena elementa u bazi.";
-                else
-                    message = "Neuspesan upis novog elementa u bazu.";
-                MessageBox.Show(message, "Greska");
-                return false;
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
 
-        private void doUpdateElementFromUI()
+        private void add()
         {
-            element.Naziv = txtNaziv.Text.Trim();
-            element.EngleskiNaziv = txtEngNaziv.Text.Trim();
-            element.NazivPoGimnasticaru = txtNazivGim.Text.Trim();
-            element.Sprava = selectedSprava();
+            updateEntityFromUI(element);
+            validateEntity(element);
+            checkBusinessRulesOnAdd(element);
+            if (persistEntity)
+                insertEntity(element);
+        }
+
+        private void updateEntityFromUI(Element e)
+        {
+            e.Naziv = txtNaziv.Text.Trim();
+            e.EngleskiNaziv = txtEngNaziv.Text.Trim();
+            e.NazivPoGimnasticaru = txtNazivGim.Text.Trim();
+            e.changeSprava(selectedSprava());
             if (!chbTablicniElement.Checked)
             {
-                element.ponistiPolozajUTablici();
+                e.ponistiPolozajUTablici();
             }
             else
             {
                 setPolozajUTabliciFromUI();
             }
             if (!editMode && varijanta)
-                element.Parent = parent;
+                parent.dodajVarijantu(e);
+        }
+
+        private void validateEntity(Element e)
+        {
+            Notification notification = new Notification();
+            e.validate(notification);
+            if (!notification.IsValid())
+                throw new BusinessException(notification);
+        }
+
+        private void checkBusinessRulesOnAdd(Element e)
+        {
+            // TODO: Nek bude moguce da dva tablicna elementa iste sprave, grupe,
+            // tezine i broja, a razlicitog podbroja imaju isti naziv (promeni ovo i
+            // kod checkUpdate)
+
+            Notification notification = new Notification();
+            ElementDAO elementDAO = DAOFactoryFactory.DAOFactory.GetElementDAO();
+        
+            if (e.Naziv != ""
+            && elementDAO.postojiElement(e.Sprava, e.Naziv))
+            {
+                notification.RegisterMessage("Naziv", "Element sa datim nazivom vec postoji.");
+                throw new BusinessException(notification);
+            }
+            if (e.EngleskiNaziv != ""
+            && elementDAO.postojiElementEng(e.Sprava, e.EngleskiNaziv))
+            {
+                notification.RegisterMessage("EngleskiNaziv", "Element sa datim engleskim nazivom vec postoji.");
+                throw new BusinessException(notification);
+            }
+            if (e.NazivPoGimnasticaru != ""
+            && elementDAO.postojiElementGim(e.Sprava, e.NazivPoGimnasticaru))
+            {
+                notification.RegisterMessage("NazivPoGimnasticaru", "Element sa datim nazivom po gimnasticaru vec postoji.");
+                throw new BusinessException(notification);
+            }
+            if (e.IsTablicniElement)
+            {
+                if (elementDAO.postojiElement(e.Sprava, e.Grupa,
+                    e.Broj, e.PodBroj))
+                {
+                    notification.RegisterMessage("Grupa", "Vec postoji element sa datim brojem za datu spravu i grupu.");
+                    throw new BusinessException(notification);
+                }
+            }
+        }
+
+        private void insertEntity(Element e)
+        {
+            DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(e);
+        }
+
+        private void update()
+        {
+            updateEntityFromUI(element);
+            validateEntity(element);
+            checkBusinessRulesOnUpdate(element);
+            if (persistEntity)
+                updateEntity(element);
+        }
+
+        private void checkBusinessRulesOnUpdate(Element e)
+        {
+            Notification notification = new Notification();
+            ElementDAO elementDAO = DAOFactoryFactory.DAOFactory.GetElementDAO();
+
+            if (e.Sprava != oldSprava || e.Naziv != oldNaziv)
+            {
+                if (e.Naziv != "" && elementDAO.postojiElement(e.Sprava, e.Naziv))
+                {
+                    notification.RegisterMessage("Naziv", "Element sa datim nazivom vec postoji.");
+                    throw new BusinessException(notification);
+                }
+            }
+            if (e.Sprava != oldSprava || e.EngleskiNaziv != oldEngleskiNaziv)
+            {
+                if (e.EngleskiNaziv != ""
+                && elementDAO.postojiElementEng(e.Sprava, e.EngleskiNaziv))
+                {
+                    notification.RegisterMessage("EngleskiNaziv", "Element sa datim engleskim nazivom vec postoji.");
+                    throw new BusinessException(notification);
+                }
+            }
+            if (e.Sprava != oldSprava || e.NazivPoGimnasticaru != oldNazivPoGimnasticaru)
+            {
+                if (e.NazivPoGimnasticaru != ""
+                && elementDAO.postojiElementGim(e.Sprava, e.NazivPoGimnasticaru))
+                {
+                    notification.RegisterMessage("NazivPoGimnasticaru", "Element sa datim nazivom po gimnasticaru vec postoji.");
+                    throw new BusinessException(notification);
+                }
+            }
+            if (e.IsTablicniElement)
+            {
+                if (e.Sprava != oldSprava
+                || e.Grupa != oldGrupa
+                || e.Tezina != oldTezina
+                || e.Broj != oldBroj
+                || e.PodBroj != oldPodBroj)
+                {
+                    if (elementDAO.postojiElement(e.Sprava, e.Grupa,
+                        e.Broj, e.PodBroj))
+                    {
+                        notification.RegisterMessage("Grupa", "Vec postoji element sa datim brojem za datu spravu i grupu.");
+                        throw new BusinessException(notification);
+                    }
+                }
+            }
+        }
+
+        private void updateEntity(Element e)
+        {
+            DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(e);
         }
 
         private void setPolozajUTabliciFromUI()
@@ -532,14 +718,6 @@ namespace Gimnastika
                 cmbTezina.Enabled = false;
                 txtBroj.Enabled = false;
                 element.ponistiPolozajUTablici();
-            }
-        }
-
-        private void ElementForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                discardChanges();
             }
         }
 
@@ -674,7 +852,7 @@ namespace Gimnastika
                 }
             }
             ElementForm form = new ElementForm(null, selectedSprava(),
-                true, element, false);
+                element, false);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 element.dodajVarijantu(form.Element);
@@ -699,28 +877,27 @@ namespace Gimnastika
 
         private void btnPromeniVarijantu_Click(object sender, EventArgs e)
         {
-            if (lstVarijante.SelectedItem != null)
+            if (lstVarijante.SelectedItem == null)
+                return;
+
+            if (!chbTablicniElement.Checked)
+                element.ponistiPolozajUTablici();
+            else
             {
-                if (!chbTablicniElement.Checked)
-                    element.ponistiPolozajUTablici();
+                if (Element.isValidBrojPodBroj(txtBroj.Text))
+                    setPolozajUTabliciFromUI();
                 else
                 {
-                    if (Element.isValidBrojPodBroj(txtBroj.Text))
-                        setPolozajUTabliciFromUI();
-                    else
-                    {
-                        MessageBox.Show("Unesite ispravan broj.", "Greska");
-                        txtBroj.Focus();
-                        return;
-                    }
+                    MessageBox.Show("Unesite ispravan broj.", "Greska");
+                    txtBroj.Focus();
+                    return;
                 }
-                Element varijanta = (Element)lstVarijante.SelectedItem;
-                ElementForm form = new ElementForm(varijanta, varijanta.Sprava, true,
-                    element, false);
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    updateVarijanteUI();
-                }
+            }
+            Element varijanta = (Element)lstVarijante.SelectedItem;
+            ElementForm form = new ElementForm(varijanta);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                updateVarijanteUI();
             }
         }
 
@@ -758,5 +935,38 @@ namespace Gimnastika
                 updateSlikeUI();
             }
         }
+
+        private bool isDirty()
+        {
+            // TODO
+            return true;
+        }
+
+        private void ElementForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!closedByOK && !closedByCancel)
+            {
+                // zatvoreno pomocu X
+                if (isDirty())
+                {
+                    bool canClose = MessageBox.Show(
+                        "Izmene koje ste uneli nece biti sacuvane?", "Klub",
+                        MessageBoxButtons.OKCancel, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button2) ==
+                        DialogResult.OK;
+                    e.Cancel = !canClose;
+                }
+            }
+        }
+
+        private void ElementForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //if (e.CloseReason == CloseReason.UserClosing)
+            if (!closedByOK && !closedByCancel)
+            {
+                discardChanges();
+            }
+        }
+
     }
 }

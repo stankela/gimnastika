@@ -68,10 +68,12 @@
     <Compile Include="ColumnAdder.cs" />
     <Compile Include="Dao\DAOFactory.cs" />
     <Compile Include="Dao\DAOFactoryFactory.cs" />
+    <Compile Include="Dao\ElementDAO.cs" />
     <Compile Include="Dao\ElementVezbeDAO.cs" />
     <Compile Include="Dao\GenericDAO.cs" />
     <Compile Include="Dao\GimnasticarDAO.cs" />
     <Compile Include="Dao\GrupaDAO.cs" />
+    <Compile Include="Dao\NHibernate\ElementDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\ElementVezbeDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\GenericNHibernateDAO.cs" />
     <Compile Include="Dao\NHibernate\GimnasticarDAOImpl.cs" />
@@ -442,6 +444,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Data\NHibernate\Mappings\Grupa.hbm.xml" />
+    <EmbeddedResource Include="Data\NHibernate\Mappings\Element.hbm.xml" />
+    <EmbeddedResource Include="Data\NHibernate\Mappings\Slika.hbm.xml" />
+    <EmbeddedResource Include="Data\NHibernate\Mappings\Video.hbm.xml" />
     <Content Include="hibernate.cfg.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

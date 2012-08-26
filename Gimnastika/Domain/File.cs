@@ -10,13 +10,13 @@ namespace Gimnastika.Domain
         public static readonly int FILE_NAME_MAX_LENGTH = 256;
 
         private string relFileNamePath;
-        public string RelFileNamePath
+        public virtual string RelFileNamePath
         {
             get { return relFileNamePath; }
             set { relFileNamePath = value; }
         }
 
-        public string FileName
+        public virtual string FileName
         {
             get { return Path.GetFileName(relFileNamePath); }
         }

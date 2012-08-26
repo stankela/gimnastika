@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Gimnastika"
+                   namespace="Gimnastika.Domain">
+
+  <class name="Element" table="Elementi" lazy="true">
+    <id name="Id" column="Id">
+      <generator class="identity" />
+    </id>
+    <property name="Sprava" column="Sprava" type="Sprava" not-null="true"/>
+    <property name="Naziv" column="Naziv" not-null="true"/>
+    <property name="EngleskiNaziv" column="EngleskiNaziv"/>
+    <property name="NazivPoGimnasticaru" column="NazivPoGimnasticaru" />
+    <property name="IsTablicniElement" column="TablicniElement" not-null="true"/>
+    <property name="Grupa" column="Grupa"/>
+    <property name="Tezina" column="Tezina"/>
+    <property name="Broj" column="Broj"/>
+    <property name="PodBroj" column="PodBroj"/>
+    <many-to-one name="Parent" class="Element" column="ParentId" cascade="none"/>
+    <set name="Varijante" cascade="all-delete-orphan" inverse="true">
+      <key column="ParentId"/>
+      <one-to-many class="Element"/>
+    </set>
+    <set name="Slike" lazy="true" cascade="all-delete-orphan" >
+      <key column="ElementId" />
+      <one-to-many class="Slika" />
+    </set>
+    <set name="VideoKlipovi" lazy="true" cascade="all-delete-orphan" >
+      <key column="ElementId" />
+      <one-to-many class="Video" />
+    </set>
+  </class>
+
+</hibernate-mapping>

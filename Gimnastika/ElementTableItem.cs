@@ -34,6 +34,7 @@ namespace Gimnastika
         public Element Element
         {
             get { return element; }
+            set { element = value; }
         }
 
         private PointF location;

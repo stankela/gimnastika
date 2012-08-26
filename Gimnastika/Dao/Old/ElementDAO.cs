@@ -5,8 +5,9 @@ using System.Data.SqlServerCe;
 using System.Data;
 using Gimnastika.Domain;
 using Gimnastika.Exceptions;
+using Iesi.Collections.Generic;
 
-namespace Gimnastika.Dao
+namespace Gimnastika.Dao.Old
 {
     public class ElementDAO : DAO<Element>
     {
@@ -164,7 +165,7 @@ namespace Gimnastika.Dao
             }
         }
 
-        private bool findElement(List<Element> elementi, Element e)
+        private bool findElement(IList<Element> elementi, Element e)
         {
             if (elementi.IndexOf(e) != -1)
                 return true;
@@ -175,6 +176,11 @@ namespace Gimnastika.Dao
                     return true;
             }
             return false;
+        }
+
+        private bool findElement(ISet<Element> elementi, Element e)
+        {
+            throw new Exception("This method is defined only to make code compile.");
         }
 
         private void insertVarijanta(Element e, SqlCeConnection conn, SqlCeTransaction tr)
@@ -472,7 +478,7 @@ namespace Gimnastika.Dao
             Nullable<int> parentId = null;
             if (!Convert.IsDBNull(rdr["ParentId"]))
                 parentId = (int)rdr["ParentId"];
-            element.ParentId = parentId;    // lazy load
+            //element.ParentId = parentId;    // lazy load
             element.Id = (int)rdr["Id"];
             return element;
         }

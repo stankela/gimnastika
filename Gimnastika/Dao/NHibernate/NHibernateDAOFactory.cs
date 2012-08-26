@@ -28,5 +28,10 @@ namespace Gimnastika.Dao.NHibernate
         {
             return new GrupaDAOImpl();
         }
+
+        public override ElementDAO GetElementDAO()
+        {
+            return new ElementDAOImpl();
+        }
     }
 }

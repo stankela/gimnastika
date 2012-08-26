@@ -122,7 +122,6 @@ namespace Gimnastika
             this.Controls.Add(this.panel1);
             this.Name = "ElementsForm";
             this.Text = "ElementsForm";
-            this.Shown += new System.EventHandler(this.ElementsForm_Shown);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 

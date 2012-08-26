@@ -7,6 +7,9 @@ using System.Text;
 using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
 namespace Gimnastika
 {
@@ -40,10 +43,24 @@ namespace Gimnastika
             InitializeComponent();
             initUI();
 
-            elementi = new BindingListView<Element>(new ElementDAO().getAll());
-            elementBrowserControl1.Elementi = elementi;
-            if (sprava != Sprava.Undefined)
-                elementBrowserControl1.restrictSprava(sprava);
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+
+                    elementi = new BindingListView<Element>(
+                        new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll()));
+                    elementBrowserControl1.Elementi = elementi;
+                    if (sprava != Sprava.Undefined)
+                        elementBrowserControl1.restrictSprava(sprava);
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void initUI()
@@ -171,7 +188,7 @@ namespace Gimnastika
         private void btnDodaj_Click(object sender, EventArgs e)
         {
             ElementForm form = new ElementForm(null, elementBrowserControl1.selectedSprava(),
-                false, null, true);
+                null, true);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 if (form.Element.Sprava == elementBrowserControl1.selectedSprava())

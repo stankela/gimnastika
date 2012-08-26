@@ -109,7 +109,13 @@ namespace Gimnastika
                     if (element.getPodrazumevanaSlika() != null)
                         selectSlika(element.getPodrazumevanaSlika());
                     else
-                        selectSlika(element.Slike[0]);
+                    {
+                        //selectSlika(element.Slike[0]);
+                        IEnumerator<Slika> enumerator = element.Slike.GetEnumerator();
+                        enumerator.Reset();
+                        enumerator.MoveNext();
+                        selectSlika(enumerator.Current);
+                    }
                 }
                 else
                 {
@@ -143,7 +149,17 @@ namespace Gimnastika
                         // (ili se pritisne spacebar)
             if (lstSlike.SelectedIndex != -1)
             {
-                Slika slika = element.Slike[lstSlike.SelectedIndex];
+                //Slika slika = element.Slike[lstSlike.SelectedIndex];
+
+                IEnumerator<Slika> enumerator = element.Slike.GetEnumerator();
+                enumerator.Reset();
+                enumerator.MoveNext();
+                int index = lstSlike.SelectedIndex;
+                while (index-- > 0)
+                    enumerator.MoveNext();
+                Slika slika = enumerator.Current;
+
+
                 pictureBoxSlika.Image = slika.Image;
                 chbPodrazumevana.Checked = slika.Podrazumevana;
             }

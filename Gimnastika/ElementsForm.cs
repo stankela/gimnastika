@@ -8,26 +8,36 @@ using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
 namespace Gimnastika
 {
     public partial class ElementsForm : Form
     {
         private BindingListView<Element> elementi = null;
-        DatabaseException ex = null;
 
         public ElementsForm()
         {
             InitializeComponent();
             initUI();
+
             try
             {
-                elementi = new BindingListView<Element>(new ElementDAO().getAll());
-                elementBrowserControl1.Elementi = elementi;
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+
+                    elementi = new BindingListView<Element>(
+                        new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll()));
+                    elementBrowserControl1.Elementi = elementi;
+                }
             }
-            catch (DatabaseException ex)
+            finally
             {
-                this.ex = ex;
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
 
@@ -87,26 +97,16 @@ namespace Gimnastika
             elementBrowserControl1.gridViewElementi.Columns.Add(column);
         }
 
-        private void ElementsForm_Shown(object sender, EventArgs e)
-        {
-            if (elementi == null)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                Close();
-            }
-        }
-
         private void btnDodaj_Click(object sender, EventArgs e)
         {
             ElementForm form = new ElementForm(null, elementBrowserControl1.selectedSprava(),
-                false, null, true);
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                elementi.Add(form.Element);
-                //refreshGrid();
-                
-                elementBrowserControl1.selektuj(elementi.Count - 1);
-            }
+                null, true);
+            if (form.ShowDialog() != DialogResult.OK)
+                return;
+
+            elementi.Add(form.Element);
+            //refreshGrid();
+            elementBrowserControl1.selektuj(elementi.Count - 1);
         }
 
         private void refreshGrid()
@@ -119,38 +119,49 @@ namespace Gimnastika
 
         private void btnPromeni_Click(object sender, EventArgs e)
         {
-            if (elementBrowserControl1.gridViewElementi.Rows.Count > 0)
+            if (elementBrowserControl1.gridViewElementi.Rows.Count == 0)
+                return;
+
+            Element element = elementi[elementBrowserControl1.gridViewElementi.CurrentRow.Index];
+            ElementForm form = new ElementForm(element.Id, element.Sprava,
+                element.Parent, true);
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                Element element = elementi[elementBrowserControl1.gridViewElementi.CurrentRow.Index];
-                ElementForm form = new ElementForm(element, element.Sprava,
-                    element.isVarijanta(), element.Parent, true);
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    refreshGrid();
-                }
+                elementi[elementBrowserControl1.gridViewElementi.CurrentRow.Index] = form.Element;
+                refreshGrid();
             }
         }
 
         private void btnBrisi_Click(object sender, EventArgs e)
         {
-            if (elementBrowserControl1.gridViewElementi.Rows.Count > 0)
+            if (elementBrowserControl1.gridViewElementi.Rows.Count == 0)
+                return;
+
+            Element element = elementi[elementBrowserControl1.gridViewElementi.CurrentRow.Index];
+            if (MessageBox.Show("Da li zelite da izbrisete element '" +
+                element.ToString() + "' ?", "Potvrda", MessageBoxButtons.OKCancel,
+                MessageBoxIcon.None, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             {
-                Element element = elementi[elementBrowserControl1.gridViewElementi.CurrentRow.Index];
-                if (MessageBox.Show("Da li zelite da izbrisete element '" +
-                    element.ToString() + "' ?", "Potvrda", MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.None, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+                return;
+            }
+            
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
-                    try
-                    {
-                        new ElementDAO().delete(element);
-                        elementi.RemoveAt(elementBrowserControl1.gridViewElementi.CurrentRow.Index);
-          //              refreshGrid();
-                    }
-                    catch (Gimnastika.Exceptions.DatabaseException ex)
-                    {
-                        MessageBox.Show(ex.Message, "Greska");
-                    }
+                    CurrentSessionContext.Bind(session);
+
+                    DAOFactoryFactory.DAOFactory.GetElementDAO().MakeTransient(element);
+                    session.Transaction.Commit();
+
+                    elementi.RemoveAt(elementBrowserControl1.gridViewElementi.CurrentRow.Index);
+                    //              refreshGrid();
                 }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
 

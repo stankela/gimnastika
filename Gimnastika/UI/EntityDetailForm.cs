@@ -54,6 +54,7 @@ namespace Gimnastika.UI
             }
             finally
             {
+                // TODO: Dodaj sve catch blokove koji fale (i ovde i u programu za Clanove)
                 CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
@@ -132,7 +133,8 @@ namespace Gimnastika.UI
                         update();
                     else
                         add();
-                    session.Transaction.Commit();
+                    if (persistEntity)
+                        session.Transaction.Commit();
                     closedByOK = true;
                 }
             }

@@ -10,14 +10,27 @@ namespace Gimnastika.Domain
     public class Slika : File
     {
         private bool podrazumevana = false;
-        public bool Podrazumevana
+        public virtual bool Podrazumevana
         {
             get { return podrazumevana; }
             set { podrazumevana = value; }
         }
 
+        private byte procenatRedukcije = 100;
+        public virtual byte ProcenatRedukcije
+        {
+            get { return procenatRedukcije; }
+            set
+            {
+                if (value >= 50 && value <= 100)
+                    procenatRedukcije = value;
+                else
+                    throw new ArgumentException();
+            }
+        }
+
         private Image image = null;
-        public Image Image
+        public virtual Image Image
         {
             get 
             {
@@ -59,19 +72,6 @@ namespace Gimnastika.Domain
             catch (FileNotFoundException)
             {
                 return null;
-            }
-        }
-
-        private byte procenatRedukcije = 100;
-        public byte ProcenatRedukcije
-        {
-            get { return procenatRedukcije; }
-            set 
-            {
-                if (value >= 50 && value <= 100)
-                    procenatRedukcije = value;
-                else
-                    throw new ArgumentException();
             }
         }
 

@@ -21,7 +21,7 @@ namespace Gimnastika.Domain
         
         }
 
-        public void play()
+        public virtual void play()
         {
             if (Opcije.Instance.PlayerFileName == ""
             || !System.IO.File.Exists(Opcije.Instance.PlayerFileName)

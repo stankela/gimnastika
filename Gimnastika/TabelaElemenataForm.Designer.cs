@@ -315,7 +315,6 @@ namespace Gimnastika
             this.Controls.Add(this.panel1);
             this.Name = "TabelaElemenataForm";
             this.Text = "TabelaElemenataForm";
-            this.Load += new System.EventHandler(this.TabelaElemenataForm_Load);
             this.Shown += new System.EventHandler(this.TabelaElemenataForm_Shown);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TabelaElemenataForm_FormClosed);
             this.panel1.ResumeLayout(false);

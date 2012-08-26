@@ -10,6 +10,9 @@ using Gimnastika.Domain;
 using Gimnastika.Dao;
 using Gimnastika.Exceptions;
 using Gimnastika.Win32;
+using NHibernate.Context;
+using Gimnastika.Data;
+using NHibernate;
 
 namespace Gimnastika
 {
@@ -159,8 +162,6 @@ namespace Gimnastika
         ElementTableItem clipboard;
         TabelaElemenataFormRezimRada rezimRada;
 
-        DatabaseException ex = null;
-
         public enum TabelaElemenataFormRezimRada
         { 
             Edit, 
@@ -191,49 +192,54 @@ namespace Gimnastika
 
             try
             {
-                elementi = new BindingListView<Element>(new ElementDAO().getAll());
-                grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
-
-                float elementSizeMM = Math.Min(210 / 4, 297 / 4);
-                float tezineHeaderHeightMM = 7;
-                float grupaHeaderHeightMM = 5;
-
-                Graphics g = CreateGraphics();
-                elementSizePxl = (Size)Point.Round(
-                    mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
-                tezineHeaderHeightPxl = Point.Round(
-                    mmToPixel(g, new PointF(0, tezineHeaderHeightMM))).Y;
-                grupaHeaderHeightPxl = Point.Round(
-                    mmToPixel(g, new PointF(0, grupaHeaderHeightMM))).Y;
-                g.Dispose();
-
-                panelHeader.Height = tezineHeaderHeightPxl + grupaHeaderHeightPxl + 1;
-
-                this.rezimRada = rezimRada;
-                if (rezimRada == TabelaElemenataFormRezimRada.Select)
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
-                    setSpravaCombo(sprava);
-                    cmbSprava.Enabled = false;
-                }
-                else
-                {
-                    btnOK.Enabled = false;
-                    btnOK.Visible = false;
-                }
+                    CurrentSessionContext.Bind(session);
+                    elementi = new BindingListView<Element>(
+                        new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll()));
+                    grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
 
-                cmbSprava.SelectedIndexChanged += cmbSprava_SelectedIndexChanged;
-                cmbGrupa.SelectedIndexChanged += cmbGrupa_SelectedIndexChanged;
+                    float elementSizeMM = Math.Min(210 / 4, 297 / 4);
+                    float tezineHeaderHeightMM = 7;
+                    float grupaHeaderHeightMM = 5;
 
-                disableTrackBar();
-                promeniGrupu();
-                zumiraj(100);
-                panelTabela.MouseWheel += new MouseEventHandler(panelTabela_MouseWheel);
+                    Graphics g = CreateGraphics();
+                    elementSizePxl = (Size)Point.Round(
+                        mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
+                    tezineHeaderHeightPxl = Point.Round(
+                        mmToPixel(g, new PointF(0, tezineHeaderHeightMM))).Y;
+                    grupaHeaderHeightPxl = Point.Round(
+                        mmToPixel(g, new PointF(0, grupaHeaderHeightMM))).Y;
+                    g.Dispose();
+
+                    panelHeader.Height = tezineHeaderHeightPxl + grupaHeaderHeightPxl + 1;
+
+                    this.rezimRada = rezimRada;
+                    if (rezimRada == TabelaElemenataFormRezimRada.Select)
+                    {
+                        setSpravaCombo(sprava);
+                        cmbSprava.Enabled = false;
+                    }
+                    else
+                    {
+                        btnOK.Enabled = false;
+                        btnOK.Visible = false;
+                    }
+
+                    cmbSprava.SelectedIndexChanged += cmbSprava_SelectedIndexChanged;
+                    cmbGrupa.SelectedIndexChanged += cmbGrupa_SelectedIndexChanged;
+
+                    disableTrackBar();
+                    promeniGrupu();
+                    zumiraj(100);
+                    panelTabela.MouseWheel += new MouseEventHandler(panelTabela_MouseWheel);
+                }
             }
-            catch (DatabaseException ex)
+            finally
             {
-                this.ex = ex;
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
-
         }
 
         void panelTabela_MouseWheel(object sender, MouseEventArgs e)
@@ -252,18 +258,6 @@ namespace Gimnastika
             result.X = mm.X * g.DpiX / 25.4f;
             result.Y = mm.Y * g.DpiY / 25.4f;
             return result;
-        }
-
-        private void TabelaElemenataForm_Load(object sender, EventArgs e)
-        {
-            // Ova provera nije mogla da bude u handleru za event Shown zato sto je
-            // tada vec generisan event Paint, i nakon sto se zavrsi obrada eventa
-            // Shown pozvao bi se handler za event Paint gde bi se generisao izuzetak.
-            if (elementi == null)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                Close();
-            }
         }
 
         private void TabelaElemenataForm_Shown(object sender, EventArgs e)
@@ -950,10 +944,12 @@ namespace Gimnastika
 
             clearClipboard();
             Element element = clickedItem.Element;
-            ElementForm form = new ElementForm(element, element.Sprava, element.Grupa,
+            ElementForm form = new ElementForm(element.Id, element.Sprava, element.Grupa,
                 element.Broj, element.Tezina);
             if (form.ShowDialog() == DialogResult.OK)
             {
+                elementi[elementi.IndexOf(element)] = form.Element;
+                clickedItem.Element = form.Element;
                 panelTabela.Invalidate();
                 panelTabela.Focus();
             }
@@ -972,14 +968,28 @@ namespace Gimnastika
 
         private void disableTrackBar()
         {
-            if (changingElement != null)
-            { 
-                // snimi promenu velicine
-                new ElementDAO().update(changingElement.Element, changingElement.Element);
+            if (changingElement == null)
+                return;
+
+            // snimi promenu velicine
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(changingElement.Element);
+                    session.Transaction.Commit();
+                    
+                    lblVelicinaSlike.Enabled = false;
+                    trackBar1.Enabled = false;
+                    changingElement = null;
+                }
             }
-            lblVelicinaSlike.Enabled = false;
-            trackBar1.Enabled = false;
-            changingElement = null;
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void enableTrackBar()
@@ -1038,24 +1048,33 @@ namespace Gimnastika
             Element element = clickedItem.Element;
             if (MessageBox.Show("Da li zelite da izbrisete element '" +
                 element.ToString() + "' ?", "Potvrda", MessageBoxButtons.OKCancel,
-                MessageBoxIcon.None, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+                MessageBoxIcon.None, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             {
-                try
+                return;
+            }
+            
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
                 {
+                    CurrentSessionContext.Bind(session);
+                    
                     int broj = element.Broj;
-                    new ElementDAO().delete(element);
+                    DAOFactoryFactory.DAOFactory.GetElementDAO().MakeTransient(element);
+                    session.Transaction.Commit();
 
                     elementi.Remove(element);
-//                    filterAndSortElements();
+                    //  filterAndSortElements();
                     createItem(broj, null);
 
                     panelTabela.Invalidate();
                     panelTabela.Focus();
                 }
-                catch (DatabaseException ex)
-                {
-                    MessageBox.Show(ex.Message, "Greska");
-                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
 
@@ -1179,19 +1198,33 @@ namespace Gimnastika
             {
                 // TODO: Proveri da li moze nekako bez originala
 
-                Element element = from.Element;
-                Element original = (Element)element.Clone(new TypeAsocijacijaPair[] { 
-                        new TypeAsocijacijaPair(typeof(Video)), 
-                        new TypeAsocijacijaPair(typeof(Slika)), 
-                        new TypeAsocijacijaPair(typeof(Element), "varijante"),
-                        new TypeAsocijacijaPair(typeof(Element), "parent") });
-                element.promeniGrupuBroj(to.Grupa, to.Broj);
-                new ElementDAO().update(element, original);
+                try
+                {
+                    using (ISession session = NHibernateHelper.OpenSession())
+                    using (session.BeginTransaction())
+                    {
+                        CurrentSessionContext.Bind(session);
 
-                filterAndSortElements();
-                createItem(element.Broj, element);
-                if (from.Grupa == selectedGrupa())
-                    createItem(from.Broj, null);
+                        Element element = from.Element;
+                        Element original = (Element)element.Clone(new TypeAsocijacijaPair[] { 
+                            new TypeAsocijacijaPair(typeof(Video)), 
+                            new TypeAsocijacijaPair(typeof(Slika)), 
+                            new TypeAsocijacijaPair(typeof(Element), "varijante"),
+                            new TypeAsocijacijaPair(typeof(Element), "parent") });
+                        element.promeniGrupuBroj(to.Grupa, to.Broj);
+                        DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(element);
+                        session.Transaction.Commit();
+
+                        filterAndSortElements();
+                        createItem(element.Broj, element);
+                        if (from.Grupa == selectedGrupa())
+                            createItem(from.Broj, null);
+                    }
+                }
+                finally
+                {
+                    CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+                }
             }
         }
 

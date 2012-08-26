@@ -7,6 +7,7 @@ using System.Data.SqlServerCe;
 using System.Data;
 using System.ComponentModel;
 using Gimnastika.Dao;
+using Iesi.Collections.Generic;
 
 namespace Gimnastika.Domain
 {
@@ -45,28 +46,6 @@ namespace Gimnastika.Domain
 
     public class Element : DomainObject
     {
-        private string naziv;
-        private string engleskiNaziv;
-        private string nazivPoGimnasticaru;
-        private Sprava sprava;
-        private bool isTablicniElement;
-        private GrupaElementa grupa;
-        private TezinaElementa tezina;
-        private short broj;
-        private byte podBroj;
-        private GrupaBrojClass grupaBroj;
-        private List<Video> videoKlipovi = new List<Video>();
-        private List<Slika> slike = new List<Slika>();
-        private List<Element> varijante = null; // lazy load
-        private Element parent; // lazy load
-
-        private Nullable<int> parentId = null; // for lazy load
-        public Nullable<int> ParentId
-        {
-            get { return parentId; }
-            set { parentId = value; }
-        }
-
         public static readonly int NAZIV_MAX_LENGTH = 128;
         public static readonly int NAZIV_GIM_MAX_LENGTH = 64;
         private static readonly char brojDelimiter = ',';
@@ -75,6 +54,107 @@ namespace Gimnastika.Domain
         public static readonly float[] VrednostTezine = new float[8] {
             0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f
         };
+
+        private string naziv;
+        public virtual string Naziv
+        {
+            get { return naziv; }
+            set { naziv = value.Trim(); }
+        }
+
+        private string engleskiNaziv;
+        public virtual string EngleskiNaziv
+        {
+            get { return engleskiNaziv; }
+            set { engleskiNaziv = value.Trim(); }
+        }
+
+        private string nazivPoGimnasticaru;
+        public virtual string NazivPoGimnasticaru
+        {
+            get { return nazivPoGimnasticaru; }
+            set { nazivPoGimnasticaru = value.Trim(); }
+        }
+
+        private Sprava sprava;
+        public virtual Sprava Sprava
+        {
+            get { return sprava; }
+            private set { sprava = value; }
+        }
+
+        private bool isTablicniElement;
+        public virtual bool IsTablicniElement
+        {
+            get { return isTablicniElement; }
+            set { isTablicniElement = value; }
+        }
+
+        private GrupaElementa grupa;
+        public virtual GrupaElementa Grupa
+        {
+            get { return grupa; }
+            private set { grupa = value; }
+        }
+
+        private TezinaElementa tezina;
+        public virtual TezinaElementa Tezina
+        {
+            get { return tezina; }
+            private set { tezina = value; }
+        }
+
+        private short broj;
+        public virtual short Broj
+        {
+            get { return broj; }
+            private set { broj = value; }
+        }
+
+        private byte podBroj;
+        public virtual byte PodBroj
+        {
+            get { return podBroj; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new InvalidPropertyException("Podbroj ne sme da bude negativan.", "PodBroj");
+                }
+                podBroj = value;
+            }
+        }
+
+        private Element parent;
+        public virtual Element Parent
+        {
+            get { return parent; }
+            private set { parent = value; }  // Metodi dodajVarijantu i ukloniVarijantu kontrolisu dvosmernu asocijaciju
+                                             // element <-----> varijanta
+        }
+
+        private ISet<Element> varijante = new HashedSet<Element>();
+        public virtual ISet<Element> Varijante
+        {
+            get { return varijante; }
+            set { varijante = value; }
+        }
+
+        private ISet<Video> videoKlipovi = new HashedSet<Video>();
+        public virtual ISet<Video> VideoKlipovi
+        {
+            get { return videoKlipovi; }
+            set { videoKlipovi = value; }
+        }
+
+        private ISet<Slika> slike = new HashedSet<Slika>();
+        public virtual ISet<Slika> Slike
+        {
+            get { return slike; }
+            set { slike = value; }
+        }
+
+        private GrupaBrojClass grupaBroj;
 
         public Element()
         {
@@ -129,7 +209,7 @@ namespace Gimnastika.Domain
             broj = element.broj;
             podBroj = element.podBroj;
             grupaBroj = element.grupaBroj;
-            parentId = element.parentId;
+            //parentId = element.parentId;
             if (shouldClone(new TypeAsocijacijaPair(typeof(Video))))
             {
                 foreach (Video v in element.VideoKlipovi)
@@ -154,7 +234,7 @@ namespace Gimnastika.Domain
             // ime promenljive 'varijante', kod nece raditi. Vidi da li moze nekako
             // drugacije
 
-            varijante = new List<Element>();
+            //varijante = new List<Element>();
             if (shouldClone(new TypeAsocijacijaPair(typeof(Element), "varijante")))
             {
                 foreach (Element e in element.Varijante)
@@ -173,7 +253,7 @@ namespace Gimnastika.Domain
             }
         }
 
-        public void restore(Element original)
+        public virtual void restore(Element original)
         {
             naziv = original.naziv;
             engleskiNaziv = original.engleskiNaziv;
@@ -185,7 +265,7 @@ namespace Gimnastika.Domain
             broj = original.broj;
             podBroj = original.podBroj;
             grupaBroj = original.grupaBroj;
-            parentId = original.parentId;
+            //parentId = original.parentId;
             parent = original.parent;
 
             videoKlipovi.Clear();
@@ -201,6 +281,50 @@ namespace Gimnastika.Domain
                 dodajVarijantu((Element)e.Copy());
         }
 
+        public virtual void changeSprava(Sprava value)
+        {
+            Sprava = value;
+            if (!isVarijanta())
+            {
+                foreach (Element e in Varijante)
+                    e.Sprava = value;
+            }
+        }
+
+        public virtual void changeGrupa(GrupaElementa value)
+        {
+            Grupa = value;
+            if (!isVarijanta())
+            {
+                foreach (Element e in Varijante)
+                    e.Grupa = value;
+            }
+        }
+
+        public virtual void changeTezina(TezinaElementa value)
+        {
+            Tezina = value;
+            if (!isVarijanta())
+            {
+                foreach (Element e in Varijante)
+                    e.Tezina = value;
+            }
+        }
+
+        public virtual void changeBroj(short value)
+        {
+            if (value <= 0)
+            {
+                throw new InvalidPropertyException("Broj mora da bude veci od 0.", "Broj");
+            }
+            Broj = value;
+            if (!isVarijanta())
+            {
+                foreach (Element e in Varijante)
+                    e.Broj = value;
+            }
+        }
+
         public override string ToString()
         {
             string nazivEl = NazivString;
@@ -208,113 +332,29 @@ namespace Gimnastika.Domain
             result = String.Format("{0}, {1}", nazivEl, sprava);
             if (IsTablicniElement)
             {
-                result += String.Format(", {0}-{1}", grupa, broj);
-                if (podBroj != 0)
+                result += String.Format(", {0}-{1}", Grupa, Broj);
+                if (PodBroj != 0)
                 {
-                    result += String.Format(",{0}", podBroj);
+                    result += String.Format(",{0}", PodBroj);
                 }
-                result += String.Format(" {0}", tezina);
+                result += String.Format(" {0}", Tezina);
             }
             return result;
         }
 
-        public string Naziv
-        {
-            get { return naziv; }
-            set { naziv = value.Trim(); }
-        }
-
-        public string EngleskiNaziv
-        {
-            get { return engleskiNaziv; }
-            set { engleskiNaziv = value.Trim(); }
-        }
-
-        public string NazivPoGimnasticaru
-        {
-            get { return nazivPoGimnasticaru; }
-            set { nazivPoGimnasticaru = value.Trim(); }
-        }
-
-        public string NazivString
+        public virtual string NazivString
         {
             get
             {
-                string result = this.naziv;
+                string result = this.Naziv;
                 if (result == "")
-                    result = this.nazivPoGimnasticaru;
+                    result = this.NazivPoGimnasticaru;
                 if (result == "")
-                    result = this.engleskiNaziv;
+                    result = this.EngleskiNaziv;
                 return result;
             }
         }
         
-        public Sprava Sprava
-        {
-            get { return sprava; }
-            set 
-            {
-                sprava = value;
-                foreach (Element e in Varijante)
-                    e.Sprava = value;
-            }
-        }
-
-        public bool IsTablicniElement
-        {
-            get { return isTablicniElement; }
-        }
-
-        public GrupaElementa Grupa
-        {
-            get { return grupa; }
-            set 
-            { 
-                grupa = value;
-                foreach (Element e in Varijante)
-                    e.Grupa = value;
-            }
-        }
-
-        public TezinaElementa Tezina
-        {
-            get { return tezina; }
-            set 
-            { 
-                tezina = value;
-                foreach (Element e in Varijante)
-                    e.Tezina = value;
-            }
-        }
-
-        public short Broj
-        {
-            get { return broj; }
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new InvalidPropertyException("Broj mora da bude veci od 0.", "Broj");
-                }
-                broj = value;
-                foreach (Element e in Varijante)
-                    e.Broj = value;
-            }
-        }
-
-        public byte PodBroj
-        {
-            get { return podBroj; }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new InvalidPropertyException("Podbroj ne sme da bude negativan.", "PodBroj");
-                }
-                podBroj = value;
-            }
-        }
-
         public static bool isValidBrojPodBroj(string brojPodBroj)
         {
             return Regex.IsMatch(brojPodBroj, rgxBrojPodBroj);
@@ -330,14 +370,14 @@ namespace Gimnastika.Domain
             return result;
         }
 
-        public string BrojPodBroj
+        public virtual string BrojPodBroj
         {
             get 
             {
                 if (!IsTablicniElement)
                     return String.Empty;
                 else
-                    return formatBrojPodBroj(broj, podBroj);
+                    return formatBrojPodBroj(Broj, PodBroj);
             }
             set
             {
@@ -345,17 +385,20 @@ namespace Gimnastika.Domain
                 {
                     if (value.IndexOf(brojDelimiter) == -1)
                     {
-                        broj = Int16.Parse(value);
-                        podBroj = 0;
+                        Broj = Int16.Parse(value);
+                        PodBroj = 0;
                     }
                     else
                     {
                         string[] s = value.Split(brojDelimiter);
-                        broj = Int16.Parse(s[0]);
-                        podBroj = Byte.Parse(s[1]);
+                        Broj = Int16.Parse(s[0]);
+                        PodBroj = Byte.Parse(s[1]);
                     }
-                    foreach (Element e in Varijante)
-                        e.Broj = broj;
+                    if (!isVarijanta())
+                    {
+                        foreach (Element e in Varijante)
+                            e.changeBroj(Broj);
+                    }
                 }
                 else
                 {
@@ -366,270 +409,229 @@ namespace Gimnastika.Domain
             }
         }
 
-        public GrupaBrojClass GrupaBroj
+        public virtual GrupaBrojClass GrupaBroj
         {
             get { return grupaBroj; }
         }
 
-        public Nullable<float> Vrednost
+        public virtual Nullable<float> Vrednost
         {
             get
             {
                 if (!IsTablicniElement)
                     return null;
                 else
-                    return VrednostTezine[(int)tezina];
+                    return VrednostTezine[(int)Tezina];
             }
         }
 
-        public void setPolozajUTablici(GrupaElementa grupa, TezinaElementa tezina,
+        public virtual void setPolozajUTablici(GrupaElementa grupa, TezinaElementa tezina,
             string broj)
         {
-            this.Grupa = grupa;
-            this.Tezina = tezina;
+            this.changeGrupa(grupa);
+            this.changeTezina(tezina);
             BrojPodBroj = broj;
-            isTablicniElement = true;
+            IsTablicniElement = true;
 
             // TODO: Ispitati zasto nisam postavio nove vrednosti i za varijante (i da
             // li ih treba postaviti)
         }
 
-        public void ponistiPolozajUTablici()
+        public virtual void ponistiPolozajUTablici()
         {
-            this.Grupa = GrupaElementa.Undefined;
-            this.Tezina = TezinaElementa.Undefined;
-            this.broj = 0;
-            this.podBroj = 0;
-            isTablicniElement = false;
+            this.changeGrupa(GrupaElementa.Undefined);
+            this.changeTezina(TezinaElementa.Undefined);
+            this.Broj = 0;
+            this.PodBroj = 0;
+            IsTablicniElement = false;
 
-            foreach (Element e in Varijante)
-                e.ponistiPolozajUTablici();
+            if (!isVarijanta())
+            {
+                foreach (Element e in Varijante)
+                    e.ponistiPolozajUTablici();
+            }
         }
 
-        public IList<Video> VideoKlipovi
-        {
-            get { return videoKlipovi.AsReadOnly(); }
-        }
-
-        public void dodajVideo(Video video)
+        public virtual void dodajVideo(Video video)
         {
             if (video != null)
                 videoKlipovi.Add(video);
         }
 
-        public void ukloniVideo(Video video)
+        public virtual void ukloniVideo(Video video)
         {
             videoKlipovi.Remove(video);
         }
 
-        public void ukloniVideoKlipove()
+        public virtual void ukloniVideoKlipove()
         {
             videoKlipovi.Clear();
         }
 
-        public IList<Slika> Slike
-        {
-            get { return slike.AsReadOnly(); }
-        }
-
-        public void dodajSliku(Slika slika)
+        public virtual void dodajSliku(Slika slika)
         {
             if (slika != null)
                 slike.Add(slika);
         }
 
-        public void ukloniSliku(Slika slika)
+        public virtual void ukloniSliku(Slika slika)
         {
             slike.Remove(slika);
         }
 
-        public void ukloniSlike()
+        public virtual void ukloniSlike()
         {
             slike.Clear();
         }
 
-        public List<Element> Varijante
+        public virtual void dodajVarijantu(Element varijanta)
         {
-            get 
+            if (varijanta == null)
+                return;
+            if (varijanta.Parent != null)
+                varijanta.Parent.ukloniVarijantu(varijanta);
+            varijanta.Parent = this;
+            Varijante.Add(varijanta);
+        }
+
+        public virtual void ukloniVarijantu(Element varijanta)
+        {
+            if (varijanta == null)
+                return;
+            if (varijanta.Parent == this)
             {
-                if (varijante == null)
-                {
-                    varijante = new List<Element>();
-                    if (Id != 0) // element je ucitan iz baze
-                    {
-                        foreach (Element e in new ElementDAO().getVarijante(this.Id))
-                            dodajVarijantu(e); // mora ovako da bi se pravilno
-                                                // uspostavile veze
-                    }
-                }
-                return varijante; 
-            }
-        }
-
-        public void dodajVarijantu(Element varijanta)
-        {
-            if (varijanta != null)
-                varijanta.Parent = this;
-        }
-
-        public void ukloniVarijantu(Element varijanta)
-        {
-            if (varijanta != null && varijanta.Parent == this)
                 varijanta.Parent = null;
+                Varijante.Remove(varijanta);
+            }
         }
 
-        public Element Parent
-        {
-            get 
-            {
-                if (parent == null && parentId != null)
-                {
-                    parent = new ElementDAO().getById(parentId.Value);
-                    parentId = null; // da ga ne bi ponovo ucitavao ako je u
-                                     // medjuvremenu nuliram
-                }
-                return parent; 
-            }
-            set 
-            {
-                // Zbog lazy loada, u uslovu prve if naredbe bi umesto polja parent
-                // trebalo da bude svojsvo Parent (da inicijalizuje polje parent), ali
-                // to dovodi do beskonacne petlje. U ovom slucaju medjutim, moze i bez
-                // toga - prva if naredba sluzi da se raskine veza sa postojecim
-                // parentom, ali ako postoji veza sa parentom tada polje parent nije
-                // null pa ne treba da se inicijalizuje sa lazy loadom
-                if (parent != null)
-                    parent.Varijante.Remove(this);
-                parent = value;
-                if (parent != null)
-                    parent.Varijante.Add(this);
-            }
-        }
-        
-        public bool isVarijanta()
+        public virtual bool isVarijanta()
         {
             return Parent != null;
         }
 
-        public string VarijantaString
+        public virtual string VarijantaString
         {
             get
             {
                 if (!isVarijanta())
                     return String.Empty;
 
-                string nazivEl = naziv;
+                string nazivEl = Naziv;
                 if (nazivEl == "")
-                    nazivEl = engleskiNaziv;
-                return podBroj + " - " + nazivEl;
+                    nazivEl = EngleskiNaziv;
+                return PodBroj + " - " + nazivEl;
             }
         }
 
-        public bool validate()
+        public override void validate(Notification notification)
         {
-            if (naziv == "" && engleskiNaziv == "" && nazivPoGimnasticaru == "")
-                throw new InvalidPropertyException("Naziv ne sme da bude prazan.",
-                    "Naziv");
-            if (!Enum.IsDefined(typeof(Sprava), sprava) || sprava == Sprava.Undefined)
-                throw new InvalidPropertyException("Nedozvoljena vrednost za spravu.", 
-                    "Sprava");
-            
-            if (!isTablicniElement)
+            if (Naziv == "" && EngleskiNaziv == "" && NazivPoGimnasticaru == "")
+                notification.RegisterMessage("Naziv", "Naziv ne sme da bude prazan.");
+            if (Naziv.Length > NAZIV_MAX_LENGTH)
+            {
+                notification.RegisterMessage("Naziv", "Naziv moze da sadrzi maksimalno "
+                    + Element.NAZIV_MAX_LENGTH + " znakova.");
+            }
+            if (NazivPoGimnasticaru.Length > NAZIV_GIM_MAX_LENGTH)
+            {
+                notification.RegisterMessage("NazivPoGimnasticaru", "Naziv po gimnasticaru moze da sadrzi maksimalno "
+                    + Element.NAZIV_GIM_MAX_LENGTH + " znakova.");
+            }
+            if (EngleskiNaziv.Length > NAZIV_MAX_LENGTH)
+            {
+                notification.RegisterMessage("EngleskiNaziv", "Engleski naziv moze da sadrzi maksimalno "
+                    + Element.NAZIV_MAX_LENGTH + " znakova.");
+            }
+            if (!Enum.IsDefined(typeof(Sprava), Sprava) || Sprava == Sprava.Undefined)
+                notification.RegisterMessage("Sprava", "Nedozvoljena vrednost za spravu.");
+
+            if (!IsTablicniElement)
             {
                 if (!isVarijanta())
                 {
                     foreach (Element e in Varijante)
                     {
-                        if (isTablicniElement != e.isTablicniElement)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
+                        if (IsTablicniElement != e.IsTablicniElement)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
                                 "element moraju oboje da budu ili tablicni ili " +
-                                "netablicni.", "Varijante");
+                                "netablicni.");
                     }
                     if (!variantsAreDistinct())
-                        throw new InvalidPropertyException("Nije dozvoljeno da dve varijante " +
-                            "imaju isti broj.", "Varijante");
+                        notification.RegisterMessage("Varijante", "Nije dozvoljeno da dve varijante " +
+                            "imaju isti broj.");
                 }
                 else
                 {
-                    if (isTablicniElement != Parent.IsTablicniElement)
-                        throw new InvalidPropertyException("Varijanta i osnovni " +
+                    if (IsTablicniElement != Parent.IsTablicniElement)
+                        notification.RegisterMessage("IsTablicniElement", "Varijanta i osnovni " +
                             "element moraju oboje da budu ili tablicni ili " +
-                            "netablicni.", "IsTablicniElement");
+                            "netablicni.");
 
                 }
             }
             else
             {
-                if (!Enum.IsDefined(typeof(GrupaElementa), grupa) || grupa == GrupaElementa.Undefined)
-                    throw new InvalidPropertyException("Nedozvoljena vrednost za grupu elementa.",
-                        "Grupa");
-                if (!Enum.IsDefined(typeof(TezinaElementa), tezina) || tezina == TezinaElementa.Undefined)
-                    throw new InvalidPropertyException("Nedozvoljena vrednost za tezinu elementa.",
-                        "Tezina");
-                if (broj <= 0)
-                    throw new InvalidPropertyException("Nedozvoljena vrednost za broj elementa.",
-                        "Broj");
+                if (!Enum.IsDefined(typeof(GrupaElementa), Grupa) || Grupa == GrupaElementa.Undefined)
+                    notification.RegisterMessage("Grupa", "Nedozvoljena vrednost za grupu elementa.");
+                if (!Enum.IsDefined(typeof(TezinaElementa), Tezina) || Tezina == TezinaElementa.Undefined)
+                    notification.RegisterMessage("Tezina", "Nedozvoljena vrednost za tezinu elementa.");
+                if (Broj <= 0)
+                    notification.RegisterMessage("Broj", "Nedozvoljena vrednost za broj elementa.");
 
                 if (!isVarijanta())
                 {
-                    if (podBroj != 0)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za broj elementa.",
-                            "Broj");
+                    if (PodBroj != 0)
+                        notification.RegisterMessage("Broj", "Nedozvoljena vrednost za broj elementa.");
                     foreach (Element e in Varijante)
                     {
-                        if (sprava != e.sprava)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
-                                "element moraju da budu za istu spravu.", "Varijante");
-                        if (isTablicniElement != e.isTablicniElement)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
+                        if (Sprava != e.Sprava)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
+                                "element moraju da budu za istu spravu.");
+                        if (IsTablicniElement != e.IsTablicniElement)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
                                 "element moraju oboje da budu ili tablicni ili " +
-                                "netablicni.", "Varijante");
-                        if (grupa != e.grupa)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
-                                "element moraju da imaju istu grupu.", "Varijante");
-                        if (tezina != e.tezina)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
-                                "element moraju da imaju istu tezinu.", "Varijante");
-                        if (broj != e.broj)
-                            throw new InvalidPropertyException("Varijanta i osnovni " +
-                                "element moraju da imaju isti broj.", "Varijante");
+                                "netablicni.");
+                        if (Grupa != e.Grupa)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
+                                "element moraju da imaju istu grupu.");
+                        if (Tezina != e.Tezina)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
+                                "element moraju da imaju istu tezinu.");
+                        if (Broj != e.Broj)
+                            notification.RegisterMessage("Varijante", "Varijanta i osnovni " +
+                                "element moraju da imaju isti broj.");
                         if (!variantsAreDistinct())
-                            throw new InvalidPropertyException("Nije dozvoljeno da dve varijante " +
-                                "imaju isti broj.", "Varijante");
+                            notification.RegisterMessage("Varijante", "Nije dozvoljeno da dve varijante " +
+                                "imaju isti broj.");
                     }
                 }
                 else
                 {
-                    if (sprava != Parent.Sprava)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za " + 
-                            "spravu. Sprava mora da bude kao kod osnovnog elementa.",
-                            "Sprava");
-                    if (isTablicniElement != Parent.IsTablicniElement)
-                        throw new InvalidPropertyException("Varijanta i osnovni " +
+                    if (Sprava != Parent.Sprava)
+                        notification.RegisterMessage("Sprava", "Nedozvoljena vrednost za " + 
+                            "spravu. Sprava mora da bude kao kod osnovnog elementa.");
+                    if (IsTablicniElement != Parent.IsTablicniElement)
+                        notification.RegisterMessage("IsTablicniElement", "Varijanta i osnovni " +
                             "element moraju oboje da budu ili tablicni ili " +
-                            "netablicni.", "IsTablicniElement");
-                    if (grupa != Parent.Grupa)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za " +
-                            "grupu. Grupa mora da bude kao kod osnovnog elementa.",
-                            "Grupa");
-                    if (tezina != Parent.Tezina)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za " +
-                            "tezinu. Tezina mora da bude kao kod osnovnog elementa.",
-                            "Tezina");
-                    if (broj != Parent.Broj)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za " +
-                            "broj. Broj mora da bude kao kod osnovnog elementa.",
-                            "Broj");
-                    if (podBroj <= 0)
-                        throw new InvalidPropertyException("Nedozvoljena vrednost za " +
-                            "broj varijante. Broj varijante mora da bude veci od nula.",
-                            "Broj");
+                            "netablicni.");
+                    if (Grupa != Parent.Grupa)
+                        notification.RegisterMessage("Grupa", "Nedozvoljena vrednost za " +
+                            "grupu. Grupa mora da bude kao kod osnovnog elementa.");
+                    if (Tezina != Parent.Tezina)
+                        notification.RegisterMessage("Tezina", "Nedozvoljena vrednost za " +
+                            "tezinu. Tezina mora da bude kao kod osnovnog elementa.");
+                    if (Broj != Parent.Broj)
+                        notification.RegisterMessage("Broj", "Nedozvoljena vrednost za " +
+                            "broj. Broj mora da bude kao kod osnovnog elementa.");
+                    if (PodBroj <= 0)
+                        notification.RegisterMessage("Broj", "Nedozvoljena vrednost za " +
+                            "broj varijante. Broj varijante mora da bude veci od nula.");
                 }
             }
-            return true;
         }
 
-        public bool variantsAreDistinct()
+        public virtual bool variantsAreDistinct()
         {
             if (Varijante.Count < 2)
                 return true;
@@ -648,15 +650,21 @@ namespace Gimnastika.Domain
             return true;
         }
 
-        public Slika getPodrazumevanaSlika()
+        public virtual Slika getPodrazumevanaSlika()
         {
-            foreach (Slika s in slike)
+            foreach (Slika s in Slike)
             {
                 if (s.Podrazumevana)
                     return s;
             }
-            if (slike.Count > 0)
-                return slike[0];
+            if (Slike.Count > 0)
+            {
+                //return Slike[0];
+                IEnumerator<Slika> enumerator = Slike.GetEnumerator();
+                enumerator.Reset();
+                enumerator.MoveNext();
+                return enumerator.Current;
+            }
 
             return null;
         }
@@ -666,14 +674,14 @@ namespace Gimnastika.Domain
             return (TezinaElementa)((broj - 1) % 6 + 1);
         }
 
-        public void promeniGrupuBroj(GrupaElementa grupa, int broj)
+        public virtual void promeniGrupuBroj(GrupaElementa grupa, int broj)
         {
-            if (isTablicniElement && isVarijanta() == false
-            && (sprava != Sprava.Parter || grupa != GrupaElementa.V))
+            if (IsTablicniElement && isVarijanta() == false
+            && (Sprava != Sprava.Parter || grupa != GrupaElementa.V))
             {
-                Grupa = grupa;
-                Broj = (short)broj;
-                Tezina = getTezina(broj);
+                this.changeGrupa(grupa);
+                this.changeBroj((short)broj);
+                this.changeTezina(getTezina(broj));
             }
         }
     }
