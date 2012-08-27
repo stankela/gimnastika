@@ -57,46 +57,5 @@ namespace Gimnastika
             }
         }
 
-        // can throw DatabaseException
-        public static void checkInsert(PraviloOceneVezbe pravilo)
-        {
-            validationErrors = new List<ValidationError>();
-            validateProperties(pravilo);
-
-            if (new PraviloOceneVezbeDAO().postojiPravilo(pravilo.Naziv))
-            {
-                ValidationError error = new ValidationError();
-                error.InvalidProperties = new string[] { "Ime", "Prezime" };
-                error.Message = "Pravilo sa datim nazivom vec postoji.";
-                validationErrors.Add(error);
-            }
-            if (validationErrors.Count > 0)
-            {
-                throw new DatabaseConstraintException(
-                    "Pravilo nije validno.", validationErrors);
-            }
-        }
-
-        // can throw DatabaseException
-        public static void checkUpdate(PraviloOceneVezbe pravilo, PraviloOceneVezbe original)
-        {
-            validationErrors = new List<ValidationError>();
-            validateProperties(pravilo);
-            if (pravilo.Naziv != original.Naziv)
-            {
-                if (new PraviloOceneVezbeDAO().postojiPravilo(pravilo.Naziv))
-                {
-                    ValidationError error = new ValidationError();
-                    error.InvalidProperties = new string[] { "Ime", "Prezime" };
-                    error.Message = "Pravilo sa datim nazivom vec postoji.";
-                    validationErrors.Add(error);
-                }
-            }
-            if (validationErrors.Count > 0)
-            {
-                throw new DatabaseConstraintException(
-                    "Pravilo nije validno.", validationErrors);
-            }
-        }
     }
 }

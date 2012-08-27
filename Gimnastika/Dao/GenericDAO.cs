@@ -40,5 +40,7 @@ namespace Gimnastika.Dao
         void Clear();
 
         void Attach(T item, bool update);
+    
+        void Evict(T item);
     }
 }

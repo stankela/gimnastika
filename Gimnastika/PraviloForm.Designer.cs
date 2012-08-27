@@ -176,7 +176,6 @@ namespace Gimnastika
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PraviloForm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PraviloForm_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.gridIzvedba)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

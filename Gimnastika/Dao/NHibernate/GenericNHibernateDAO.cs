@@ -165,6 +165,11 @@ namespace Gimnastika.Dao.NHibernate
             }*/
         }
 
+        public void Evict(T item)
+        {
+            Session.Evict(item);
+        }
+
         #endregion
 
         /// <summary>

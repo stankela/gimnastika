@@ -9,20 +9,27 @@ using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
 using Gimnastika.Exceptions;
+using Gimnastika.UI;
 
 namespace Gimnastika
 {
-    public partial class PocetnaOcenaForm : Form
+    public partial class PocetnaOcenaForm : EntityDetailForm
     {
-        PocetnaOcenaIzvedbe pocOcena;
-        public PocetnaOcenaIzvedbe PocOcena
-        {
-            get { return pocOcena; }
-        }
-
         public PocetnaOcenaForm()
         {
             InitializeComponent();
+            // radi samo u add modu, a entity se ne snima
+            initialize(null, false);
+        }
+
+        protected override DomainObject createNewEntity()
+        {
+            return new PocetnaOcenaIzvedbe();
+        }
+
+        protected override void initUI()
+        {
+            base.initUI();
 
             Text = "Pocetna ocena";
             lblNapomena.Text = "Napomena: Maksimalan broj elemenata moze da se izostavi. " +
@@ -32,104 +39,47 @@ namespace Gimnastika
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (!updateOcenaFromUI())
-            {
-                this.DialogResult = DialogResult.None;
-                return;
-            }
+            handleOkClick();
         }
 
-        private bool updateOcenaFromUI()
+        protected override void requiredFieldsAndFormatValidation(Notification notification)
         {
-            try
-            {
-                if (!validateDialog())
-                    return false;
-                doUpdateOcenaFromUI();
-                return pocOcena.validate();
-            }
-            catch (InvalidPropertyException ex)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                setFocus(ex.InvalidProperty);
-                return false;
-            }
-            catch (InvalidFormatException ex)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                setFocus(ex.InvalidProperty);
-                return false;
-            }
-        }
+            int dummyInt;
+            float dummyFloat;
 
-        private void doUpdateOcenaFromUI()
-        {
-            if (txtMax.Text.Trim() != "")
-                pocOcena = new PocetnaOcenaIzvedbe(int.Parse(txtMin.Text), 
-                    int.Parse(txtMax.Text), float.Parse(txtOcena.Text.Replace(',', '.')));
-            else
-                pocOcena = new PocetnaOcenaIzvedbe(int.Parse(txtMin.Text),
-                    float.Parse(txtOcena.Text.Replace(',', '.')));
-        }
-
-        private bool validateDialog()
-        {
-            return requiredFieldsValidation() && formatValidation();
-        }
-
-        private bool requiredFieldsValidation()
-        {
             if (txtMin.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite vrednost za minimalan broj elemenata.", "Greska");
-                txtMin.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "MinBrojElemenata", "Unesite vrednost za minimalan broj elemenata.");
             }
+            else if (!int.TryParse(txtMin.Text, out dummyInt))
+            {
+                notification.RegisterMessage(
+                    "MinBrojElemenata", "Nepravilna vrednost za minimalan broj elemenata.");
+            }
+
             if (txtOcena.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite vrednost za ocenu.", "Greska");
-                txtOcena.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "PocetnaOcena", "Unesite vrednost za ocenu.");
             }
-            return true;
-        }
+            else if (!float.TryParse(txtOcena.Text.Replace(',', '.'), out dummyFloat))
+            {
+                notification.RegisterMessage(
+                    "PocetnaOcena", "Nepravilna vrednost za pocetnu ocenu.");
+            }
 
-        private bool formatValidation()
-        {
-            try
-            {
-                int.Parse(txtMin.Text);
-            }
-            catch (FormatException e)
-            {
-                throw new InvalidFormatException(
-                    "Nepravilna vrednost za minimalan broj elemenata.", "MinBrojElemenata", e);
-            }
             if (txtMax.Text.Trim() != "")
             {
-                try
+                if (!int.TryParse(txtMax.Text, out dummyInt))
                 {
-                    int.Parse(txtMax.Text);
-                }
-                catch (FormatException e)
-                {
-                    throw new InvalidFormatException(
-                        "Nepravilna vrednost za maksimalan broj elemenata.", "MaxBrojElemenata", e);
+                    notification.RegisterMessage(
+                        "MaxBrojElemenata", "Nepravilna vrednost za maksimalan broj elemenata.");
                 }
             }
-            try
-            {
-                float.Parse(txtOcena.Text.Replace(',', '.'));
-            }
-            catch (FormatException e)
-            {
-                throw new InvalidFormatException(
-                    "Nepravilna vrednost za pocetnu ocenu.", "PocetnaOcena", e);
-            }
-            return true;
         }
 
-        private void setFocus(string propertyName)
+        protected override void setFocus(string propertyName)
         {
             switch (propertyName)
             {
@@ -150,5 +100,21 @@ namespace Gimnastika
             }
         }
 
+        protected override void updateEntityFromUI(DomainObject entity)
+        {
+            PocetnaOcenaIzvedbe pocOcena = (PocetnaOcenaIzvedbe)entity;
+            if (txtMax.Text.Trim() != "")
+            {
+                pocOcena.MinBrojElemenata = int.Parse(txtMin.Text);
+                pocOcena.MaxBrojElemenata = int.Parse(txtMax.Text);
+                pocOcena.PocetnaOcena = float.Parse(txtOcena.Text.Replace(',', '.'));
+            }
+            else
+            {
+                pocOcena.MinBrojElemenata = int.Parse(txtMin.Text);
+                pocOcena.MaxBrojElemenata = PocetnaOcenaIzvedbe.MAX_LIMIT;
+                pocOcena.PocetnaOcena = float.Parse(txtOcena.Text.Replace(',', '.'));
+            }
+        }
     }
 }

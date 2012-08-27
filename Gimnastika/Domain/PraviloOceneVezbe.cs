@@ -7,7 +7,7 @@ namespace Gimnastika.Domain
 {
     public class PocetnaOcenaIzvedbe : DomainObject, IComparable
     {
-        private readonly int MAX_LIMIT = 999;
+        public static readonly int MAX_LIMIT = 999;
 
         private int minBrojElemenata;
         public virtual int MinBrojElemenata
@@ -35,48 +35,29 @@ namespace Gimnastika.Domain
 
         }
 
-        public PocetnaOcenaIzvedbe(int minBrojElemenata, int maxBrojElemenata,
-            float pocetnaOcena)
-        {
-            if (validate(minBrojElemenata, maxBrojElemenata, pocetnaOcena))
-            {
-                this.minBrojElemenata = minBrojElemenata;
-                this.maxBrojElemenata = maxBrojElemenata;
-                this.pocetnaOcena = pocetnaOcena;
-            }
-        }
-
-        public PocetnaOcenaIzvedbe(int minBrojElemenata, float pocetnaOcena)
-        {
-            if (validate(minBrojElemenata, MAX_LIMIT, pocetnaOcena))
-            {
-                this.minBrojElemenata = minBrojElemenata;
-                this.maxBrojElemenata = MAX_LIMIT;
-                this.pocetnaOcena = pocetnaOcena;
-            }
-        }
-
-        private bool validate(int minBrojElemenata, int maxBrojElemenata,
-            float pocetnaOcena)
+        public override void validate(Notification notification)
         {
             if (minBrojElemenata < 0)
-                throw new InvalidPropertyException("Broj elemenata ne sme da bude " +
-                    "manji od nula.", "MinBrojElemenata");
+            {
+                notification.RegisterMessage(
+                    "MinBrojElemenata", "Broj elemenata ne sme da bude manji od nula.");
+            }
             if (maxBrojElemenata < 0)
-                throw new InvalidPropertyException("Broj elemenata ne sme da bude " +
-                    "manji od nula.", "MaxBrojElemenata");
+            {
+                notification.RegisterMessage(
+                    "MaxBrojElemenata", "Broj elemenata ne sme da bude manji od nula.");
+            }
             if (minBrojElemenata > maxBrojElemenata)
-                throw new InvalidPropertyException("Donja granica opsega ne sma da " +
-                    "bude veca od gornje granica opsega.", "MinBrojElemenata");
+            {
+                notification.RegisterMessage(
+                    "MinBrojElemenata", "Donja granica opsega ne sma da " +
+                    "bude veca od gornje granica opsega.");
+            }
             if (pocetnaOcena < 0)
-                throw new InvalidPropertyException("Pocetna ocena ne sme da bude " +
-                    "manja od nula", "PocetnaOcena");
-            return true;
-        }
-
-        public virtual bool validate()
-        {
-            return validate(minBrojElemenata, maxBrojElemenata, pocetnaOcena);
+            {
+                notification.RegisterMessage(
+                    "PocetnaOcena", "Pocetna ocena ne sme da bude manja od nula.");
+            }
         }
 
         protected override void deepCopy(DomainObject domainObject)
@@ -200,31 +181,6 @@ namespace Gimnastika.Domain
 
         }
 
-        public PraviloOceneVezbe(string naziv, int brojBodovanihElemenata, int maxIstaGrupa)
-        {
-            this.naziv = naziv;
-            if (validateBrojBodovanihElemenata(brojBodovanihElemenata))
-                this.brojBodovanihElemenata = brojBodovanihElemenata;    
-            if (validateMaxIstaGrupa(maxIstaGrupa))
-                this.maxIstaGrupa = maxIstaGrupa;    
-        }
-
-        private bool validateBrojBodovanihElemenata(int brojBodovanihElemenata)
-        {
-            if (brojBodovanihElemenata < 1)
-                throw new InvalidPropertyException("Broj elemenata koji se boduju " +
-                    "mora da bude veci od nula.", "BrojBodovanihElemenata");
-            return true;
-        }
-
-        private bool validateMaxIstaGrupa(int maxIstaGrupa)
-        {
-            if (maxIstaGrupa < 1)
-                throw new InvalidPropertyException("Maksimalan broj elemenata iz iste " + 
-                    "grupe koji se boduju mora da bude veci od nula.", "MaxIstaGrupa");
-            return true;
-        }
-
         protected override void deepCopy(DomainObject domainObject)
         {
             base.deepCopy(domainObject);
@@ -310,17 +266,30 @@ namespace Gimnastika.Domain
             }
         }
 
-        public virtual bool validate()
+        public override void validate(Notification notification)
         {
-            if (!validateBrojBodovanihElemenata(brojBodovanihElemenata))
-                return false;
-            if (!validateMaxIstaGrupa(maxIstaGrupa))
-                return false;
-
+            // TODO: Sledeca dva if izraza su se nalazila u setterima za svojstva BrojBodovanihElemenata i MaxIstaGrupa
+            // (tacnije nalazila su se u private metodima validateBrojBodovanihElemenata i validateMaxIstaGrupa klase
+            // PraviloOceneVezbe a pozivi ovih metoda su se nalazili u setterim svojstava BrojBodovanihElemenata i 
+            // MaxIstaGrupa)
+            // Izbacio sam ih iz settera (da bi NHibernate radio korektno) i prebacio ovde.
+            // Proveri da li je ovo dobro.
+            if (BrojBodovanihElemenata < 1)
+            {
+                notification.RegisterMessage(
+                    "BrojBodovanihElemenata", "Broj elemenata koji se boduju " +
+                    "mora da bude veci od nula.");
+            }
+            if (MaxIstaGrupa < 1)
+            {
+                notification.RegisterMessage(
+                    "MaxIstaGrupa", "Maksimalan broj elemenata iz iste " +
+                    "grupe koji se boduju mora da bude veci od nula.");
+            }
+            
             foreach (PocetnaOcenaIzvedbe pocOcena in PocetneOceneIzvedbe)
             {
-                if (!pocOcena.validate())
-                    return false;
+                pocOcena.validate(notification);
             }
 
             sortirajPocetneOceneIzvedbe();
@@ -330,12 +299,15 @@ namespace Gimnastika.Domain
                 {
                     if (PocetneOceneIzvedbe[j].MinBrojElemenata <=
                         PocetneOceneIzvedbe[i].MaxBrojElemenata)
-                        throw new InvalidPropertyException("Opsezi za ocene ne smeju " +
-                            "da se preklapaju.", "PocetneOceneIzvedbe");
+                    {
+                        notification.RegisterMessage(
+                            "PocetneOceneIzvedbe", "Opsezi za ocene ne smeju " +
+                            "da se preklapaju.");
+                    }
                 }
 
             }
-            return true;
         }
+
     }
 }

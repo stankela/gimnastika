@@ -7,25 +7,44 @@ using System.Text;
 using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
 namespace Gimnastika
 {
     public partial class OpcijeForm : Form
     {
-        List<PraviloOceneVezbe> pravila;
+        IList<PraviloOceneVezbe> pravila;
 
         public OpcijeForm()
         {
             InitializeComponent();
 
-            Text = "Opcije";
-            pravila = new PraviloOceneVezbeDAO().getAll();
-            updateUI();
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    Text = "Opcije";
+                    pravila = DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().FindAll();
+                    updateUI();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void updateUI()
         {
-            cmbPravilo.Items.AddRange(pravila.ToArray());
+            cmbPravilo.Items.Clear();
+            foreach (PraviloOceneVezbe p in pravila)
+            {
+                cmbPravilo.Items.Add(p);
+            }
             selectPravilo(Opcije.Instance.PodrazumevanoPraviloID);
             txtVideo.Text = Opcije.Instance.PlayerFileName;
         }

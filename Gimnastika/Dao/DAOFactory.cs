@@ -9,5 +9,6 @@ namespace Gimnastika.Dao
         public abstract ElementVezbeDAO GetElementVezbeDAO();
         public abstract GrupaDAO GetGrupaDAO();
         public abstract ElementDAO GetElementDAO();
+        public abstract PraviloOceneVezbeDAO GetPraviloOceneVezbeDAO();
     }
 }

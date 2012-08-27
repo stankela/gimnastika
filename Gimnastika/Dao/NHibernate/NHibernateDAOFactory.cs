@@ -33,5 +33,10 @@ namespace Gimnastika.Dao.NHibernate
         {
             return new ElementDAOImpl();
         }
+
+        public override PraviloOceneVezbeDAO GetPraviloOceneVezbeDAO()
+        {
+            return new PraviloOceneVezbeDAOImpl();
+        }
     }
 }

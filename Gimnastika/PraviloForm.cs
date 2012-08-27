@@ -9,41 +9,36 @@ using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
+using Gimnastika.UI;
 
 namespace Gimnastika
 {
-    public partial class PraviloForm : Form
+    public partial class PraviloForm : EntityDetailForm
     {
-        private PraviloOceneVezbe pravilo = null;
-        private PraviloOceneVezbe original;
-        private bool editMode;
+        private string oldNaziv;
 
-        public PraviloOceneVezbe Pravilo
-        {
-            get { return pravilo; }
-        }
-
-        public PraviloForm(PraviloOceneVezbe pravilo)
+        public PraviloForm(Nullable<int> entityId)
         {
             InitializeComponent();
-            initUI();
-
-            this.pravilo = pravilo;
-            if (pravilo == null)
-            {
-                editMode = false;
-                this.pravilo = new PraviloOceneVezbe();
-            }
-            else
-            {
-                editMode = true;
-                original = (PraviloOceneVezbe)pravilo.Clone();
-                updateUIFromEntity(pravilo);
-            }
+            initialize(entityId, true);
         }
 
-        private void initUI()
+        protected override DomainObject createNewEntity()
         {
+            return new PraviloOceneVezbe();
+        }
+
+        protected override DomainObject getEntityById(int id)
+        {
+            return DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().FindById(id);
+        }
+
+        protected override void initUI()
+        {
+            base.initUI();
             this.Text = "Pravila ocenjivanja";
             txtNazivPravila.Text = String.Empty;
             txtBrojBodovanih.Text = String.Empty;
@@ -77,8 +72,15 @@ namespace Gimnastika
             gridIzvedba.Columns.Add(column);
         }
 
-        private void updateUIFromEntity(PraviloOceneVezbe pravilo)
+        protected override void saveOriginalData(DomainObject entity)
         {
+            PraviloOceneVezbe p = (PraviloOceneVezbe)entity;
+            oldNaziv = p.Naziv;
+        }
+
+        protected override void updateUIFromEntity(DomainObject entity)
+        {
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
             txtNazivPravila.Text = pravilo.Naziv;
             txtBrojBodovanih.Text = pravilo.BrojBodovanihElemenata.ToString();
             txtMaxIstaGrupa.Text = pravilo.MaxIstaGrupa.ToString();
@@ -88,6 +90,7 @@ namespace Gimnastika
         private void updateGridIzvedba()
         {
             gridIzvedba.Rows.Clear();
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
             foreach (PocetnaOcenaIzvedbe ocena in pravilo.PocetneOceneIzvedbe)
             {
                 // ovo ne generise CellValueChanged event
@@ -102,96 +105,49 @@ namespace Gimnastika
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (!updatePraviloFromUI())
-                {
-                    this.DialogResult = DialogResult.None;
-                    return;
-                }
-                if (editMode)
-                    new PraviloOceneVezbeDAO().update(pravilo, original);
-                else
-                    new PraviloOceneVezbeDAO().insert(pravilo);
-            }
-            catch (DatabaseException)
-            {
-                string message;
-                if (editMode)
-                    message = "Neuspesna promena pravila u bazi.";
-                else
-                    message = "Neuspesan upis novog pravila u bazu.";
-                MessageBox.Show(message, "Greska");
-                discardChanges();
-                this.DialogResult = DialogResult.Cancel;
-            }
-            catch (Exception)
-            {
-                discardChanges();
-                throw;
-            }
+            handleOkClick();
         }
 
-        private bool validateDialog()
+        protected override void requiredFieldsAndFormatValidation(Notification notification)
         {
-            return requiredFieldsValidation() && formatValidation();
-        }
-
-        private bool requiredFieldsValidation()
-        {
+            int dummyInt;
             if (txtNazivPravila.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite naziv pravila.", "Greska");
-                txtNazivPravila.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "Naziv", "Unesite naziv pravila.");
             }
+            
             if (txtBrojBodovanih.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite broj elemenata koji se boduju.", "Greska");
-                txtBrojBodovanih.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "BrojBodovanih", "Unesite broj elemenata koji se boduju.");
             }
+            else if (!int.TryParse(txtBrojBodovanih.Text, out dummyInt))
+            {
+                notification.RegisterMessage(
+                    "BrojBodovanih", "Nepravilan format za broj elemenata koji se boduju.");
+            }
+            
             if (txtMaxIstaGrupa.Text.Trim() == String.Empty)
             {
-                MessageBox.Show("Unesite maksimalan broj elemenata iz iste grupe " +
-                    "koji se boduju.", "Greska");
-                txtMaxIstaGrupa.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "MaxIstaGrupa", "Unesite maksimalan broj elemenata iz iste grupe " +
+                    "koji se boduju.");
             }
+            else if (!int.TryParse(txtMaxIstaGrupa.Text, out dummyInt))
+            {
+                notification.RegisterMessage(
+                    "MaxIstaGrupa", "Nepravilan format za maksimalan broj elemenata iz iste grupe koji se boduju.");
+            }
+            
             if (gridIzvedba.Rows.Count == 0)
             {
-                MessageBox.Show("Unesite pocetne ocene za izvedbu.", "Greska");
-                gridIzvedba.Focus();
-                return false;
+                notification.RegisterMessage(
+                    "PocetneOceneIzvedbe", "Unesite pocetne ocene za izvedbu.");
             }
-            return true;
         }
 
-        private bool formatValidation()
-        {
-            try
-            {
-                int.Parse(txtBrojBodovanih.Text);
-            }
-            catch (FormatException e)
-            {
-                throw new InvalidFormatException(
-                    "Unesite broj elemenata koji se boduju.", "BrojBodovanih", e);
-            }
-            try
-            {
-                int.Parse(txtMaxIstaGrupa.Text);
-            }
-            catch (FormatException e)
-            {
-                throw new InvalidFormatException(
-                    "Unesite maksimalan broj elemenata iz iste grupe " +
-                    "koji se boduju.", "MaxIstaGrupa", e);
-            }
-            return true;
-        }
-
-        private void setFocus(string propertyName)
+        protected override void setFocus(string propertyName)
         {
             switch (propertyName)
             {
@@ -216,93 +172,54 @@ namespace Gimnastika
             }
         }
 
-        private bool updatePraviloFromUI()
+        protected override void updateEntityFromUI(DomainObject entity)
         {
-            try
-            {
-                if (!validateDialog())
-                    return false;
-                doUpdatePraviloFromUI();
-                if (editMode)
-                    DatabaseConstraintsValidator.checkUpdate(pravilo, original);
-                else
-                    DatabaseConstraintsValidator.checkInsert(pravilo);
-                return true;
-            }
-            catch (InvalidPropertyException ex)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                setFocus(ex.InvalidProperty);
-                return false;
-            }
-            catch (InvalidFormatException ex)
-            {
-                MessageBox.Show(ex.Message, "Greska");
-                setFocus(ex.InvalidProperty);
-                return false;
-            }
-            catch (DatabaseConstraintException ex)
-            {
-                MessageBox.Show(ex.ValidationErrors[0].Message, "Greska");
-                setFocus(ex.ValidationErrors[0].InvalidProperties[0]);
-                return false;
-            }
-            catch (DatabaseException)
-            {
-                string message;
-                if (editMode)
-                    message = "Neuspesna promena pravila u bazi.";
-                else
-                    message = "Neuspesan upis novog pravila u bazu.";
-                MessageBox.Show(message, "Greska");
-                return false;
-            }
-            catch (Exception)
-            {
-                // TODO: Ovde treba hvatati konkurentne izuzetke koji mogu da nastanu
-                // usled promene u bazi izmedju trenutka kada proveravam constraints
-                // i trenutka kada azuriram bazu.
-                throw;
-            }
-        }
-
-        private void doUpdatePraviloFromUI()
-        {
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
             pravilo.Naziv = txtNazivPravila.Text.Trim();
             pravilo.BrojBodovanihElemenata = int.Parse(txtBrojBodovanih.Text);
             pravilo.MaxIstaGrupa = int.Parse(txtMaxIstaGrupa.Text);
+        }
 
-            // TODO: Sledeca dva if izraza su se nalazila u setterima za svojstva BrojBodovanihElemenata i MaxIstaGrupa
-            // (tacnije nalazila su se u private metodima validateBrojBodovanihElemenata i validateMaxIstaGrupa klase
-            // PraviloOceneVezbe a pozivi ovih metoda su se nalazili u setterim svojstava BrojBodovanihElemenata i 
-            // MaxIstaGrupa)
-            // Izbacio sam ih iz settera (da bi NHibernate radio korektno) i prebacio ovde (ovo je jedino mesto gde se setteri
-            // za BrojBodovanihElemenata i MaxIstaGrupa koriste). Probaj da ova dva if izraza prebacis na neko bolje mesto.
-            if (pravilo.BrojBodovanihElemenata < 1)
-                throw new InvalidPropertyException("Broj elemenata koji se boduju " +
-                    "mora da bude veci od nula.", "BrojBodovanihElemenata");
-            if (pravilo.MaxIstaGrupa < 1)
-                throw new InvalidPropertyException("Maksimalan broj elemenata iz iste " +
-                    "grupe koji se boduju mora da bude veci od nula.", "MaxIstaGrupa");
+        protected override void checkBusinessRulesOnAdd(DomainObject entity)
+        {
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
+            Notification notification = new Notification();
+
+            PraviloOceneVezbeDAO praviloOceneVezbeDAO = DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO();
+            if (praviloOceneVezbeDAO.postojiPravilo(pravilo.Naziv))
+            {
+                notification.RegisterMessage("Naziv", "Pravilo sa datim nazivom vec postoji.");
+                throw new BusinessException(notification);
+            }
+        }
+
+        protected override void insertEntity(DomainObject entity)
+        {
+            DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().MakePersistent((PraviloOceneVezbe)entity);
+        }
+
+        protected override void checkBusinessRulesOnUpdate(DomainObject entity)
+        {
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
+            Notification notification = new Notification();
+
+            PraviloOceneVezbeDAO praviloOceneVezbeDAO = DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO();
+            bool nazivChanged = (pravilo.Naziv.ToUpper() != oldNaziv.ToUpper()) ? true : false;
+            if (nazivChanged && praviloOceneVezbeDAO.postojiPravilo(pravilo.Naziv))
+            {
+                notification.RegisterMessage("Naziv", "Pravilo sa datim nazivom vec postoji.");
+                throw new BusinessException(notification);
+            }
+        }
+
+        protected override void updateEntity(DomainObject entity)
+        {
+            DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().MakePersistent((PraviloOceneVezbe)entity);
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            discardChanges();
-        }
-
-        private void PraviloForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                discardChanges();
-            }
-        }
-
-        private void discardChanges()
-        {
-            if (editMode)
-                pravilo.restore(original);
+            handleCancelClick();
         }
 
         private void btnDodajOcenu_Click(object sender, EventArgs e)
@@ -312,7 +229,8 @@ namespace Gimnastika
             {
                 try
                 {
-                    pravilo.dodajPocetnuOcenuIzvedbe(f.PocOcena);
+                    PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
+                    pravilo.dodajPocetnuOcenuIzvedbe((PocetnaOcenaIzvedbe)f.Entity);
                     updateGridIzvedba();
                 }
                 catch (InvalidPropertyException ex)
@@ -326,6 +244,7 @@ namespace Gimnastika
         {
             if (gridIzvedba.Rows.Count > 0)
             {
+                PraviloOceneVezbe pravilo = (PraviloOceneVezbe)entity;
                 PocetnaOcenaIzvedbe ocena = pravilo.PocetneOceneIzvedbe[gridIzvedba.CurrentRow.Index];
                 pravilo.ukloniPocetnuOcenuIzvedbe(ocena);
                 updateGridIzvedba();

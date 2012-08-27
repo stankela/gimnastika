@@ -7,6 +7,9 @@ using System.Text;
 using System.Windows.Forms;
 using Gimnastika.Domain;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
 namespace Gimnastika
 {
@@ -17,15 +20,27 @@ namespace Gimnastika
         public PravilaForm()
         {
             InitializeComponent();
-            initUI();
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    pravila = new List<PraviloOceneVezbe>(DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().FindAll());
+                    initUI();
 
-            cmbPravila.SelectedIndexChanged += cmbPravila_SelectedIndexChanged;
-            updatePravilaDetails();
+                    cmbPravila.SelectedIndexChanged += cmbPravila_SelectedIndexChanged;
+                    updatePravilaDetails();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void initUI()
         {
-            pravila = new PraviloOceneVezbeDAO().getAll();
             cmbPravila.DataSource = pravila;
             cmbPravila.DisplayMember = "Naziv";
             cmbPravila.ValueMember = "Id";
@@ -109,7 +124,7 @@ namespace Gimnastika
             PraviloForm f = new PraviloForm(null);
             if (f.ShowDialog() == DialogResult.OK)
             {
-                pravila.Add(f.Pravilo);
+                pravila.Add((PraviloOceneVezbe)f.Entity);
                 refreshCombo();
             }
         }
@@ -119,9 +134,10 @@ namespace Gimnastika
             if (cmbPravila.SelectedIndex != -1)
             {
                 PraviloOceneVezbe pravilo = (PraviloOceneVezbe)cmbPravila.SelectedItem;
-                PraviloForm f = new PraviloForm(pravilo);
+                PraviloForm f = new PraviloForm(pravilo.Id);
                 if (f.ShowDialog() == DialogResult.OK)
                 {
+                    pravila[pravila.IndexOf(pravilo)] = (PraviloOceneVezbe)f.Entity;
                     refreshCombo();
                     updatePravilaDetails();
                 }
@@ -130,58 +146,69 @@ namespace Gimnastika
 
         private void btnBrisi_Click(object sender, EventArgs e)
         {
-            if (cmbPravila.SelectedIndex != -1)
+            if (cmbPravila.SelectedIndex == -1)
+                return;
+
+            if (cmbPravila.Items.Count == 1)
             {
-                if (cmbPravila.Items.Count == 1)
-                {
-                    MessageBox.Show("Selektovana pravila su jedina postojeca pravila i nije ih moguce izbrisati. " +
-                        "Ukoliko zelite da izbrisete data pravila, najpre dodajte nova pravila.", "Poruka", MessageBoxButtons.OK,
-                        MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-                }
-                else
-                {
+                MessageBox.Show("Selektovana pravila su jedina postojeca pravila i nije ih moguce izbrisati. " +
+                    "Ukoliko zelite da izbrisete data pravila, najpre dodajte nova pravila.", "Poruka", MessageBoxButtons.OK,
+                    MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+                return;
+            }
+            
+            PraviloOceneVezbe pravilo = (PraviloOceneVezbe)cmbPravila.SelectedItem;
+            if (MessageBox.Show("Da li zelite da izbrisete pravila '" +
+                pravilo.Naziv + "' ?", "Potvrda", MessageBoxButtons.OKCancel,
+                MessageBoxIcon.None, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            {
+                return;
+            }
 
-                    PraviloOceneVezbe pravilo = (PraviloOceneVezbe)cmbPravila.SelectedItem;
-                    if (MessageBox.Show("Da li zelite da izbrisete pravila '" +
-                        pravilo.Naziv + "' ?", "Potvrda", MessageBoxButtons.OKCancel,
-                        MessageBoxIcon.None, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+
+                    // TODO: Ovde prvo treba pitati sta treba raditi sa vezbama
+                    // za dato pravilo (da li ih brisati ili ne). Ako je odgovor
+                    // ne, ne treba brisati ni pravilo)
+
+                    bool delete = true;
+                    IList<Vezba> vezbe = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindAll();
+                    foreach (Vezba v in vezbe)
                     {
-                        try
+                        if (v.Pravilo != null && v.Pravilo.Id == pravilo.Id)
                         {
-                            // TODO: Ovde prvo treba pitati sta treba raditi sa vezbama
-                            // za dato pravilo (da li ih brisati ili ne). Ako je odgovor
-                            // ne, ne treba brisati ni pravilo)
-
-                            bool delete = true;
-                            IList<Vezba> vezbe = DAOFactoryFactory.DAOFactory.GetVezbaDAO().FindAll();
-                            foreach (Vezba v in vezbe)
-                            {
-                                if (v.Pravilo != null && v.Pravilo.Id == pravilo.Id)
-                                {
-                                    delete = false;
-                                    break;
-                                }
-                            }
-
-
-                            if (delete)
-                            {
-                                new PraviloOceneVezbeDAO().delete(pravilo);
-                                pravila.Remove(pravilo);
-                                refreshCombo();
-                                updatePravilaDetails();
-                            }
-                            else
-                            {
-                                MessageBox.Show("Nije dozvoljeno brisanje pravila za koja postoje vezbe. Da biste izbrisali pravila, prvo morate da izbrisete sve vezbe za data pravila.", "Poruka");
-                            }
-                        }
-                        catch (Gimnastika.Exceptions.DatabaseException ex)
-                        {
-                            MessageBox.Show(ex.Message, "Greska");
+                            delete = false;
+                            break;
                         }
                     }
+
+                    if (delete)
+                    {
+                        foreach (Vezba v in vezbe)
+                        {
+                            DAOFactoryFactory.DAOFactory.GetVezbaDAO().Evict(v);
+                        }
+                        DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().MakeTransient(pravilo);
+                        session.Transaction.Commit();
+
+                        pravila.Remove(pravilo);
+                        refreshCombo();
+                        updatePravilaDetails();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nije dozvoljeno brisanje pravila za koja postoje vezbe. Da biste izbrisali pravila, prvo morate da izbrisete sve vezbe za data pravila.", "Poruka");
+                    }
                 }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
             }
         }
 

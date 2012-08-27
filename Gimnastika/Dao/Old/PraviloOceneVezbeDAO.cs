@@ -6,7 +6,7 @@ using System.Data;
 using Gimnastika.Domain;
 using Gimnastika.Exceptions;
 
-namespace Gimnastika.Dao
+namespace Gimnastika.Dao.Old
 {
     public class PraviloOceneVezbeDAO : DAO<PraviloOceneVezbe>
     {
@@ -191,8 +191,9 @@ namespace Gimnastika.Dao
             string naziv = (string)rdr["Naziv"];
             int brojBodovanih = (int)rdr["BrojBodovanihElemenata"];
             int maxIstaGrupa = (int)rdr["MaxIstaGrupa"];
-            PraviloOceneVezbe pravilo = new PraviloOceneVezbe(naziv, brojBodovanih, maxIstaGrupa);
-            pravilo.Id = (int)rdr["Id"];
+            //PraviloOceneVezbe pravilo = new PraviloOceneVezbe(naziv, brojBodovanih, maxIstaGrupa);
+            //pravilo.Id = (int)rdr["Id"];
+            PraviloOceneVezbe pravilo = new PraviloOceneVezbe();
             return pravilo;
         }
 
@@ -203,10 +204,11 @@ namespace Gimnastika.Dao
             if (!Convert.IsDBNull(rdr["MaxBrojElemenata"]))
                 max = (int)rdr["MaxBrojElemenata"];
             float pocOcena = (float)rdr["PocetnaOcena"];
-            if (max.HasValue)
-                return new PocetnaOcenaIzvedbe(min, max.Value, pocOcena);
-            else
-                return new PocetnaOcenaIzvedbe(min, pocOcena);
+            return new PocetnaOcenaIzvedbe();
+            //if (max.HasValue)
+              //  return new PocetnaOcenaIzvedbe(min, max.Value, pocOcena);
+            //else
+              //  return new PocetnaOcenaIzvedbe(min, pocOcena);
         }
 
         protected override string getSelectByIdSQL()

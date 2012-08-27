@@ -79,14 +79,30 @@
     <Compile Include="Dao\NHibernate\GimnasticarDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\GrupaDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\NHibernateDAOFactory.cs" />
+    <Compile Include="Dao\NHibernate\PraviloOceneVezbeDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\VezbaDAOImpl.cs" />
-    <Compile Include="Dao\Old\DAO.cs" />
-    <Compile Include="Dao\Old\Database.cs" />
-    <Compile Include="Dao\Old\ElementDAO.cs" />
-    <Compile Include="Dao\Old\GimnasticarDAO.cs" />
-    <Compile Include="Dao\Old\GrupaDAO.cs" />
-    <Compile Include="Dao\Old\PraviloOceneVezbeDAO.cs" />
-    <Compile Include="Dao\Old\VezbaDAO.cs" />
+    <Compile Include="Dao\Old\DAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\Database.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\ElementDAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\GimnasticarDAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\GrupaDAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\PraviloOceneVezbeDAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\Old\VezbaDAO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dao\PraviloOceneVezbeDAO.cs" />
     <Compile Include="Dao\VezbaDAO.cs" />
     <Compile Include="DatabaseConstraintsValidator.cs" />
     <Compile Include="DatabaseUpdater.cs" />

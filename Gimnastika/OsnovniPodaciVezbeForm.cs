@@ -8,11 +8,15 @@ using System.Windows.Forms;
 
 using Gimnastika.Domain;
 using Gimnastika.Dao;
+using NHibernate;
+using Gimnastika.Data;
+using NHibernate.Context;
 
 namespace Gimnastika
 {
     public partial class OsnovniPodaciVezbeForm : Form
     {
+        List<PraviloOceneVezbe> pravila;
         private Gimnasticar gimnasticar;
         private Sprava sprava;
         private PraviloOceneVezbe pravilo;
@@ -41,7 +45,20 @@ namespace Gimnastika
         public OsnovniPodaciVezbeForm()
         {
             InitializeComponent();
-            initUI();
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    pravila = new List<PraviloOceneVezbe>(DAOFactoryFactory.DAOFactory.GetPraviloOceneVezbeDAO().FindAll());
+                    initUI();
+                }
+            }
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private void initUI()
@@ -60,7 +77,7 @@ namespace Gimnastika
             cmbSprava.SelectedIndex = -1;
             cmbSprava.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            cmbPravila.DataSource = new PraviloOceneVezbeDAO().getAll();
+            cmbPravila.DataSource = pravila;
             cmbPravila.DisplayMember = "Naziv";
             cmbPravila.ValueMember = "Id";
             cmbPravila.SelectedIndex = -1;
@@ -71,19 +88,31 @@ namespace Gimnastika
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (!validateDialog())
+            try
             {
-                DialogResult = DialogResult.None;
-                return;
+                using (ISession session = NHibernateHelper.OpenSession())
+                using (session.BeginTransaction())
+                {
+                    CurrentSessionContext.Bind(session);
+                    if (!validateDialog())
+                    {
+                        DialogResult = DialogResult.None;
+                        return;
+                    }
+                    if (cmbGimnasticar.SelectedIndex != -1)
+                        gimnasticar = DAOFactoryFactory.DAOFactory.GetGimnasticarDAO()
+                            .FindById(((Gimnasticar)cmbGimnasticar.SelectedItem).Id);
+                    else
+                        gimnasticar = null;
+                    sprava = (Sprava)cmbSprava.SelectedValue;
+                    pravilo = cmbPravila.SelectedItem as PraviloOceneVezbe;
+                    naziv = txtNaziv.Text.Trim();
+                }
             }
-            if (cmbGimnasticar.SelectedIndex != -1)
-                gimnasticar = DAOFactoryFactory.DAOFactory.GetGimnasticarDAO()
-                    .FindById( ((Gimnasticar)cmbGimnasticar.SelectedItem).Id );
-            else
-                gimnasticar = null;
-            sprava = (Sprava)cmbSprava.SelectedValue;
-            pravilo = new PraviloOceneVezbeDAO().getById((int)cmbPravila.SelectedValue);
-            naziv = txtNaziv.Text.Trim();
+            finally
+            {
+                CurrentSessionContext.Unbind(NHibernateHelper.SessionFactory);
+            }
         }
 
         private bool validateDialog()
