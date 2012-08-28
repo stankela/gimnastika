@@ -113,7 +113,6 @@
     </Compile>
     <Compile Include="Exceptions\GridException.cs" />
     <Compile Include="Exceptions\InfrastructureException.cs" />
-    <Compile Include="Exceptions\InvalidFormatException.cs" />
     <Compile Include="Exceptions\InvalidPropertyException.cs" />
     <Compile Include="Exceptions\PageSizeToSmallException.cs" />
     <Compile Include="Exceptions\VideoException.cs" />
