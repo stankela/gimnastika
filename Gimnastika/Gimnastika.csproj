@@ -81,32 +81,9 @@
     <Compile Include="Dao\NHibernate\NHibernateDAOFactory.cs" />
     <Compile Include="Dao\NHibernate\PraviloOceneVezbeDAOImpl.cs" />
     <Compile Include="Dao\NHibernate\VezbaDAOImpl.cs" />
-    <Compile Include="Dao\Old\DAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\Database.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\ElementDAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\GimnasticarDAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\GrupaDAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\PraviloOceneVezbeDAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dao\Old\VezbaDAO.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Dao\PraviloOceneVezbeDAO.cs" />
     <Compile Include="Dao\VezbaDAO.cs" />
-    <Compile Include="DatabaseConstraintsValidator.cs" />
     <Compile Include="DatabaseUpdater.cs" />
-    <Compile Include="DataContext.cs" />
     <Compile Include="Data\DataAccessProviderFactory.cs" />
     <Compile Include="Data\IDataContext.cs" />
     <Compile Include="Data\IDataProviderFactory.cs" />
@@ -150,8 +127,9 @@
     <Compile Include="Domain\Vezba.cs" />
     <Compile Include="Domain\Video.cs" />
     <Compile Include="Exceptions\BusinessException.cs" />
-    <Compile Include="Exceptions\DatabaseConstraintException.cs" />
-    <Compile Include="Exceptions\DatabaseException.cs" />
+    <Compile Include="Exceptions\DatabaseException.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Exceptions\GridException.cs" />
     <Compile Include="Exceptions\InfrastructureException.cs" />
     <Compile Include="Exceptions\InvalidFormatException.cs" />
@@ -180,6 +158,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Misc\Database.cs" />
     <Compile Include="Misc\Notification.cs" />
     <Compile Include="Misc\NotificationMessage.cs" />
     <Compile Include="Misc\Strings.cs" />
@@ -427,7 +406,6 @@
     <Compile Include="TabelaElemenataForm.Designer.cs">
       <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ValidationError.cs" />
     <Compile Include="VezbaForm.cs">
       <SubType>Form</SubType>
     </Compile>
