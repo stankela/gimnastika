@@ -64,7 +64,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BindingListView.cs" />
+    <Compile Include="BindingListView.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Dao\DAOFactory.cs" />
     <Compile Include="Dao\DAOFactoryFactory.cs" />
     <Compile Include="Dao\ElementDAO.cs" />
@@ -84,19 +86,6 @@
     <Compile Include="Dao\VezbaDAO.cs" />
     <Compile Include="Data\NHibernate\NHibernateHelper.cs" />
     <Compile Include="Data\NHibernate\PersistentConfigurationBuilder.cs" />
-    <Compile Include="ElementForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ElementForm.Designer.cs">
-      <DependentUpon>ElementForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ElementsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ElementsForm.Designer.cs">
-      <DependentUpon>ElementsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ElementTableItem.cs" />
     <Compile Include="Domain\DomainObject.cs" />
     <Compile Include="Domain\Element.cs" />
     <Compile Include="Domain\ElementVezbe.cs" />
@@ -116,27 +105,6 @@
     <Compile Include="Exceptions\InvalidPropertyException.cs" />
     <Compile Include="Exceptions\PageSizeToSmallException.cs" />
     <Compile Include="Exceptions\VideoException.cs" />
-    <Compile Include="GrupeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GrupeForm.Designer.cs">
-      <DependentUpon>GrupeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HMergedCell.cs" />
-    <Compile Include="IVezbaEditorView.cs" />
-    <Compile Include="IzaberiElementeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="IzaberiElementeForm.Designer.cs">
-      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Izvestaj.cs" />
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Misc\ColumnAdder.cs" />
     <Compile Include="Misc\Database.cs" />
     <Compile Include="Misc\DatabaseUpdater.cs" />
@@ -146,30 +114,34 @@
     <Compile Include="Misc\Notification.cs" />
     <Compile Include="Misc\NotificationMessage.cs" />
     <Compile Include="Misc\Resursi.cs" />
-    <Compile Include="Misc\SortComparer.cs" />
+    <Compile Include="Misc\SortComparer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Misc\Strings.cs" />
     <Compile Include="Opcije.cs" />
-    <Compile Include="OtvoriVezbuForm.cs">
+    <Compile Include="Report\Izvestaj.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Report\VezbaIzvestaj.cs" />
+    <Compile Include="UI\ElementBrowserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ElementBrowserControl.designer.cs">
+      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ElementForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OtvoriVezbuForm.designer.cs">
-      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+    <Compile Include="UI\ElementForm.designer.cs">
+      <DependentUpon>ElementForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PictureBoxPlus.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="PocetnaOcenaForm.cs">
+    <Compile Include="UI\ElementsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PocetnaOcenaForm.Designer.cs">
-      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
+    <Compile Include="UI\ElementsForm.designer.cs">
+      <DependentUpon>ElementsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SlikeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SlikeForm.Designer.cs">
-      <DependentUpon>SlikeForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="UI\ElementTableItem.cs" />
     <Compile Include="UI\EntityDetailForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -194,139 +166,136 @@
     <Compile Include="UI\GimnasticariForm.Designer.cs">
       <DependentUpon>GimnasticariForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\GrupeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\GrupeForm.designer.cs">
+      <DependentUpon>GrupeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\HMergedCell.cs" />
+    <Compile Include="UI\IVezbaEditorView.cs" />
+    <Compile Include="UI\IzaberiElementeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\IzaberiElementeForm.designer.cs">
+      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\MainForm.designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\MessageDialogs.cs" />
-    <Compile Include="VezaForm.cs">
+    <Compile Include="UI\OpcijeForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VezaForm.Designer.cs">
-      <DependentUpon>VezaForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaEditorBaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="VezbaEditorBaseForm.designer.cs">
-      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="VezbaEditorForm.Designer.cs">
-      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaEditorFormTabela.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="VezbaEditorFormTabela.Designer.cs">
-      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaEditorPresenter.cs" />
-    <Compile Include="VezbaIzvestaj.cs" />
-    <Compile Include="PravilaForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PravilaForm.Designer.cs">
-      <DependentUpon>PravilaForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PraviloForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PraviloForm.Designer.cs">
-      <DependentUpon>PraviloForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="OsnovniPodaciVezbeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OsnovniPodaciVezbeForm.Designer.cs">
-      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="OpcijeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OpcijeForm.Designer.cs">
+    <Compile Include="UI\OpcijeForm.designer.cs">
       <DependentUpon>OpcijeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PrintPreviewForm.cs">
+    <Compile Include="UI\OsnovniPodaciVezbeForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PrintPreviewForm.Designer.cs">
+    <Compile Include="UI\OsnovniPodaciVezbeForm.designer.cs">
+      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OtvoriVezbuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\OtvoriVezbuForm.designer.cs">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PictureBoxPlus.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\PocetnaOcenaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PocetnaOcenaForm.designer.cs">
+      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PravilaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PravilaForm.designer.cs">
+      <DependentUpon>PravilaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PraviloForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PraviloForm.designer.cs">
+      <DependentUpon>PraviloForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PrintPreviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PrintPreviewForm.designer.cs">
       <DependentUpon>PrintPreviewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SelectForm.cs">
+    <Compile Include="UI\SelectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SelectForm.Designer.cs">
+    <Compile Include="UI\SelectForm.designer.cs">
       <DependentUpon>SelectForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\SelektujElementeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\SelektujElementeControl.designer.cs">
+      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SingleInstanceApplication.cs" />
+    <Compile Include="UI\SlikeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\SlikeForm.designer.cs">
+      <DependentUpon>SlikeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TabelaElemenataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\TabelaElemenataForm.designer.cs">
+      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\VezaForm.designer.cs">
+      <DependentUpon>VezaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezbaEditorBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\VezbaEditorBaseForm.designer.cs">
+      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezbaEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\VezbaEditorForm.designer.cs">
+      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezbaEditorFormTabela.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\VezbaEditorFormTabela.designer.cs">
+      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezbaEditorPresenter.cs" />
+    <Compile Include="UI\VezbaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\VezbaForm.designer.cs">
+      <DependentUpon>VezbaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VezbaTabela.cs" />
+    <Compile Include="UI\VMergedCell.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ElementForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ElementForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ElementsForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ElementsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GrupeForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>GrupeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="IzaberiElementeForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PocetnaOcenaForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PravilaForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>PravilaForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PraviloForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>PraviloForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OsnovniPodaciVezbeForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OpcijeForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>OpcijeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PrintPreviewForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SelectForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>SelectForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ElementBrowserControl.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SelektujElementeControl.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SlikeForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>SlikeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TabelaElemenataForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\GimnasticarForm.resx">
       <DependentUpon>GimnasticarForm.cs</DependentUpon>
@@ -334,22 +303,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\GimnasticariForm.resx">
       <DependentUpon>GimnasticariForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VezbaEditorBaseForm.resx">
-      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VezbaEditorForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VezbaEditorFormTabela.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VezbaForm.resx">
-      <DependentUpon>VezbaForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -370,38 +323,19 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SelektujElementeControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="SelektujElementeControl.Designer.cs">
-      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SingleInstanceApplication.cs" />
-    <Compile Include="ElementBrowserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ElementBrowserControl.Designer.cs">
-      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TabelaElemenataForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TabelaElemenataForm.Designer.cs">
-      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="VezbaForm.designer.cs">
-      <DependentUpon>VezbaForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="VezbaTabela.cs" />
-    <Compile Include="VMergedCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\NHibernate\Mappings\Gimnasticar.hbm.xml" />
-    <EmbeddedResource Include="OtvoriVezbuForm.resx">
-      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+    <EmbeddedResource Include="UI\ElementBrowserControl.resx">
+      <DependentUpon>ElementBrowserControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ElementForm.resx">
+      <DependentUpon>ElementForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ElementsForm.resx">
+      <DependentUpon>ElementsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\EntityDetailForm.resx">
@@ -416,8 +350,80 @@
     <Content Include="DataBaseUpdate.txt" />
     <EmbeddedResource Include="Data\NHibernate\Mappings\PraviloOceneVezbe.hbm.xml" />
     <EmbeddedResource Include="Data\NHibernate\Mappings\ElementVezbe.hbm.xml" />
-    <EmbeddedResource Include="VezaForm.resx">
+    <EmbeddedResource Include="UI\GrupeForm.resx">
+      <DependentUpon>GrupeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\IzaberiElementeForm.resx">
+      <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\OpcijeForm.resx">
+      <DependentUpon>OpcijeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\OsnovniPodaciVezbeForm.resx">
+      <DependentUpon>OsnovniPodaciVezbeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\OtvoriVezbuForm.resx">
+      <DependentUpon>OtvoriVezbuForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PocetnaOcenaForm.resx">
+      <DependentUpon>PocetnaOcenaForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PravilaForm.resx">
+      <DependentUpon>PravilaForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PraviloForm.resx">
+      <DependentUpon>PraviloForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PrintPreviewForm.resx">
+      <DependentUpon>PrintPreviewForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SelectForm.resx">
+      <DependentUpon>SelectForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SelektujElementeControl.resx">
+      <DependentUpon>SelektujElementeControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SlikeForm.resx">
+      <DependentUpon>SlikeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\TabelaElemenataForm.resx">
+      <DependentUpon>TabelaElemenataForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\VezaForm.resx">
       <DependentUpon>VezaForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\VezbaEditorBaseForm.resx">
+      <DependentUpon>VezbaEditorBaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\VezbaEditorForm.resx">
+      <DependentUpon>VezbaEditorForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\VezbaEditorFormTabela.resx">
+      <DependentUpon>VezbaEditorFormTabela.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\VezbaForm.resx">
+      <DependentUpon>VezbaForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Data\NHibernate\Mappings\Grupa.hbm.xml" />

@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Globalization;
 
+using Gimnastika.UI;
+
 namespace Gimnastika
 {
     static class Program
