@@ -65,7 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BindingListView.cs" />
-    <Compile Include="ColumnAdder.cs" />
     <Compile Include="Dao\DAOFactory.cs" />
     <Compile Include="Dao\DAOFactoryFactory.cs" />
     <Compile Include="Dao\ElementDAO.cs" />
@@ -83,26 +82,8 @@
     <Compile Include="Dao\NHibernate\VezbaDAOImpl.cs" />
     <Compile Include="Dao\PraviloOceneVezbeDAO.cs" />
     <Compile Include="Dao\VezbaDAO.cs" />
-    <Compile Include="DatabaseUpdater.cs" />
-    <Compile Include="Data\DataAccessProviderFactory.cs" />
-    <Compile Include="Data\IDataContext.cs" />
-    <Compile Include="Data\IDataProviderFactory.cs" />
-    <Compile Include="Data\NHibernate\DataProviderFactory.cs" />
-    <Compile Include="Data\NHibernate\NHibernateDataContext.cs" />
     <Compile Include="Data\NHibernate\NHibernateHelper.cs" />
     <Compile Include="Data\NHibernate\PersistentConfigurationBuilder.cs" />
-    <Compile Include="Data\NHibernate\QueryTranslator.cs" />
-    <Compile Include="Data\QueryLanguageType.cs" />
-    <Compile Include="Data\QueryModel\AssociationAlias.cs" />
-    <Compile Include="Data\QueryModel\AssociationFetch.cs" />
-    <Compile Include="Data\QueryModel\CriteriaOperator.cs" />
-    <Compile Include="Data\QueryModel\Criterion.cs" />
-    <Compile Include="Data\QueryModel\OrderClause.cs" />
-    <Compile Include="Data\QueryModel\Query.cs" />
-    <Compile Include="Data\QueryModel\QueryOperator.cs" />
-    <Compile Include="Data\QueryModel\StringMatchMode.cs" />
-    <Compile Include="Data\TransactionException.cs" />
-    <Compile Include="DateUtilities.cs" />
     <Compile Include="ElementForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,18 +132,23 @@
       <DependentUpon>IzaberiElementeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Izvestaj.cs" />
-    <Compile Include="Language.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Misc\ColumnAdder.cs" />
     <Compile Include="Misc\Database.cs" />
+    <Compile Include="Misc\DatabaseUpdater.cs" />
+    <Compile Include="Misc\DateUtilities.cs" />
+    <Compile Include="Misc\Language.cs" />
+    <Compile Include="Misc\NativeMethods.cs" />
     <Compile Include="Misc\Notification.cs" />
     <Compile Include="Misc\NotificationMessage.cs" />
+    <Compile Include="Misc\Resursi.cs" />
+    <Compile Include="Misc\SortComparer.cs" />
     <Compile Include="Misc\Strings.cs" />
-    <Compile Include="NativeMethods.cs" />
     <Compile Include="Opcije.cs" />
     <Compile Include="OtvoriVezbuForm.cs">
       <SubType>Form</SubType>
@@ -385,7 +371,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Resursi.cs" />
     <Compile Include="SelektujElementeControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -393,7 +378,6 @@
       <DependentUpon>SelektujElementeControl.cs</DependentUpon>
     </Compile>
     <Compile Include="SingleInstanceApplication.cs" />
-    <Compile Include="SortComparer.cs" />
     <Compile Include="ElementBrowserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

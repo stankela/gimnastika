@@ -34,7 +34,7 @@ namespace Gimnastika
         protected override void OnCreateMainForm()
         {
             // Do your initialization here
-            new DataAccessProviderFactory().GetDataContext();
+            //new DataAccessProviderFactory().GetDataContext();
 
             this.MainForm = new MainForm();
         }
