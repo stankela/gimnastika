@@ -37,9 +37,8 @@ namespace Gimnastika.UI
             this.cmbGrupa = new System.Windows.Forms.ComboBox();
             this.cmbTezina = new System.Windows.Forms.ComboBox();
             this.cmbSprava = new System.Windows.Forms.ComboBox();
-            this.gridViewElementi = new System.Windows.Forms.DataGridView();
+            this.dataGridViewUserControl1 = new Gimnastika.UI.DataGridViewUserControl();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gridViewElementi)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -135,29 +134,27 @@ namespace Gimnastika.UI
             this.cmbSprava.Size = new System.Drawing.Size(121, 21);
             this.cmbSprava.TabIndex = 2;
             // 
-            // gridViewElementi
+            // dataGridViewUserControl1
             // 
-            this.gridViewElementi.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.dataGridViewUserControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gridViewElementi.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridViewElementi.Location = new System.Drawing.Point(0, 90);
-            this.gridViewElementi.Name = "gridViewElementi";
-            this.gridViewElementi.Size = new System.Drawing.Size(587, 186);
-            this.gridViewElementi.TabIndex = 7;
-            this.gridViewElementi.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.gridViewElementi_CellFormatting);
+            this.dataGridViewUserControl1.ColumnHeaderSorting = true;
+            this.dataGridViewUserControl1.Location = new System.Drawing.Point(0, 90);
+            this.dataGridViewUserControl1.Name = "dataGridViewUserControl1";
+            this.dataGridViewUserControl1.Size = new System.Drawing.Size(584, 191);
+            this.dataGridViewUserControl1.TabIndex = 2;
             // 
             // ElementBrowserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.dataGridViewUserControl1);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.gridViewElementi);
             this.Name = "ElementBrowserControl";
             this.Size = new System.Drawing.Size(587, 284);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gridViewElementi)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -173,6 +170,6 @@ namespace Gimnastika.UI
         public System.Windows.Forms.ComboBox cmbGrupa;
         public System.Windows.Forms.ComboBox cmbTezina;
         public System.Windows.Forms.ComboBox cmbSprava;
-        public System.Windows.Forms.DataGridView gridViewElementi;
+        private DataGridViewUserControl dataGridViewUserControl1;
     }
 }

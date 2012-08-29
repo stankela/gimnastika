@@ -1,90 +1,96 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace Gimnastika
 {
     class SortComparer<T> : IComparer<T>
     {
-        private ListSortDescriptionCollection m_SortCollection = null;
-        private PropertyDescriptor m_PropDesc = null;
-        private ListSortDirection m_Direction = ListSortDirection.Ascending;
+        private PropertyDescriptor[] propDesc;
+        private ListSortDirection[] direction;
 
         public SortComparer(PropertyDescriptor propDesc, ListSortDirection direction)
         {
-            m_PropDesc = propDesc;
-            m_Direction = direction;
+			if (propDesc == null)
+				throw new ArgumentException();
+
+			this.propDesc = new PropertyDescriptor[1] { propDesc };
+			this.direction = new ListSortDirection[1] { direction };
         }
 
-        public SortComparer(ListSortDescriptionCollection sortCollection)
-        {
-            m_SortCollection = sortCollection;
+		public SortComparer(PropertyDescriptor[] propDesc, ListSortDirection[] direction)
+		{
+			if (propDesc.Length != direction.Length || propDesc.Length == 0)
+				throw new ArgumentException();
+			foreach (PropertyDescriptor pd in propDesc)
+			{
+				if (pd == null)
+					throw new ArgumentException();
+			}
+
+			this.propDesc = propDesc;
+			this.direction = direction;
         }
 
         #region IComparer<T> Members
 
         int IComparer<T>.Compare(T x, T y)
         {
-            if (m_PropDesc != null) // Simple sort 
-            {
-                object xValue = m_PropDesc.GetValue(x);
-                object yValue = m_PropDesc.GetValue(y);
-                return CompareValues(xValue, yValue, m_Direction);
-            }
-            else if (m_SortCollection != null && m_SortCollection.Count > 0)
-            {
-                return RecursiveCompareInternal(x, y, 0);
-            }
-            else return 0;
-        }
+			return RecursiveCompare(x, y, 0);
+		}
 
         #endregion
 
-        private int CompareValues(object xValue, object yValue, ListSortDirection direction)
+		private int RecursiveCompare(T x, T y, int index)
+		{
+			if (index >= propDesc.Length)
+				return 0; // termination condition
+
+			object xValue = propDesc[index].GetValue(x);
+			object yValue = propDesc[index].GetValue(y);
+
+			int retValue = CompareValues(xValue, yValue, direction[index]);
+			if (retValue != 0)
+				return retValue;
+			else
+				return RecursiveCompare(x, y, ++index);
+		}
+
+		private int CompareValues(object xValue, object yValue, ListSortDirection direction)
         {
             int retValue = 0;
-            if (xValue is IComparable) // Can ask the x value
+            if (xValue != null && yValue != null)
             {
-                retValue = ((IComparable)xValue).CompareTo(yValue);
+                if (xValue is IComparable) // Can ask the x value
+                {
+                    retValue = ((IComparable)xValue).CompareTo(yValue);
+                }
+                else if (yValue is IComparable) //Can ask the y value
+                {
+                    retValue = ((IComparable)yValue).CompareTo(xValue);
+                }
+                else if (!xValue.Equals(yValue)) // not comparable, compare String representations
+                {
+                    retValue = xValue.ToString().CompareTo(yValue.ToString());
+                }
             }
-            else if (yValue is IComparable) //Can ask the y value
+            // NOTE: Primetiti da u slucajevima kada je jedan od elemenata null odmah
+            // vracam vrednost (ne vrsim invertovanje na osnovu smera sortiranja)
+            // i to tako da je element koji nije null uvek ispred elementa koji
+            // je null (i za Ascending i za Descending)
+            else if (xValue != null) // yValue == null
             {
-                retValue = ((IComparable)yValue).CompareTo(xValue);
+                return -1;
             }
-            else if (!xValue.Equals(yValue)) // not comparable, compare String representations
+            else if (yValue != null) // xValue == null
             {
-                retValue = xValue.ToString().CompareTo(yValue.ToString());
+                return 1;
             }
+
             if (direction == ListSortDirection.Ascending)
-            {
                 return retValue;
-            }
             else
-            {
-                return retValue * -1;
-            }
+                return -retValue;
         }
-
-        private int RecursiveCompareInternal(T x, T y, int index)
-        {
-            if (index >= m_SortCollection.Count)
-                return 0; // termination condition
-
-            ListSortDescription listSortDesc = m_SortCollection[index];
-            object xValue = listSortDesc.PropertyDescriptor.GetValue(x);
-            object yValue = listSortDesc.PropertyDescriptor.GetValue(y);
-
-            int retValue = CompareValues(xValue, yValue, listSortDesc.SortDirection);
-            if (retValue == 0)
-            {
-                return RecursiveCompareInternal(x, y, ++index);
-            }
-            else
-            {
-                return retValue;
-            }
-        }
-
     }
 }

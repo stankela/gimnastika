@@ -150,7 +150,8 @@ namespace Gimnastika.UI
         }
 
         ElementTableItem[,] elementItems;
-        private BindingListView<Element> elementi;
+        private List<Element> sviElementi;
+        private List<Element> elementi;
 
         ContextMenu contextMenuZoom;
         bool fitWidth = false;
@@ -196,8 +197,8 @@ namespace Gimnastika.UI
                 using (session.BeginTransaction())
                 {
                     CurrentSessionContext.Bind(session);
-                    elementi = new BindingListView<Element>(
-                        new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll()));
+                    sviElementi = new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll());
+                    elementi = new List<Element>(sviElementi);
                     grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
 
                     float elementSizeMM = Math.Min(210 / 4, 297 / 4);
@@ -327,13 +328,25 @@ namespace Gimnastika.UI
 
         private void filterAndSortElements()
         {
-            string filter = String.Format("Sprava = {0} ", selectedSprava());
-            filter += String.Format(" AND Grupa = {0} ", selectedGrupa());
-            (elementi as IBindingListView).Filter = filter;
-
+            elementi = new List<Element>();
+            foreach (Element e in sviElementi)
+            {
+                if (selectedSprava() != Sprava.Undefined)
+                {
+                    if (e.Sprava != selectedSprava())
+                        continue;
+                }
+                if (selectedGrupa() != GrupaElementa.Undefined)
+                {
+                    if (e.Grupa != selectedGrupa())
+                        continue;
+                }
+                elementi.Add(e);
+            }
+            
             PropertyDescriptor propDesc =
                 TypeDescriptor.GetProperties(typeof(Element))["GrupaBroj"];
-            (elementi as IBindingListView).ApplySort(propDesc, ListSortDirection.Ascending);
+            elementi.Sort(new SortComparer<Element>(propDesc, ListSortDirection.Ascending));
         }
 
         private void createItems()
@@ -928,7 +941,7 @@ namespace Gimnastika.UI
             if (form.ShowDialog() == DialogResult.OK)
             {
                 Element element = form.Element;
-                elementi.Add(element);
+                sviElementi.Add(element);
                 filterAndSortElements();
                 createItem(element.Broj, element);
 
@@ -944,11 +957,14 @@ namespace Gimnastika.UI
 
             clearClipboard();
             Element element = clickedItem.Element;
+            int sviIndex = sviElementi.IndexOf(element);
+            int index = elementi.IndexOf(element);
             ElementForm form = new ElementForm(element.Id, element.Sprava, element.Grupa,
                 element.Broj, element.Tezina);
             if (form.ShowDialog() == DialogResult.OK)
             {
-                elementi[elementi.IndexOf(element)] = form.Element;
+                sviElementi[sviIndex] = form.Element;
+                elementi[index] = form.Element;
                 clickedItem.Element = form.Element;
                 panelTabela.Invalidate();
                 panelTabela.Focus();
@@ -1064,6 +1080,7 @@ namespace Gimnastika.UI
                     DAOFactoryFactory.DAOFactory.GetElementDAO().MakeTransient(element);
                     session.Transaction.Commit();
 
+                    sviElementi.Remove(element);
                     elementi.Remove(element);
                     //  filterAndSortElements();
                     createItem(broj, null);
@@ -1134,7 +1151,7 @@ namespace Gimnastika.UI
             {
                 Element element = form.Element;
                 bool extend = element.Broj > brojVrsta * 6;
-                elementi.Add(element);
+                sviElementi.Add(element);
                 filterAndSortElements();
                 createItem(element.Broj, element); // prosiruje tabelu ako je potrebno
 

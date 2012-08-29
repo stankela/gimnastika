@@ -11,7 +11,12 @@ namespace Gimnastika.UI
 {
     public partial class ElementBrowserControl : UserControl
     {
-        BindingListView<Element> elementi;
+        List<Element> elementi;
+
+        public DataGridViewUserControl DataGridViewUserControl
+        {
+            get { return dataGridViewUserControl1; }
+        }
 
         public ElementBrowserControl()
         {
@@ -19,14 +24,11 @@ namespace Gimnastika.UI
             initUI();
         }
 
-        public BindingListView<Element> Elementi
+        public void setElementi(List<Element> elementi)
         {
-            set
-            {
-                elementi = value;
-                fillGridView();
-                applyFilter();
-            }
+            this.elementi = elementi;
+            dataGridViewUserControl1.setItems<Element>(elementi);
+            applyFilter();
         }
 
         // NOTE: Ovo je prvobitno bilo realizovano kao svojstvo Sprava, ali je tada
@@ -60,12 +62,11 @@ namespace Gimnastika.UI
 
             rbtTablicni.Checked = true;
 
-            gridViewElementi.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            gridViewElementi.MultiSelect = false;
-            gridViewElementi.AllowUserToAddRows = false;
-            gridViewElementi.AllowUserToDeleteRows = false;
-            gridViewElementi.AllowUserToResizeRows = false;
-            gridViewElementi.ReadOnly = true;
+            dataGridViewUserControl1.GridColumnHeaderMouseClick +=
+                new EventHandler<GridColumnHeaderMouseClickEventArgs>(DataGridViewUserControl_GridColumnHeaderMouseClick);
+            GridColumnsInitializer.initElement(dataGridViewUserControl1);
+            dataGridViewUserControl1.DataGridView.MultiSelect = false;
+            dataGridViewUserControl1.DataGridView.AllowUserToResizeRows = false;
 
             cmbSprava.SelectedIndexChanged += cmbSprava_SelectedIndexChanged;
             cmbGrupa.SelectedIndexChanged += cmbGrupa_SelectedIndexChanged;
@@ -73,14 +74,44 @@ namespace Gimnastika.UI
             rbtTablicni.CheckedChanged += rbtTablicni_CheckedChanged;
         }
 
-        private void fillGridView()
+        private void DataGridViewUserControl_GridColumnHeaderMouseClick(object sender,
+            GridColumnHeaderMouseClickEventArgs e)
         {
-            gridViewElementi.DataSource = elementi;
+            DataGridViewUserControl dgwuc = sender as DataGridViewUserControl;
+            if (dgwuc != null)
+                dgwuc.onColumnHeaderMouseClick<Element>(e.DataGridViewCellMouseEventArgs);
         }
 
         private void applyFilter()
         {
-            IBindingListView listView = gridViewElementi.DataSource as IBindingListView;
+            List<Element> filteredElementi = new List<Element>();
+            foreach (Element e in elementi)
+            {
+                if (e.IsTablicniElement != rbtTablicni.Checked)
+                    continue;
+                if (selectedSprava() != Sprava.Undefined)
+                {
+                    if (e.Sprava != selectedSprava())
+                        continue;
+                }
+                if (rbtTablicni.Checked)
+                {
+                    if (selectedGrupa() != GrupaElementa.Undefined)
+                    {
+                        if (e.Grupa != selectedGrupa())
+                            continue;
+                    }
+                    if (selectedTezina() != TezinaElementa.Undefined)
+                    {
+                        if (e.Tezina != selectedTezina())
+                            continue;
+                    }
+                }
+                filteredElementi.Add(e);
+            }
+            dataGridViewUserControl1.setItems<Element>(filteredElementi);
+
+            /*IBindingListView listView = gridViewElementi.DataSource as IBindingListView;
             if (listView != null)
             {
                 string filter = String.Format("IsTablicniElement = {0} ",
@@ -101,15 +132,8 @@ namespace Gimnastika.UI
                     }
 
                 }
-                if (filter != String.Empty)
-                {
-                    listView.Filter = filter;
-                }
-                else
-                {
-                    listView.RemoveFilter();
-                }
-            }
+                listView.Filter = filter;
+            }*/
         }
 
         public Sprava selectedSprava()
@@ -126,36 +150,6 @@ namespace Gimnastika.UI
         {
             return (TezinaElementa)cmbTezina.SelectedValue;
         }
-
-
-
-        /*
-        // How to remove sort
-        private void btnRemoveSort_Click(object sender, EventArgs e)
-        {
-            IBindingListView listView = gridViewElementi.DataSource as IBindingListView;
-            if (listView != null)
-            {
-                listView.RemoveSort();
-            }
-        }
-
-        // How to apply complex sort
-        private void btnApplyComplexSort_Click(object sender, EventArgs e)
-        {
-            IBindingListView listView = gridViewElementi.DataSource as IBindingListView;
-            if (listView != null)
-            {
-                ListSortDescription[] sortDescs = new ListSortDescription[3];
-                PropertyDescriptorCollection propColl = TypeDescriptor.GetProperties(typeof(Element));
-                sortDescs[0] = new ListSortDescription(propColl[2], ListSortDirection.Ascending);
-                sortDescs[1] = new ListSortDescription(propColl[0], ListSortDirection.Ascending);
-                sortDescs[2] = new ListSortDescription(propColl[1], ListSortDirection.Descending);
-                ListSortDescriptionCollection coll = new ListSortDescriptionCollection(sortDescs);
-                listView.ApplySort(coll);
-            }
-        }
-        */
 
         private void cmbSprava_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -190,20 +184,11 @@ namespace Gimnastika.UI
             applyFilter();
         }
 
-        private void gridViewElementi_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        public void selektuj(Element e)
         {
-            if (gridViewElementi.Columns[e.ColumnIndex].Name == "Tezina")
-            {
-                if (e.Value != null && ((TezinaElementa)e.Value == TezinaElementa.Undefined))
-                    e.Value = "";
-            }
-        }
-
-        public void selektuj(int position)
-        {
-            CurrencyManager currencyManager =
-                (CurrencyManager)this.BindingContext[gridViewElementi.DataSource];
-            currencyManager.Position = position;
+            // TODO: U komentaru unutart metoda setSelectedItem stoji da Element mora da implementira Equals da bi ovaj
+            // metod dobro radio. Proveri ovo.
+            dataGridViewUserControl1.setSelectedItem<Element>(e);
         }
 
         private void cmbGrupa_DropDown(object sender, EventArgs e)
