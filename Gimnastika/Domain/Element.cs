@@ -12,14 +12,16 @@ using Iesi.Collections.Generic;
 namespace Gimnastika.Domain
 {
     public enum Sprava
-    { 
+    {
         Undefined = 0,
         Parter = 1,
         Konj = 2,
         Karike = 3,
         Preskok = 4,
         Razboj = 5,
-        Vratilo = 6
+        Vratilo = 6,
+        //promeni Max ako budes dodavao enume
+        Max = Vratilo
     }
 
     public enum TezinaElementa
@@ -41,7 +43,9 @@ namespace Gimnastika.Domain
         II = 2,
         III = 3,
         IV = 4,
-        V = 5
+        V = 5,
+        //promeni Max ako budes dodavao enume
+        Max = V
     }
 
     public class Element : DomainObject

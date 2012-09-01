@@ -254,6 +254,7 @@
     <Compile Include="UI\SlikeForm.designer.cs">
       <DependentUpon>SlikeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\TabelaElemenata.cs" />
     <Compile Include="UI\TabelaElemenataForm.cs">
       <SubType>Form</SubType>
     </Compile>

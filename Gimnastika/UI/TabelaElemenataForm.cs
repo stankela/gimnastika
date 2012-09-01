@@ -18,140 +18,13 @@ namespace Gimnastika.UI
 {
     public partial class TabelaElemenataForm : Form
     {
-        private int brojVrsta;
-        private SizeF elementSizePxl;
+        private TabelaElemenata tabela;
+
         private int tezineHeaderHeightPxl;
         private int grupaHeaderHeightPxl;
         private float zoom;
         private float xMargin = 10;
         private float yMargin = 10;
-
-        private Color itemBorderColor;
-        private Color itemBorderSelectedColor;
-        private Color itemTextColor;
-
-        private Color itemTextSelectedColor;
-        public Color ItemTextSelectedColor
-        {
-            get { return itemTextSelectedColor; }
-        }
-
-        private Color tabelaBackColor;
-        private Color headerBorderColor;
-        private Color headerTezinaTextColor;
-        private Color headerGrupaTextColor;
-
-        private Pen itemBorderPen = null;
-        public Pen ItemBorderPen
-        {
-            get {
-                if (itemBorderPen == null)
-                    itemBorderPen = new Pen(itemBorderColor);
-                return itemBorderPen; 
-            }
-        }
-
-        private Pen itemBorderSelectedPen = null;
-        public Pen ItemBorderSelectedPen
-        {
-            get
-            {
-                if (itemBorderSelectedPen == null)
-                    itemBorderSelectedPen = new Pen(itemBorderSelectedColor);
-                return itemBorderSelectedPen;
-            }
-        }
-
-        private Pen eraseBorderPen = null;
-        public Pen EraseBorderPen
-        {
-            get
-            {
-                if (eraseBorderPen == null)
-                    eraseBorderPen = new Pen(tabelaBackColor);
-                return eraseBorderPen;
-            }
-        }
-
-        private Brush itemTextBrush = null;
-        public Brush ItemTextBrush
-        {
-            get {
-                if (itemTextBrush == null)
-                    itemTextBrush = new SolidBrush(itemTextColor);
-                return itemTextBrush; 
-            }
-        }
-
-        private Brush itemTextSelectedBrush = null;
-        public Brush ItemTextSelectedBrush
-        {
-            get
-            {
-                if (itemTextSelectedBrush == null)
-                    itemTextSelectedBrush = new SolidBrush(itemTextSelectedColor);
-                return itemTextSelectedBrush;
-            }
-        }
-
-        private Font itemFont;
-        public Font ItemFont
-        {
-            get { return itemFont; }
-        }
-
-        private Font itemBoldFont;
-        public Font ItemBoldFont
-        {
-            get { return itemBoldFont; }
-        }
-
-        private Pen headerBorderPen;
-        public Pen HeaderBorderPen
-        {
-            get {
-                if (headerBorderPen == null)
-                    headerBorderPen = new Pen(headerBorderColor);
-                return headerBorderPen; 
-            }
-        }
-
-        private Brush headerTezinaTextBrush;
-        public Brush HeaderTezinaTextBrush
-        {
-            get {
-                if (headerTezinaTextBrush == null)
-                    headerTezinaTextBrush = new SolidBrush(headerTezinaTextColor);
-                return headerTezinaTextBrush; 
-            }
-        }
-
-        private Font headerTezinaFont;
-        public Font HeaderTezinaFont
-        {
-            get { return headerTezinaFont; }
-        }
-
-        private Brush headerGrupaTextBrush;
-        public Brush HeaderGrupaTextBrush
-        {
-            get
-            {
-                if (headerGrupaTextBrush == null)
-                    headerGrupaTextBrush = new SolidBrush(headerGrupaTextColor);
-                return headerGrupaTextBrush;
-            }
-        }
-
-        private Font headerGrupaFont;
-        public Font HeaderGrupaFont
-        {
-            get { return headerGrupaFont; }
-        }
-
-        ElementTableItem[,] elementItems;
-        private List<Element> sviElementi;
-        private List<Element> elementi;
 
         ContextMenu contextMenuZoom;
         bool fitWidth = false;
@@ -169,7 +42,8 @@ namespace Gimnastika.UI
             Select 
         };
 
-        private Dictionary<int, Element> izabrani = new Dictionary<int, Element>();
+        // TODO: Ovo je hack - promenio sam pristup u public da bi mogao da pristupam iz TabelaElemenata.
+        public Dictionary<int, Element> izabrani = new Dictionary<int, Element>();
 
         public List<Element> IzabraniElementi
         {
@@ -187,7 +61,6 @@ namespace Gimnastika.UI
         public TabelaElemenataForm(TabelaElemenataFormRezimRada rezimRada, Sprava sprava)
         {
             InitializeComponent();
-            initUI();
             MinimumSize = SystemInformation.MinimizedWindowSize + 
                 new Size(0, panel1.Height + panelHeader.Height + 100);
 
@@ -197,17 +70,22 @@ namespace Gimnastika.UI
                 using (session.BeginTransaction())
                 {
                     CurrentSessionContext.Bind(session);
-                    sviElementi = new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll());
-                    elementi = new List<Element>(sviElementi);
+
+                    List<Element> sviElementi = new List<Element>(DAOFactoryFactory.DAOFactory.GetElementDAO().FindAll());
                     grupe = DAOFactoryFactory.DAOFactory.GetGrupaDAO().FindAll();
 
-                    float elementSizeMM = Math.Min(210 / 4, 297 / 4);
+                    Graphics g = CreateGraphics();
+                    float elementSizeMM = Math.Min(210 / 4, 297 / 6);
+                    SizeF elementSizePxl = (Size)Point.Round(
+                        mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
+                    
+                    tabela = new TabelaElemenata(sviElementi, elementSizePxl, this);
+
+                    initUI();
+                    
                     float tezineHeaderHeightMM = 7;
                     float grupaHeaderHeightMM = 5;
 
-                    Graphics g = CreateGraphics();
-                    elementSizePxl = (Size)Point.Round(
-                        mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
                     tezineHeaderHeightPxl = Point.Round(
                         mmToPixel(g, new PointF(0, tezineHeaderHeightMM))).Y;
                     grupaHeaderHeightPxl = Point.Round(
@@ -233,7 +111,7 @@ namespace Gimnastika.UI
 
                     disableTrackBar();
                     promeniGrupu();
-                    zumiraj(100);
+                    zumiraj(120);
                     panelTabela.MouseWheel += new MouseEventHandler(panelTabela_MouseWheel);
                 }
             }
@@ -243,49 +121,9 @@ namespace Gimnastika.UI
             }
         }
 
-        void panelTabela_MouseWheel(object sender, MouseEventArgs e)
-        {
-            disableTrackBar();
-        }
-
-        private void setSpravaCombo(Sprava sprava)
-        {
-            cmbSprava.SelectedIndex = sprava - Sprava.Parter;
-        }
-
-        private PointF mmToPixel(Graphics g, PointF mm)
-        {
-            PointF result = new PointF();
-            result.X = mm.X * g.DpiX / 25.4f;
-            result.Y = mm.Y * g.DpiY / 25.4f;
-            return result;
-        }
-
-        private void TabelaElemenataForm_Shown(object sender, EventArgs e)
-        {
-            // Postavljanje fokusa na panel je potrebno da bi moglo da se skroluje
-            // tockicem misa.
-
-            // Mora ovde zato sto u konstruktoru postavljanje fokusa nema efekta.
-            panelTabela.Focus();
-        }
-
         private void initUI()
         {
             Text = "Tabela elemenata";
-
-            tabelaBackColor = SystemColors.Window;
-            itemBorderColor = SystemColors.WindowText;
-            itemBorderSelectedColor = Color.Fuchsia;
-            itemTextColor = SystemColors.WindowText;
-            itemTextSelectedColor = Color.Fuchsia;
-            itemFont = new Font("Arial", 8);
-            itemBoldFont = new Font("Arial", 8, FontStyle.Bold);
-            headerBorderColor = SystemColors.WindowText;
-            headerTezinaTextColor = Color.Blue;
-            headerTezinaFont = new Font("Arial", 14, FontStyle.Bold | FontStyle.Italic);
-            headerGrupaTextColor = SystemColors.WindowText;
-            headerGrupaFont = new Font("Arial", 10, FontStyle.Bold);
 
             cmbSprava.Items.Clear();
             cmbSprava.Items.AddRange(Resursi.SpravaNazivTable);
@@ -305,20 +143,27 @@ namespace Gimnastika.UI
             contextMenuZoom.Popup += new EventHandler(contextMenuZoom_Popup);
 
             this.KeyPreview = true; // the form will receive key events before the 
-                                    // event is passed to the control that has focus.
+            // event is passed to the control that has focus.
 
             // NOTE: Kada se koristi automatsko skrolovanje, kontrola koja se skroluje
             // automatski obradjuje dogadjaje MouseWheel (ne mora da se pise handler)
             panelTabela.AutoScroll = true;
-            panelTabela.BackColor = tabelaBackColor;
+            panelTabela.BackColor = tabela.TabelaBackColor;
 
-            panelHeader.BackColor = tabelaBackColor;
+            panelHeader.BackColor = tabela.TabelaBackColor;
+        }
+
+        private PointF mmToPixel(Graphics g, PointF mm)
+        {
+            PointF result = new PointF();
+            result.X = mm.X * g.DpiX / 25.4f;
+            result.Y = mm.Y * g.DpiY / 25.4f;
+            return result;
         }
 
         void promeniGrupu()
         {
-            filterAndSortElements();
-            createItems();
+            tabela.promeniSpravuGrupu(selectedSprava(), selectedGrupa());
             odrediVirtuelnuClientOblast();
 
             panelTabela.AutoScrollPosition = Point.Empty;
@@ -326,70 +171,41 @@ namespace Gimnastika.UI
             panelTabela.Focus();
         }
 
-        private void filterAndSortElements()
+        void panelTabela_MouseWheel(object sender, MouseEventArgs e)
         {
-            elementi = new List<Element>();
-            foreach (Element e in sviElementi)
-            {
-                if (selectedSprava() != Sprava.Undefined)
-                {
-                    if (e.Sprava != selectedSprava())
-                        continue;
-                }
-                if (selectedGrupa() != GrupaElementa.Undefined)
-                {
-                    if (e.Grupa != selectedGrupa())
-                        continue;
-                }
-                elementi.Add(e);
-            }
-            
-            PropertyDescriptor propDesc =
-                TypeDescriptor.GetProperties(typeof(Element))["GrupaBroj"];
-            elementi.Sort(new SortComparer<Element>(propDesc, ListSortDirection.Ascending));
+            disableTrackBar();
         }
 
-        private void createItems()
+        private void setSpravaCombo(Sprava sprava)
         {
-            if (elementi.Count > 0)
-                brojVrsta = (elementi[elementi.Count - 1].Broj - 1) / 6 + 1;
-            else
-                brojVrsta = 1;
-            
-            int maxBroj = brojVrsta * 6;
-            int elemIndex = 0;
-            elementItems = new ElementTableItem[brojVrsta, 6];
-            for (int broj = 1; broj <= maxBroj; broj++)
-            {
-                Element elem = null;
-                if (elemIndex < elementi.Count && elementi[elemIndex].Broj == broj
-                && !elementi[elemIndex].isVarijanta())
-                {
-                    elem = elementi[elemIndex++];
-                    // preskoci varijante (ako ih slucajno ima)
-                    while (elemIndex < elementi.Count
-                    && elementi[elemIndex].isVarijanta())
-                        elemIndex++;
-                }
-                createItem(broj, elem);
-            }
+            cmbSprava.SelectedIndex = sprava - Sprava.Parter;
+        }
+
+        private void TabelaElemenataForm_Shown(object sender, EventArgs e)
+        {
+            // Postavljanje fokusa na panel je potrebno da bi moglo da se skroluje
+            // tockicem misa.
+
+            // Mora ovde zato sto u konstruktoru postavljanje fokusa nema efekta.
+            panelTabela.Focus();
         }
 
         private void odrediVirtuelnuClientOblast()
         {
             panelTabela.AutoScrollMinSize = new Size(
-                (int)(6 * elementSizePxl.Width * zoom / 100 + 2 * xMargin),
-                (int)(brojVrsta * elementSizePxl.Height * zoom / 100 + 2 * yMargin));
+                (int)(6 * tabela.getElementSizePxl().Width * zoom / 100 + 2 * xMargin),
+                (int)(tabela.getBrojVrsta(selectedSprava(), selectedGrupa())
+                    * tabela.getElementSizePxl().Height * zoom / 100 + 2 * yMargin));
             podesiKlizace();
         }
 
         private void podesiKlizace()
         {
             panelTabela.HorizontalScroll.SmallChange =
-                (int)(elementSizePxl.Width * zoom / 100 / 3);
+                (int)(tabela.getElementSizePxl().Width * zoom / 100 / 3);
             panelTabela.HorizontalScroll.LargeChange = panelTabela.Width;
             panelTabela.VerticalScroll.SmallChange =
-                (int)(elementSizePxl.Height * zoom / 100 / 3);
+                (int)(tabela.getElementSizePxl().Height * zoom / 100 / 3);
             panelTabela.VerticalScroll.LargeChange = panelTabela.Height;
         }
 
@@ -415,7 +231,8 @@ namespace Gimnastika.UI
             pt.X /= zoom / 100;
             pt.Y /= zoom / 100;
 
-            foreach (ElementTableItem item in elementItems)
+            ElementTableItem[,] items = tabela.getElementItems(selectedSprava(), selectedGrupa());
+            foreach (ElementTableItem item in items)
             {
                 item.draw(g, pt);
             }
@@ -424,7 +241,7 @@ namespace Gimnastika.UI
             {
                 clipboard.draw(g, pt);
             }
-            foreach (ElementTableItem item in elementItems)
+            foreach (ElementTableItem item in tabela.getElementItems(selectedSprava(), selectedGrupa()))
             {
                 if (item.Selected)
                     item.draw(g, pt);
@@ -440,7 +257,7 @@ namespace Gimnastika.UI
             pt.Y = -pt.Y;
 
             SizeF zoomedElementSize = new SizeF(
-                elementSizePxl.Width * zoom / 100, elementSizePxl.Height * zoom / 100);
+                tabela.getElementSizePxl().Width * zoom / 100, tabela.getElementSizePxl().Height * zoom / 100);
 
             switch (e.KeyCode)
             {
@@ -550,7 +367,7 @@ namespace Gimnastika.UI
                 "E = 0,50", "F = 0,60 (G = 0,70)"};
             for (int i = 0; i < 6; i++)
             {
-                ElementTableItem item = elementItems[0, i];
+                ElementTableItem item = tabela.getElementItems(selectedSprava(), selectedGrupa())[0, i];
                 RectangleF tezinaRect = new RectangleF(
                     xMargin + item.Location.X * zoom / 100, 0,
                     item.Size.Width * zoom / 100, tezineHeaderHeightPxl);
@@ -561,9 +378,9 @@ namespace Gimnastika.UI
 
         private void drawTezinaHeader(string text, RectangleF rect, Graphics g)
         {
-            Pen pen = HeaderBorderPen;
-            Brush brush = HeaderTezinaTextBrush;
-            Font f = HeaderTezinaFont;
+            Pen pen = tabela.HeaderBorderPen;
+            Brush brush = tabela.HeaderTezinaTextBrush;
+            Font f = tabela.HeaderTezinaFont;
 
             Point autoScrollPosition = panelTabela.AutoScrollPosition;
             rect.Offset(autoScrollPosition.X, 0);
@@ -574,26 +391,16 @@ namespace Gimnastika.UI
             g.DrawString(text, f, brush, rect, fmt);
         }
 
-        private float getTabelaWidth()
-        {
-            return 6 * elementSizePxl.Width;
-        }
-
-        private float getTabelaHeight()
-        {
-            return brojVrsta * elementSizePxl.Width;
-        }
-
         private void drawGrupaHeader(Graphics g)
         {
-            Pen pen = HeaderBorderPen;
-            Brush brush = HeaderGrupaTextBrush;
-            Font f = HeaderGrupaFont;
+            Pen pen = tabela.HeaderBorderPen;
+            Brush brush = tabela.HeaderGrupaTextBrush;
+            Font f = tabela.HeaderGrupaFont;
             
             Point autoScrollPosition = panelTabela.AutoScrollPosition;
             RectangleF rect = new RectangleF(
                 new PointF(xMargin, tezineHeaderHeightPxl),
-                new SizeF(getTabelaWidth() * zoom / 100, grupaHeaderHeightPxl));
+                new SizeF(tabela.getTabelaWidth() * zoom / 100, grupaHeaderHeightPxl));
             rect.Offset(autoScrollPosition.X, 0);
             g.DrawRectangle(pen, rect.X, rect.Y, rect.Width, rect.Height);
 
@@ -726,13 +533,13 @@ namespace Gimnastika.UI
             // zoom se dobija iz formule:
             // 2 * xMargin + getTabelaWidth() * zoom = panelTabela.Width
 
-            float width = 2 * xMargin + getTabelaWidth();
-            float height = 2 * yMargin + getTabelaHeight();
+            float width = 2 * xMargin + tabela.getTabelaWidth();
+            float height = 2 * yMargin + tabela.getTabelaHeight(selectedSprava(), selectedGrupa());
             float newZoom;
             if (width / height >= panelTabela.Width / panelTabela.Height)
             {
                 // tabela cela staje unutar prozora
-                newZoom = (panelTabela.Width - 2 * xMargin) / getTabelaWidth() * 100;
+                newZoom = (panelTabela.Width - 2 * xMargin) / tabela.getTabelaWidth() * 100;
             }
             else
             {
@@ -741,7 +548,7 @@ namespace Gimnastika.UI
                 // automatsko skrolovanje, klizaci se nalaze UNUTAR klijent
                 // oblasti)
                 newZoom = (panelTabela.Width - 2 * xMargin -
-                    SystemInformation.VerticalScrollBarWidth) / getTabelaWidth() * 100;
+                    SystemInformation.VerticalScrollBarWidth) / tabela.getTabelaWidth() * 100;
             }
             zumiraj(newZoom);
             fitWidth = true;
@@ -810,26 +617,12 @@ namespace Gimnastika.UI
                 (pt.Y - panelTabela.AutoScrollPosition.Y - yMargin) / scale);
         }
 
-        private ElementTableItem getItem(PointF tablePt)
-        {
-            if (tablePt.X < 0 || tablePt.Y < 0)
-                return null;
-
-            int j = (int)Math.Floor((double)tablePt.X / elementSizePxl.Width);
-            int i = (int)Math.Floor((double)tablePt.Y / elementSizePxl.Height);
-
-            if (i >= brojVrsta || j >= 6)
-                return null;
-
-            return elementItems[i, j];
-        }
-
         private void panelTabela_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
                 return;
 
-            clickedItem = getItem(clientToTable(new PointF(e.X, e.Y)));
+            clickedItem = tabela.getItem(clientToTable(new PointF(e.X, e.Y)), selectedSprava(), selectedGrupa());
             if (clickedItem == null)
                 return;
 
@@ -940,11 +733,7 @@ namespace Gimnastika.UI
                 clickedItem.Broj, Element.getTezina(clickedItem.Broj));
             if (form.ShowDialog() == DialogResult.OK)
             {
-                Element element = form.Element;
-                sviElementi.Add(element);
-                filterAndSortElements();
-                createItem(element.Broj, element);
-
+                tabela.addElement(form.Element);
                 panelTabela.Invalidate();
                 panelTabela.Focus();
             }
@@ -957,14 +746,11 @@ namespace Gimnastika.UI
 
             clearClipboard();
             Element element = clickedItem.Element;
-            int sviIndex = sviElementi.IndexOf(element);
-            int index = elementi.IndexOf(element);
             ElementForm form = new ElementForm(element.Id, element.Sprava, element.Grupa,
                 element.Broj, element.Tezina);
             if (form.ShowDialog() == DialogResult.OK)
             {
-                sviElementi[sviIndex] = form.Element;
-                elementi[index] = form.Element;
+                tabela.promeniElement(element, form.Element);
                 clickedItem.Element = form.Element;
                 panelTabela.Invalidate();
                 panelTabela.Focus();
@@ -1076,15 +862,10 @@ namespace Gimnastika.UI
                 {
                     CurrentSessionContext.Bind(session);
                     
-                    int broj = element.Broj;
                     DAOFactoryFactory.DAOFactory.GetElementDAO().MakeTransient(element);
                     session.Transaction.Commit();
 
-                    sviElementi.Remove(element);
-                    elementi.Remove(element);
-                    //  filterAndSortElements();
-                    createItem(broj, null);
-
+                    tabela.removeElement(element);
                     panelTabela.Invalidate();
                     panelTabela.Focus();
                 }
@@ -1095,53 +876,6 @@ namespace Gimnastika.UI
             }
         }
 
-        private void createItem(int broj, Element element)
-        {
-            // TODO: Neka elementItems bude 1-dimenzionalan niz
-
-            if (broj > brojVrsta * 6)
-            {
-                int oldBrojVrsta = brojVrsta;
-                brojVrsta = (broj - 1) / 6 + 1;
-                ElementTableItem[,] newElementItems = new ElementTableItem[brojVrsta, 6];
-                copyElementItems(newElementItems, elementItems, oldBrojVrsta);
-                elementItems = newElementItems;
-
-                int from = oldBrojVrsta * 6 + 1;
-                int to = brojVrsta * 6;
-                for (int k = from; k <= to; k++)
-                    createItem(k, null);
-            }
-
-            int i = getRowIndex(broj);
-            int j = getColumnIndex(broj);
-            ElementTableItem item = new ElementTableItem(selectedSprava(), selectedGrupa(), 
-                broj, element,
-                new PointF(j * elementSizePxl.Width, i * elementSizePxl.Height),
-                elementSizePxl, this);
-            elementItems[i, j] = item;
-            if (element != null && izabrani.ContainsKey(element.Id))
-                item.Selected = true;
-        }
-
-        private int getRowIndex(int broj)
-        {
-            return (broj - 1) / 6;
-        }
-
-        private int getColumnIndex(int broj)
-        {
-            return (broj - 1) % 6;
-        }
-
-        private void copyElementItems(ElementTableItem[,] newElementItems, 
-            ElementTableItem[,] elementItems, int brojVrsta)
-        {
-            for (int i = 0; i < brojVrsta; i++)
-                for (int j = 0; j < 6; j++)
-                    newElementItems[i, j] = elementItems[i, j];
-        }
-
         private void btnNoviElement_Click(object sender, EventArgs e)
         {
             disableTrackBar();
@@ -1150,10 +884,8 @@ namespace Gimnastika.UI
             if (form.ShowDialog() == DialogResult.OK)
             {
                 Element element = form.Element;
-                bool extend = element.Broj > brojVrsta * 6;
-                sviElementi.Add(element);
-                filterAndSortElements();
-                createItem(element.Broj, element); // prosiruje tabelu ako je potrebno
+                bool extend = element.Broj > tabela.getBrojVrsta(selectedSprava(), selectedGrupa()) * 6;
+                tabela.addElement(element);
 
                 if (extend)
                     odrediVirtuelnuClientOblast();
@@ -1166,20 +898,13 @@ namespace Gimnastika.UI
 
         private void scrollItemToClientCenter(int broj)
         {
-            ElementTableItem item = getItem(broj);
+            ElementTableItem item = tabela.getItem(broj, selectedSprava(), selectedGrupa());
             if (item != null)
             {
                 PointF center = item.Location + 
                     new SizeF(item.Size.Width / 2, item.Size.Height / 2);
                 scrollToClientCenter(center);
             }
-        }
-
-        ElementTableItem getItem(int broj)
-        {
-            if (broj < 1 || broj > brojVrsta * 6)
-                return null;
-            return elementItems[getRowIndex(broj), getColumnIndex(broj)];
         }
 
         private void mnCut_Click(object sender, EventArgs e)
@@ -1232,10 +957,9 @@ namespace Gimnastika.UI
                         DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(element);
                         session.Transaction.Commit();
 
-                        filterAndSortElements();
-                        createItem(element.Broj, element);
+                        tabela.createItem(element.Broj, element, element.Sprava, element.Grupa);
                         if (from.Grupa == selectedGrupa())
-                            createItem(from.Broj, null);
+                            tabela.createItem(from.Broj, null, selectedSprava(), selectedGrupa());
                     }
                 }
                 finally

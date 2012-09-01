@@ -101,14 +101,14 @@ namespace Gimnastika.UI
             for (int i = 0; i < palette.Entries.Length; i++)
             {
                 if (palette.Entries[i] != backColor)
-                    palette.Entries[i] = form.ItemTextSelectedColor;
+                    palette.Entries[i] = tabela.ItemTextSelectedColor;
             }
             result.Palette = palette;
 
             return result;
         }
 
-        TabelaElemenataForm form;
+        TabelaElemenata tabela;
 
         private bool cutted;
         public bool Cutted
@@ -118,7 +118,7 @@ namespace Gimnastika.UI
         }
 
         public ElementTableItem(Sprava sprava, GrupaElementa grupa, int broj,
-            Element element, PointF location, SizeF size, TabelaElemenataForm form)
+            Element element, PointF location, SizeF size, TabelaElemenata tabela)
         {
             this.sprava = sprava;
             this.grupa = grupa;
@@ -128,7 +128,7 @@ namespace Gimnastika.UI
             this.size = size;
             selected = false;
             selectedImage = null;
-            this.form = form;
+            this.tabela = tabela;
             cutted = false;
         }
 
@@ -138,16 +138,16 @@ namespace Gimnastika.UI
             Brush brush;
             if (selected)
             {
-                pen = form.ItemBorderSelectedPen;
-                brush = form.ItemTextSelectedBrush;
+                pen = tabela.ItemBorderSelectedPen;
+                brush = tabela.ItemTextSelectedBrush;
             }
             else
             {
-                pen = form.ItemBorderPen;
-                brush = form.ItemTextBrush;
+                pen = tabela.ItemBorderPen;
+                brush = tabela.ItemTextBrush;
             }
-            Font f = form.ItemFont;
-            Font fBold = form.ItemBoldFont;
+            Font f = tabela.ItemFont;
+            Font fBold = tabela.ItemBoldFont;
 
             RectangleF rect = new RectangleF(location, size);
             rect.Offset(autoScrollPosition.X, autoScrollPosition.Y);
@@ -156,7 +156,7 @@ namespace Gimnastika.UI
 
             if (cutted)
             {
-                g.DrawRectangle(form.EraseBorderPen, rect.X, rect.Y, rect.Width, rect.Height);
+                g.DrawRectangle(tabela.EraseBorderPen, rect.X, rect.Y, rect.Width, rect.Height);
                 DashStyle style = pen.DashStyle;
                 pen.DashStyle = DashStyle.Dot;
                 g.DrawRectangle(pen, rect.X, rect.Y, rect.Width, rect.Height);
