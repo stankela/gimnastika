@@ -1,262 +1,320 @@
 using System;
 using System.Drawing;
-using System.Data;
-using Gimnastika.UI;
+using Gimnastika.Domain;
+using System.Drawing.Printing;
 
 namespace Gimnastika.Report
 {
-	/// <summary>
-	/// Summary description for Izvestaj.
-	/// </summary>
 	public class Izvestaj
 	{
-		private DataSet dataset = new DataSet();
+        // TODO: Sredi ovaj fajl (izbaci nepotrebne stvari)
 
-		private string documentName;
-		private string title;
-		private string subTitle = "";
-		private float relHeight = 24.5f;
-		private float relHeaderHeight = 2.7f;
-		protected float relWidth = 17.2f;
-		private float relPictureWidth = 4.7f;
+        public static StringFormat centerCenterFormat;
+        public static StringFormat nearCenterFormat;
 
-		private StringFormat titleFormat;
-		private StringFormat subTitleFormat;
-		private StringFormat dateFormat;
+		private StringFormat header1Format;
+		private StringFormat header2Format;
+        private StringFormat header3Format;
+        private StringFormat header4Format;
+        private StringFormat footerFormat;
+        private StringFormat dateFormat;
 
-		private Font titleFont;
-		private Font subTitleFont;
-		private Font pageNumFont;
-		private Font sokDruVojFont;
-		private Font adresaFont;
+		private Font header1Font;
+        private Font pageNumFont;
+        //private Font footerFont;
 		protected Brush blackBrush;
+        protected Pen pen;
 
-		private PrintPreviewForm prevForm;
+		protected RectangleF headerBounds;
+        protected RectangleF header1Bounds;
+        protected RectangleF header2Bounds;
+        protected RectangleF header3Bounds;
+        protected RectangleF header4Bounds;
+        protected RectangleF headerSpaceBounds;
 
-		public Izvestaj()
+		protected RectangleF contentBounds;
+        protected RectangleF footerBounds;
+
+		protected int lastPageNum;
+		public int LastPageNum
 		{
+			get { return lastPageNum; }
+		}
 
+		private bool a4;
+		public bool A4
+		{
+			get { return a4; }
+            set { a4 = value; }
+		}
+
+        private bool landscape;
+        public bool Landscape
+        {
+            get { return landscape; }
+            set { landscape = value; }
         }
 
-		public void init()
+        private Margins _margins;
+        public Margins Margins
+        {
+            get { return _margins; }
+            set { _margins = value; }
+        }
+
+		private string header1Text;
+        public string Header1Text
 		{
-			createAndFillTables();
-			createFormats();
+            get { return header1Text; }
+            set { header1Text = value; }
 		}
 
-        protected PrintPreviewForm getPreviewForm()
+        private string header2Text;
+        public string Header2Text
+        {
+            get { return header2Text; }
+            set { header2Text = value; }
+        }
+
+        private string header3Text;
+        public string Header3Text
+        {
+            get { return header3Text; }
+            set { header3Text = value; }
+        }
+
+        private string header4Text;
+        public string Header4Text
+        {
+            get { return header4Text; }
+            set { header4Text = value; }
+        }
+
+        private string footerText;
+        public string FooterText
+        {
+            get { return footerText; }
+            set { footerText = value; }
+        }
+
+        private string documentName;
+		public string DocumentName
 		{
-			return prevForm;
+			get { return documentName; }
+			set { documentName = value; }
 		}
 
-        public void setPreviewForm(PrintPreviewForm prevForm)
+		private bool contentSetupDone;
+		public bool ContentSetupDone
 		{
-            this.prevForm = prevForm;
+			get { return contentSetupDone; }
 		}
 
-		public DataSet getDataSet()
+		private DateTime timeOfPrint;
+		public DateTime TimeOfPrint
 		{
-			return dataset;
+			get { return timeOfPrint; }
+			set { timeOfPrint = value; }
 		}
 
-		public string getTitle()
+        public Izvestaj()
+        {
+            //Header1Text = Opcije.Instance.Header1Text;
+
+            createFormats();
+            createFonts();
+
+            A4 = true;
+        }
+
+        private void createFormats()
 		{
-			return title;
-		}
+            centerCenterFormat = new StringFormat();
+            centerCenterFormat.Alignment = StringAlignment.Center;
+            centerCenterFormat.LineAlignment = StringAlignment.Center;
 
-		public void setTitle(string title)
-		{
-			this.title = title;
-		}
+            nearCenterFormat = new StringFormat();
+            nearCenterFormat.Alignment = StringAlignment.Near;
+            nearCenterFormat.LineAlignment = StringAlignment.Center;
 
-		public string getSubTitle()
-		{
-			return subTitle;
-		}
+            header1Format = centerCenterFormat;
+            header2Format = centerCenterFormat;
+            header3Format = centerCenterFormat;
+            header4Format = centerCenterFormat;
+            footerFormat = centerCenterFormat;
 
-		public void setSubTitle(string subTitle)
-		{
-			this.subTitle = subTitle;
-		}
-
-		public string getDocumentName()
-		{
-			return documentName;
-		}
-
-		public void setDocumentName(string docName)
-		{
-			this.documentName = docName;
-		}
-
-		protected virtual void createFormats()
-		{
-			titleFormat = new StringFormat();
-			titleFormat.Alignment = StringAlignment.Center;
-			titleFormat.LineAlignment = StringAlignment.Near;
-
-			subTitleFormat = new StringFormat();
-			subTitleFormat.Alignment = StringAlignment.Center;
-			subTitleFormat.LineAlignment = StringAlignment.Far;
-
-			dateFormat = new StringFormat();
+            dateFormat = new StringFormat();
 			dateFormat.Alignment = StringAlignment.Far;
 			dateFormat.LineAlignment = StringAlignment.Near;
 		}
 
-		protected virtual void createAndFillTables()
-		{
-			dataset.Clear();
-			dataset = new DataSet();
-			createPageLayoutTable();
-			fillItemsTable();
-			fillGroupsTable();
-		}
-
-		protected virtual void fillItemsTable()
-		{
-
-		}
-
-		protected virtual void fillGroupsTable()
-		{
-
-		}
-		
-		protected virtual void createPageLayoutTable()
-		{
-			DataTable tbl = dataset.Tables.Add("Page Layout");
-			tbl.Columns.Add("Page", typeof(int));
-			tbl.Columns.Add("Group", typeof(int));
-			tbl.Columns.Add("Start Rec", typeof(int));
-			tbl.Columns.Add("Num Rec", typeof(int));
-			tbl.Columns.Add("Y", typeof(float));
-			tbl.Columns.Add("Header", typeof(bool));
-			tbl.PrimaryKey = new DataColumn[] { tbl.Columns["Page"], tbl.Columns["Group"] };
-		}
-
 		public virtual void BeginPrint(object sender, System.Drawing.Printing.PrintEventArgs e)
 		{
-			createFonts();
+			//createFonts();
 			//e.Cancel = true;
 		}
 
-		protected virtual void createFonts()
+		private void createFonts()
 		{
-			titleFont = new Font("Tahoma", 14, FontStyle.Bold);
-			subTitleFont = new Font("Tahoma", 10, FontStyle.Bold);
-			pageNumFont = new Font("Arial", 8);
-			sokDruVojFont = new Font("Arial Narrow", 8);
-			adresaFont = new Font("Arial Narrow", 7);
+            /*header1Font = new Font(
+                Opcije.Instance.Header1Font, 
+                Opcije.Instance.Header1FontSize, 
+                Opcije.Instance.getFontStyle(
+                    Opcije.Instance.Header1FontBold, Opcije.Instance.Header1FontItalic));*/
+       
+            pageNumFont = new Font("Arial", 8);
 			blackBrush = Brushes.Black;
+            pen = new Pen(Color.Black, 1 / 72f * 0.25f);
 		}
 
-		protected virtual void releaseFonts()
-		{
-			titleFont.Dispose();
-			subTitleFont.Dispose();
-			pageNumFont.Dispose();
-			sokDruVojFont.Dispose();
-			adresaFont.Dispose();
-			// blackBrush.Dispose();  // daje gresku
-		}
-		
 		public virtual void EndPrint(object sender, System.Drawing.Printing.PrintEventArgs e)
 		{
-			releaseFonts();
+			//releaseFonts();
 		}
 
-		public virtual float getHeaderHeight(Graphics g, RectangleF marginBounds, int pageNum)
+        public static float convCmToInch(float x)
+        {
+            return x / 2.54f;
+        }
+
+        public void drawPage(Graphics g, int pageNum)
 		{
-			return relHeaderHeight / relHeight * marginBounds.Height;
-		}
+			drawHeader(g, pageNum);
+			drawContent(g, pageNum);
+            drawFooter(g, pageNum);
+        }
 
-		public virtual void drawHeader(Graphics g, RectangleF headerBounds, int pageNum)
+		public virtual void drawHeader(Graphics g, int pageNum)
 		{
-			float pictureWidth = relPictureWidth / relWidth * headerBounds.Width;
-			float pictureHeight = headerBounds.Height * 0.8f;
-			RectangleF pictureBounds = new RectangleF(headerBounds.X, headerBounds.Y, pictureWidth, pictureHeight);
-			drawSokoWithCaption(g, pictureBounds);
+     /*       g.DrawRectangle(pen, headerBounds.X, headerBounds.Y,
+                headerBounds.Width, headerBounds.Height);
 
-			float lineOffset = headerBounds.Height * 0.9f;
-			using(Pen pen = new Pen(Color.Black, 1/72f * 2f))
-			{
-				g.DrawLine(pen, new PointF(headerBounds.X, headerBounds.Y + lineOffset),
-					new PointF(headerBounds.X + headerBounds.Width, headerBounds.Y + lineOffset));
-			}
+            g.DrawRectangle(pen, header1Bounds.X, header1Bounds.Y,
+                header1Bounds.Width, header1Bounds.Height);
+            g.DrawRectangle(pen, header2Bounds.X, header2Bounds.Y,
+                header2Bounds.Width, header2Bounds.Height);
+            g.DrawRectangle(pen, header3Bounds.X, header3Bounds.Y,
+                header3Bounds.Width, header3Bounds.Height);
+            g.DrawRectangle(pen, header4Bounds.X, header4Bounds.Y,
+                header4Bounds.Width, header4Bounds.Height);
+*/
+			//g.DrawString(Header1Text, header1Font, blackBrush, header1Bounds, header1Format); 
+        }
 
-			float titleHeight = titleFont.GetHeight(g);
-			if (subTitle != "")
-				titleHeight += subTitleFont.GetHeight(g) * 1.5f;
-			float titleY = headerBounds.Y + (headerBounds.Height - titleHeight) / 3;
-			RectangleF titleBounds = new RectangleF(headerBounds.X, titleY, 
-				headerBounds.Width, titleHeight);
-				
-			g.DrawString(title, titleFont, blackBrush, titleBounds, titleFormat); 
-			if (subTitle != "")
-				g.DrawString(subTitle, subTitleFont, blackBrush, titleBounds, subTitleFormat); 
+        private void drawFooter(Graphics g, int pageNum)
+        {
+     /*       g.DrawRectangle(pen, footerBounds.X, footerBounds.Y,
+                footerBounds.Width, footerBounds.Height);
+*/
+            //g.DrawString(FooterText, footerFont, blackBrush, footerBounds, footerFormat);
+            
+            String page = "Strana";
+            String from = "/";
+            string datum = TimeOfPrint.ToShortDateString();
+            string vreme = TimeOfPrint.ToShortTimeString();
+    //        g.DrawString(datum + " " + vreme, pageNumFont, blackBrush,
+      //          footerBounds.Right, footerBounds.Top, dateFormat);
+            g.DrawString(String.Format("{0} {1}{2}{3}", page, pageNum, from, LastPageNum), pageNumFont, blackBrush,
+                footerBounds.Right, footerBounds.Top + pageNumFont.GetHeight(g) * 1.5f, dateFormat);
+        }
 
-			String page = "Strana";
-			String from = "od";
-            string datum = DateUtilities.serbianDateStr(DateTime.Now, '.');
-			string vreme = DateTime.Now.ToLongTimeString();
-			g.DrawString(datum + " " + vreme, pageNumFont, blackBrush, 
-				headerBounds.Right, headerBounds.Top, dateFormat); 
-			g.DrawString(String.Format("{0} {1} {2} {3}", page, pageNum, from, prevForm.getTotalPages()), pageNumFont, blackBrush, 
-				headerBounds.Right, headerBounds.Top + pageNumFont.GetHeight(g) * 1.5f, dateFormat); 
-		}
-
-		private void drawSokoWithCaption(Graphics g, RectangleF pictureBounds)
+		public void setupContent(Graphics g, RectangleF marginBounds)
 		{
-            //Image sokoImage = Image.FromFile(@"..\..\soko.bmp");
-			string sokDruVoj = "SOKOLSKO DRUSTVO \"VOJVODINA\"";
-			string adresa = "Ignjata Pavlasa 2-4, 21000, Novi Sad, Srbija";
-
-			float ySokDruVoj = pictureBounds.Y + 0.7f * pictureBounds.Height;
-			float yAdresa = pictureBounds.Y + 0.85f * pictureBounds.Height;
-			RectangleF sokDruVojBounds = new RectangleF(pictureBounds.X, ySokDruVoj, 
-				pictureBounds.Width, yAdresa - ySokDruVoj);
-			RectangleF adresaBounds = new RectangleF(pictureBounds.X, yAdresa, 
-				pictureBounds.Width, pictureBounds.Y + pictureBounds.Height - yAdresa);
-
-			using(Pen pen = new Pen(Color.Black, 1/72f * 0.25f))
-			{
-				//			g.DrawRectangle(pen, pictureBounds.X, pictureBounds.Y, pictureBounds.Width, pictureBounds.Height);
-			}
-			float sokoHeight = 0.7f * pictureBounds.Height;
-			float sokoWidth = sokoHeight;
-			float sokoX = pictureBounds.X + (pictureBounds.Width - sokoWidth) / 2;
-			RectangleF sokoBounds = new RectangleF(sokoX, pictureBounds.Y, sokoWidth, sokoHeight);
-			//g.DrawImage(sokoImage, sokoBounds);
-			g.DrawString(sokDruVoj, sokDruVojFont, blackBrush, sokDruVojBounds, titleFormat); 
-			g.DrawString(adresa, adresaFont, blackBrush, adresaBounds, titleFormat); 
+			calculateHeaderBounds(g, marginBounds);
+            calculateContentBounds(g, marginBounds);
+            calculateFooterBounds(g, marginBounds);
+            
+            doSetupContent(g);
+			contentSetupDone = true;
 		}
 
-		public virtual void drawContent(Graphics g, RectangleF contentBounds, int pageNum)
+		private void calculateHeaderBounds(Graphics g, RectangleF marginBounds)
+		{
+	        float headerSection1RelHeight = 1.0f / 5;
+            float headerSection2RelHeight = 1.0f / 5;
+            float headerSection3RelHeight = 1.0f / 5;
+            float headerSection4RelHeight = 1.0f / 5;
+
+            headerBounds = new RectangleF(marginBounds.Location, 
+				new SizeF(marginBounds.Width, getHeaderHeight(g, marginBounds)));
+
+            float headerSec1Height = headerSection1RelHeight * headerBounds.Height;
+            float headerSec2Height = headerSection2RelHeight * headerBounds.Height;
+            float headerSec3Height = headerSection3RelHeight * headerBounds.Height;
+            float headerSec4Height = headerSection4RelHeight * headerBounds.Height;
+            float headerSpaceHeight = headerBounds.Height - 
+                (headerSec1Height + headerSec2Height + headerSec3Height + headerSec4Height);
+
+            header1Bounds = new RectangleF(headerBounds.Location,
+                new SizeF(headerBounds.Width, headerSec1Height));
+            header2Bounds = new RectangleF(headerBounds.X, header1Bounds.Bottom,
+                headerBounds.Width, headerSec2Height);
+            headerSpaceBounds = new RectangleF(headerBounds.X,
+                header2Bounds.Bottom, headerBounds.Width, headerSpaceHeight);
+            header3Bounds = new RectangleF(headerBounds.X, headerSpaceBounds.Bottom,
+                headerBounds.Width, headerSec3Height);
+            header4Bounds = new RectangleF(headerBounds.X, header3Bounds.Bottom,
+                headerBounds.Width, headerSec4Height);
+        }
+
+        public virtual float getHeaderHeight(Graphics g, RectangleF marginBounds)
+        {
+            return convCmToInch(3.5f);
+        }
+
+        private void calculateContentBounds(Graphics g, RectangleF marginBounds)
+		{
+			float headerHeight = getHeaderHeight(g, marginBounds);
+            float footerHeight = getFooterHeight(g, marginBounds);
+
+            contentBounds = new RectangleF(marginBounds.X, 
+				marginBounds.Y + headerHeight, 
+				marginBounds.Width, 
+				marginBounds.Height - headerHeight - footerHeight);
+		}
+
+        public virtual float getFooterHeight(Graphics g, RectangleF marginBounds)
+        {
+            return convCmToInch(1f);
+        }
+
+        private void calculateFooterBounds(Graphics g, RectangleF marginBounds)
+        {
+            float footerHeight = getFooterHeight(g, marginBounds);
+            footerBounds = new RectangleF(marginBounds.X, marginBounds.Bottom - footerHeight,
+                marginBounds.Width, footerHeight);
+        }
+
+        protected virtual void doSetupContent(Graphics g)
+		{
+		
+		}
+
+		public virtual void drawContent(Graphics g, int pageNum)
 		{
 
 		}
 		
-		protected virtual void drawGroupHeader(Graphics g, int groupId, RectangleF groupHeaderRect)
-		{
-
-		}
-
-		public virtual void setupContent(Graphics g, RectangleF contentBounds)
-		{
-
-		}
-
 		public void QueryPageSettings(object sender, System.Drawing.Printing.QueryPageSettingsEventArgs e)
 		{
 			// Set margins to .5" all the way around
 			//e.PageSettings.Margins = new Margins(50, 50, 50, 50);
 		}
 
-		public void clearDataSet()
-		{
-			dataset.Clear();
-		}
+        public static void scaleImageIsotropically(Graphics g, Image image, RectangleF rect)
+        {
+            SizeF sizef = new SizeF(image.Width / image.HorizontalResolution,
+                                    image.Height / image.VerticalResolution);
 
-	}
+            float fScale = Math.Min(rect.Width / sizef.Width,
+                                    rect.Height / sizef.Height);
+
+            sizef.Width *= fScale;
+            sizef.Height *= fScale;
+
+            g.DrawImage(image, rect.X + (rect.Width - sizef.Width) / 2,
+                                  rect.Y + (rect.Height - sizef.Height) / 2,
+                                  sizef.Width, sizef.Height);
+        }
+    }
 }

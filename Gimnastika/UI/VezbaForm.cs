@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Gimnastika.Report;
+using Gimnastika.Exceptions;
 
 namespace Gimnastika.UI
 {
@@ -360,15 +361,27 @@ namespace Gimnastika.UI
         private void mnPrint_Click(object sender, EventArgs e)
         {
             VezbaEditorBaseForm childForm = this.ActiveMdiChild as VezbaEditorBaseForm;
-            if (childForm != null)
-            {
-                Cursor.Current = Cursors.WaitCursor;
-                Cursor.Show();
+            if (childForm == null)
+                return;
 
-                PrintPreviewForm p = new PrintPreviewForm();
+            Cursor.Current = Cursors.WaitCursor;
+            Cursor.Show();
+            try
+            {
+                PreviewDialog p = new PreviewDialog();
                 p.setIzvestaj(new VezbaIzvestaj(childForm));
                 p.ShowDialog();
-
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
+            finally
+            {
                 Cursor.Hide();
                 Cursor.Current = Cursors.Arrow;
             }

@@ -24,6 +24,15 @@ namespace Gimnastika.Domain
         Max = Vratilo
     }
 
+    public static class Sprave
+    {
+        public static Sprava[] getSprave()
+        {
+            return new Sprava[] { Sprava.Parter, Sprava.Konj, Sprava.Karike,
+                Sprava.Preskok, Sprava.Razboj, Sprava.Vratilo };
+        }
+    }
+
     public enum TezinaElementa
     {
         Undefined = 0,
@@ -46,6 +55,15 @@ namespace Gimnastika.Domain
         V = 5,
         //promeni Max ako budes dodavao enume
         Max = V
+    }
+
+    public static class GrupeElementa
+    {
+        public static GrupaElementa[] getGrupe()
+        {
+            return new GrupaElementa[] { GrupaElementa.I, GrupaElementa.II, GrupaElementa.III,
+                GrupaElementa.IV, GrupaElementa.V };
+        }
     }
 
     public class Element : DomainObject

@@ -13,6 +13,7 @@ using Gimnastika.Win32;
 using NHibernate.Context;
 using Gimnastika.Data;
 using NHibernate;
+using Gimnastika.Report;
 
 namespace Gimnastika.UI
 {
@@ -99,6 +100,10 @@ namespace Gimnastika.UI
                     {
                         setSpravaCombo(sprava);
                         cmbSprava.Enabled = false;
+                        btnPrint.Enabled = false;
+                        btnPrint.Visible = false;
+                        btnClose.Enabled = false;
+                        btnClose.Visible = false;
                     }
                     else
                     {
@@ -163,7 +168,6 @@ namespace Gimnastika.UI
 
         void promeniGrupu()
         {
-            tabela.promeniSpravuGrupu(selectedSprava(), selectedGrupa());
             odrediVirtuelnuClientOblast();
 
             panelTabela.AutoScrollPosition = Point.Empty;
@@ -231,8 +235,7 @@ namespace Gimnastika.UI
             pt.X /= zoom / 100;
             pt.Y /= zoom / 100;
 
-            ElementTableItem[,] items = tabela.getElementItems(selectedSprava(), selectedGrupa());
-            foreach (ElementTableItem item in items)
+            foreach (ElementTableItem item in tabela.getElementItems(selectedSprava(), selectedGrupa()))
             {
                 item.draw(g, pt);
             }
@@ -320,8 +323,10 @@ namespace Gimnastika.UI
             if (selectedSprava() == Sprava.Parter && selectedGrupa() == GrupaElementa.V)
                 cmbGrupa.SelectedIndex = 0;
             else
+            {
                 promeniGrupu();
-            panelHeader.Invalidate();
+                panelHeader.Invalidate();
+            }
         }
 
         private void cmbGrupa_SelectedIndexChanged(object sender, EventArgs e)
@@ -770,6 +775,8 @@ namespace Gimnastika.UI
 
         private void disableTrackBar()
         {
+            lblVelicinaSlike.Enabled = false;
+            trackBar1.Enabled = false;
             if (changingElement == null)
                 return;
 
@@ -783,8 +790,6 @@ namespace Gimnastika.UI
                     DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(changingElement.Element);
                     session.Transaction.Commit();
                     
-                    lblVelicinaSlike.Enabled = false;
-                    trackBar1.Enabled = false;
                     changingElement = null;
                 }
             }
@@ -832,10 +837,12 @@ namespace Gimnastika.UI
 
             PointF pt = panelTabela.AutoScrollPosition;  // vraca negativne koordinate
             pt = new PointF(pt.X + xMargin, pt.Y + yMargin);
-            pt.X /= zoom / 100;
-            pt.Y /= zoom / 100;
 
-            RectangleF rect = new RectangleF(changingElement.Location, changingElement.Size);
+            PointF scaledLocation = new PointF(changingElement.Location.X * zoom / 100,
+                                               changingElement.Location.Y * zoom / 100);
+            SizeF scaledSize = new SizeF(changingElement.Size.Width * zoom / 100,
+                                         changingElement.Size.Height * zoom / 100);
+            RectangleF rect = new RectangleF(scaledLocation, scaledSize);
             rect.Offset(pt.X, pt.Y);
 
             panelTabela.Invalidate(Rectangle.Round(rect));
@@ -938,8 +945,6 @@ namespace Gimnastika.UI
             if (to != null && to.Element == null
             && from != null && from.Element != null && from.Sprava == to.Sprava)
             {
-                // TODO: Proveri da li moze nekako bez originala
-
                 try
                 {
                     using (ISession session = NHibernateHelper.OpenSession())
@@ -948,18 +953,12 @@ namespace Gimnastika.UI
                         CurrentSessionContext.Bind(session);
 
                         Element element = from.Element;
-                        Element original = (Element)element.Clone(new TypeAsocijacijaPair[] { 
-                            new TypeAsocijacijaPair(typeof(Video)), 
-                            new TypeAsocijacijaPair(typeof(Slika)), 
-                            new TypeAsocijacijaPair(typeof(Element), "varijante"),
-                            new TypeAsocijacijaPair(typeof(Element), "parent") });
                         element.promeniGrupuBroj(to.Grupa, to.Broj);
                         DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(element);
                         session.Transaction.Commit();
 
                         tabela.createItem(element.Broj, element, element.Sprava, element.Grupa);
-                        if (from.Grupa == selectedGrupa())
-                            tabela.createItem(from.Broj, null, selectedSprava(), selectedGrupa());
+                        tabela.createItem(from.Broj, null, from.Sprava, from.Grupa);
                     }
                 }
                 finally
@@ -1045,6 +1044,36 @@ namespace Gimnastika.UI
         private void cmbSprava_DropDown(object sender, EventArgs e)
         {
             disableTrackBar();
+        }
+
+        private void btnPrint_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            Cursor.Show();
+            try
+            {
+                PreviewDialog p = new PreviewDialog();
+                p.setIzvestaj(new TabelaIzvestaj(tabela));
+                p.ShowDialog();
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
+            finally
+            {
+                Cursor.Hide();
+                Cursor.Current = Cursors.Arrow;
+            }
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

@@ -184,13 +184,9 @@ namespace Gimnastika.UI
 
         private void fillElementiMap(List<Element> elementi)
         {
-            Sprava[] sprave = new Sprava[] { Sprava.Parter, Sprava.Konj, Sprava.Karike, Sprava.Preskok, Sprava.Razboj,
-                Sprava.Vratilo };
-            GrupaElementa[] grupe = new GrupaElementa[] { GrupaElementa.I, GrupaElementa.II, GrupaElementa.III,
-                GrupaElementa.IV, GrupaElementa.V };
-            foreach (Sprava s in sprave)
+            foreach (Sprava s in Sprave.getSprave())
             {
-                foreach (GrupaElementa g in grupe)
+                foreach (GrupaElementa g in GrupeElementa.getGrupe())
                 {
                     elementiMap[getElementiKey(s, g)] = getSortedElements(s, g, elementi);                
                 }
@@ -199,13 +195,9 @@ namespace Gimnastika.UI
 
         private void fillItemsMap()
         {
-            Sprava[] sprave = new Sprava[] { Sprava.Parter, Sprava.Konj, Sprava.Karike, Sprava.Preskok, Sprava.Razboj,
-                Sprava.Vratilo };
-            GrupaElementa[] grupe = new GrupaElementa[] { GrupaElementa.I, GrupaElementa.II, GrupaElementa.III,
-                GrupaElementa.IV, GrupaElementa.V };
-            foreach (Sprava s in sprave)
+            foreach (Sprava s in Sprave.getSprave())
             {
-                foreach (GrupaElementa g in grupe)
+                foreach (GrupaElementa g in GrupeElementa.getGrupe())
                 {
                     createItems(s, g);
                 }
@@ -232,11 +224,6 @@ namespace Gimnastika.UI
             return getBrojVrsta(s, g) * elementSizePxl.Width;
         }
 
-        public void promeniSpravuGrupu(Sprava sprava, GrupaElementa grupa)
-        {
-
-        }
-
         private void createItems(Sprava sprava, GrupaElementa grupa)
         {
             List<Element> elementi = elementiMap[getElementiKey(sprava, grupa)];
@@ -245,6 +232,9 @@ namespace Gimnastika.UI
                 brojVrsta = (elementi[elementi.Count - 1].Broj - 1) / 6 + 1;
             else
                 brojVrsta = 1;
+            if (brojVrsta % 4 != 0)
+                brojVrsta += 4 - brojVrsta % 4;
+
             itemsMap[getElementiKey(sprava, grupa)] = new ElementTableItem[brojVrsta, 6];
 
             int maxBroj = brojVrsta * 6;
@@ -314,22 +304,8 @@ namespace Gimnastika.UI
 
         public void createItem(int broj, Element element, Sprava sprava, GrupaElementa grupa)
         {
-            ElementTableItem[,] items = itemsMap[getElementiKey(sprava, grupa)];
-
-            int oldBrojVrsta = getBrojVrsta(sprava, grupa);
-            if (broj > oldBrojVrsta * 6)
-            {
-                int newBrojVrsta = (broj - 1) / 6 + 1;
-                ElementTableItem[,] newElementItems = new ElementTableItem[newBrojVrsta, 6];
-                copyElementItems(newElementItems, items, oldBrojVrsta);
-                itemsMap[getElementiKey(sprava, grupa)] = newElementItems;
-                items = newElementItems;
-
-                int from = oldBrojVrsta * 6 + 1;
-                int to = newBrojVrsta * 6;
-                for (int k = from; k <= to; k++)
-                    createItem(k, null, sprava, grupa);
-            }
+            if (broj > getBrojVrsta(sprava, grupa) * 6)
+                extendItems(broj, sprava, grupa);
 
             int i = getRowIndex(broj);
             int j = getColumnIndex(broj);
@@ -337,9 +313,28 @@ namespace Gimnastika.UI
                 broj, element,
                 new PointF(j * elementSizePxl.Width, i * elementSizePxl.Height),
                 elementSizePxl, this);
-            items[i, j] = item;
+            itemsMap[getElementiKey(sprava, grupa)][i, j] = item;
             if (element != null && form.izabrani.ContainsKey(element.Id))
                 item.Selected = true;
+        }
+
+        private void extendItems(int broj, Sprava sprava, GrupaElementa grupa)
+        {
+            int oldBrojVrsta = getBrojVrsta(sprava, grupa);
+            if (broj > oldBrojVrsta * 6)
+            {
+                int newBrojVrsta = (broj - 1) / 6 + 1;
+                if (newBrojVrsta % 4 != 0)
+                    newBrojVrsta += 4 - newBrojVrsta % 4;
+                ElementTableItem[,] newElementItems = new ElementTableItem[newBrojVrsta, 6];
+                copyElementItems(newElementItems, itemsMap[getElementiKey(sprava, grupa)], oldBrojVrsta);
+                itemsMap[getElementiKey(sprava, grupa)] = newElementItems;
+
+                int from = oldBrojVrsta * 6 + 1;
+                int to = newBrojVrsta * 6;
+                for (int k = from; k <= to; k++)
+                    createItem(k, null, sprava, grupa);
+            }
         }
 
         private void copyElementItems(ElementTableItem[,] newElementItems,
@@ -402,5 +397,72 @@ namespace Gimnastika.UI
             el.Remove(element);
             createItem(element.Broj, null, element.Sprava, element.Grupa);            
         }
+
+        public int getPageCount()
+        {
+            int result = 0;
+            foreach (Sprava s in Sprave.getSprave())
+            {
+                foreach (GrupaElementa g in GrupeElementa.getGrupe())
+                {
+                    int brojVrsta = getBrojVrsta(s, g);
+                    if (brojVrsta % 4 != 0)
+                        brojVrsta += 4 - brojVrsta % 4;
+                    result += brojVrsta / 4;
+                }
+            }
+            return result;
+        }
+
+        public IList<ElementTableItem> getItems(Sprava sprava, GrupaElementa grupa, int from, int to)
+        {
+            List<ElementTableItem> result = new List<ElementTableItem>();
+            ElementTableItem[,] items = itemsMap[getElementiKey(sprava, grupa)];
+            foreach (ElementTableItem item in items)
+            {
+                if (item.Broj >= from && item.Broj <= to)
+                    result.Add(item);
+            }
+            return result;
+        }
+
+        public IList<TableItemBoundary> getItemBoundaries()
+        {
+            List<TableItemBoundary> result = new List<TableItemBoundary>();
+            int pageNum = 0;
+            foreach (Sprava s in Sprave.getSprave())
+            {
+                foreach (GrupaElementa g in GrupeElementa.getGrupe())
+                {
+                    int brojVrsta = getBrojVrsta(s, g);
+                    if (brojVrsta % 4 != 0)
+                        brojVrsta += 4 - brojVrsta % 4;
+                    int page = 0;
+                    while (page < brojVrsta / 4)
+                    {
+                        result.Add(new TableItemBoundary(++pageNum, s, g, page*24 + 1));
+                        ++page;
+                    }
+                }
+            }
+            return result;
+        }
     }
+
+    public class TableItemBoundary
+    {
+        public int pageNum;
+        public Sprava sprava;
+        public GrupaElementa grupa;
+        public int startBroj;
+
+        public TableItemBoundary(int pageNum, Sprava sprava, GrupaElementa grupa, int startBroj)
+        {
+            this.pageNum = pageNum;
+            this.sprava = sprava;
+            this.grupa = grupa;
+            this.startBroj = startBroj;
+        }
+    }
+
 }

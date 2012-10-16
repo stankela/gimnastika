@@ -39,6 +39,13 @@ namespace Gimnastika
             set { playerFileName = value; }
         }
 
+        private string _printerName;
+        public virtual string PrinterName
+        {
+            get { return _printerName; }
+            set { _printerName = value; }
+        }
+
         #region ICloneable Members
 
         public object Clone()

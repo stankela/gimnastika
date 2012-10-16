@@ -15,8 +15,6 @@ namespace Gimnastika.Report
 	{
         private VezbaEditorBaseForm vezbaEditor;
 
-        RectangleF headerBounds;
-
         Font gimnasticarFont;
         Font nazivVezbeFont;
         Font spravaFont;
@@ -27,40 +25,20 @@ namespace Gimnastika.Report
         public VezbaIzvestaj(VezbaEditorBaseForm vezbaEditor)
 		{
             this.vezbaEditor = vezbaEditor;
-			setDocumentName(vezbaEditor.Vezba.Naziv);
-		}
-
-		protected override void createFonts()
-		{
-			base.createFonts();
+			DocumentName = vezbaEditor.Vezba.Naziv;
+            
             gimnasticarFont = new Font("Arial", 10, FontStyle.Bold);
             nazivVezbeFont = new Font("Arial", 12);
             spravaFont = new Font("Arial", 10, FontStyle.Bold);
             datumFont = new Font("Arial", 8);
         }
 
-		protected override void releaseFonts()
+        protected override void doSetupContent(Graphics g)
 		{
-			base.releaseFonts();
-            gimnasticarFont.Dispose();
-            nazivVezbeFont.Dispose();
-            spravaFont.Dispose();
-            datumFont.Dispose();
-            // blackBrush.Dispose();  // daje gresku
-		}
-		
-		public override void setupContent(Graphics g, RectangleF contentBounds)
-		{
-			getData();
-            getPreviewForm().setTotalPages(1);
+            lastPageNum = 1;
 		}
 
-        private void getData()
-        {
-
-        }
-
-        public override void drawContent(Graphics g, RectangleF contentBounds, int pageNum)
+        public override void drawContent(Graphics g, int pageNum)
         {
             DataGridView gridElementi = (vezbaEditor as VezbaEditorForm).getGridElementi();
             int redBrojWidth = gridElementi.Columns["RedBroj"].Width;
@@ -81,9 +59,8 @@ namespace Gimnastika.Report
             tabela.draw(g);
         }
 
-        public override void drawHeader(Graphics g, RectangleF headerBounds, int pageNum)
-		{
-            this.headerBounds = headerBounds;
+        public override void drawHeader(Graphics g, int pageNum)
+        {
             PointF gimnasticarTopLeft = headerBounds.Location;
 
             float gimnasticarHeight = gimnasticarFont.GetHeight(g) * 1.5f;

@@ -35,13 +35,14 @@ namespace Gimnastika.UI
             this.mnPromenaGimnasticara = new System.Windows.Forms.ToolStripMenuItem();
             this.mnVezbe = new System.Windows.Forms.ToolStripMenuItem();
             this.mnTabelaElemenata = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnNaziviGrupa = new System.Windows.Forms.ToolStripMenuItem();
             this.mnVezbeVezbe = new System.Windows.Forms.ToolStripMenuItem();
             this.mnPromenaElemenata = new System.Windows.Forms.ToolStripMenuItem();
             this.mnPregledElemenata = new System.Windows.Forms.ToolStripMenuItem();
             this.mnPravilaOcenjivanja = new System.Windows.Forms.ToolStripMenuItem();
             this.mnOpcije = new System.Windows.Forms.ToolStripMenuItem();
             this.mnOpcijeOpcije = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnNaziviGrupa = new System.Windows.Forms.ToolStripMenuItem();
+            this.probaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,7 +77,8 @@ namespace Gimnastika.UI
             // mnGimnasticari
             // 
             this.mnGimnasticari.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnPromenaGimnasticara});
+            this.mnPromenaGimnasticara,
+            this.probaToolStripMenuItem});
             this.mnGimnasticari.Name = "mnGimnasticari";
             this.mnGimnasticari.Size = new System.Drawing.Size(76, 20);
             this.mnGimnasticari.Text = "Gimnasticari";
@@ -107,6 +109,13 @@ namespace Gimnastika.UI
             this.mnTabelaElemenata.Size = new System.Drawing.Size(180, 22);
             this.mnTabelaElemenata.Text = "Tabela elemenata";
             this.mnTabelaElemenata.Click += new System.EventHandler(this.mnTabelaElemenata_Click);
+            // 
+            // mnNaziviGrupa
+            // 
+            this.mnNaziviGrupa.Name = "mnNaziviGrupa";
+            this.mnNaziviGrupa.Size = new System.Drawing.Size(180, 22);
+            this.mnNaziviGrupa.Text = "Nazivi grupa";
+            this.mnNaziviGrupa.Click += new System.EventHandler(this.mnNaziviGrupa_Click);
             // 
             // mnVezbeVezbe
             // 
@@ -151,12 +160,12 @@ namespace Gimnastika.UI
             this.mnOpcijeOpcije.Text = "Opcije";
             this.mnOpcijeOpcije.Click += new System.EventHandler(this.mnOpcijeOpcije_Click);
             // 
-            // mnNaziviGrupa
+            // probaToolStripMenuItem
             // 
-            this.mnNaziviGrupa.Name = "mnNaziviGrupa";
-            this.mnNaziviGrupa.Size = new System.Drawing.Size(180, 22);
-            this.mnNaziviGrupa.Text = "Nazivi grupa";
-            this.mnNaziviGrupa.Click += new System.EventHandler(this.mnNaziviGrupa_Click);
+            this.probaToolStripMenuItem.Name = "probaToolStripMenuItem";
+            this.probaToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
+            this.probaToolStripMenuItem.Text = "Proba";
+            this.probaToolStripMenuItem.Click += new System.EventHandler(this.probaToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -191,5 +200,6 @@ namespace Gimnastika.UI
         private System.Windows.Forms.ToolStripMenuItem mnPravilaOcenjivanja;
         private System.Windows.Forms.ToolStripMenuItem mnTabelaElemenata;
         private System.Windows.Forms.ToolStripMenuItem mnNaziviGrupa;
+        private System.Windows.Forms.ToolStripMenuItem probaToolStripMenuItem;
     }
 }

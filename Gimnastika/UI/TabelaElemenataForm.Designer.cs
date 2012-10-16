@@ -56,6 +56,8 @@ namespace Gimnastika.UI
             this.mnSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.mnIzaberiElement = new System.Windows.Forms.ToolStripMenuItem();
             this.mnIzaberiVarijantu = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnPrint = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.contextMenuTabela.SuspendLayout();
@@ -63,6 +65,8 @@ namespace Gimnastika.UI
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnClose);
+            this.panel1.Controls.Add(this.btnPrint);
             this.panel1.Controls.Add(this.lblVelicinaSlike);
             this.panel1.Controls.Add(this.trackBar1);
             this.panel1.Controls.Add(this.btnOK);
@@ -77,7 +81,7 @@ namespace Gimnastika.UI
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(706, 59);
+            this.panel1.Size = new System.Drawing.Size(979, 59);
             this.panel1.TabIndex = 2;
             this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
             // 
@@ -205,7 +209,7 @@ namespace Gimnastika.UI
             this.panelTabela.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelTabela.Location = new System.Drawing.Point(0, 106);
             this.panelTabela.Name = "panelTabela";
-            this.panelTabela.Size = new System.Drawing.Size(706, 323);
+            this.panelTabela.Size = new System.Drawing.Size(979, 323);
             this.panelTabela.TabIndex = 1;
             this.panelTabela.Paint += new System.Windows.Forms.PaintEventHandler(this.panelTabela_Paint);
             this.panelTabela.Scroll += new System.Windows.Forms.ScrollEventHandler(this.panelTabela_Scroll);
@@ -218,7 +222,7 @@ namespace Gimnastika.UI
             this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelHeader.Location = new System.Drawing.Point(0, 59);
             this.panelHeader.Name = "panelHeader";
-            this.panelHeader.Size = new System.Drawing.Size(706, 47);
+            this.panelHeader.Size = new System.Drawing.Size(979, 47);
             this.panelHeader.TabIndex = 3;
             this.panelHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHeader_Paint);
             this.panelHeader.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelHeader_MouseDown);
@@ -305,11 +309,31 @@ namespace Gimnastika.UI
             this.mnIzaberiVarijantu.Text = "Izaberi varijantu";
             this.mnIzaberiVarijantu.Click += new System.EventHandler(this.mnIzaberiVarijantu_Click);
             // 
+            // btnPrint
+            // 
+            this.btnPrint.Location = new System.Drawing.Point(717, 22);
+            this.btnPrint.Name = "btnPrint";
+            this.btnPrint.Size = new System.Drawing.Size(75, 23);
+            this.btnPrint.TabIndex = 12;
+            this.btnPrint.Text = "Stampaj";
+            this.btnPrint.UseVisualStyleBackColor = true;
+            this.btnPrint.Click += new System.EventHandler(this.btnPrint_Click);
+            // 
+            // btnClose
+            // 
+            this.btnClose.Location = new System.Drawing.Point(821, 22);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(75, 23);
+            this.btnClose.TabIndex = 13;
+            this.btnClose.Text = "Zatvori";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
             // TabelaElemenataForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(706, 429);
+            this.ClientSize = new System.Drawing.Size(979, 429);
             this.Controls.Add(this.panelTabela);
             this.Controls.Add(this.panelHeader);
             this.Controls.Add(this.panel1);
@@ -353,5 +377,7 @@ namespace Gimnastika.UI
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.Label lblVelicinaSlike;
         private System.Windows.Forms.ToolStripMenuItem mnPromeniVelicinuSlike;
+        private System.Windows.Forms.Button btnPrint;
+        private System.Windows.Forms.Button btnClose;
     }
 }
