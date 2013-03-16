@@ -42,7 +42,6 @@ namespace Gimnastika.UI
             this.mnPravilaOcenjivanja = new System.Windows.Forms.ToolStripMenuItem();
             this.mnOpcije = new System.Windows.Forms.ToolStripMenuItem();
             this.mnOpcijeOpcije = new System.Windows.Forms.ToolStripMenuItem();
-            this.probaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -77,8 +76,7 @@ namespace Gimnastika.UI
             // mnGimnasticari
             // 
             this.mnGimnasticari.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnPromenaGimnasticara,
-            this.probaToolStripMenuItem});
+            this.mnPromenaGimnasticara});
             this.mnGimnasticari.Name = "mnGimnasticari";
             this.mnGimnasticari.Size = new System.Drawing.Size(76, 20);
             this.mnGimnasticari.Text = "Gimnasticari";
@@ -160,13 +158,6 @@ namespace Gimnastika.UI
             this.mnOpcijeOpcije.Text = "Opcije";
             this.mnOpcijeOpcije.Click += new System.EventHandler(this.mnOpcijeOpcije_Click);
             // 
-            // probaToolStripMenuItem
-            // 
-            this.probaToolStripMenuItem.Name = "probaToolStripMenuItem";
-            this.probaToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
-            this.probaToolStripMenuItem.Text = "Proba";
-            this.probaToolStripMenuItem.Click += new System.EventHandler(this.probaToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -200,6 +191,5 @@ namespace Gimnastika.UI
         private System.Windows.Forms.ToolStripMenuItem mnPravilaOcenjivanja;
         private System.Windows.Forms.ToolStripMenuItem mnTabelaElemenata;
         private System.Windows.Forms.ToolStripMenuItem mnNaziviGrupa;
-        private System.Windows.Forms.ToolStripMenuItem probaToolStripMenuItem;
     }
 }
