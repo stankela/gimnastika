@@ -43,8 +43,7 @@ namespace Gimnastika.UI
             Select 
         };
 
-        // TODO: Ovo je hack - promenio sam pristup u public da bi mogao da pristupam iz TabelaElemenata.
-        public Dictionary<int, Element> izabrani = new Dictionary<int, Element>();
+        private Dictionary<int, Element> izabrani = new Dictionary<int, Element>();
 
         public List<Element> IzabraniElementi
         {
@@ -80,7 +79,7 @@ namespace Gimnastika.UI
                     SizeF elementSizePxl = (Size)Point.Round(
                         mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
                     
-                    tabela = new TabelaElemenata(sviElementi, elementSizePxl, this);
+                    tabela = new TabelaElemenata(sviElementi, elementSizePxl);
 
                     initUI();
                     
@@ -196,20 +195,20 @@ namespace Gimnastika.UI
 
         private void odrediVirtuelnuClientOblast()
         {
+            SizeF size = tabela.getScaledTabelaSize(selectedSprava(), selectedGrupa(), zoom / 100);
             panelTabela.AutoScrollMinSize = new Size(
-                (int)(6 * tabela.getElementSizePxl().Width * zoom / 100 + 2 * xMargin),
-                (int)(tabela.getBrojVrsta(selectedSprava(), selectedGrupa())
-                    * tabela.getElementSizePxl().Height * zoom / 100 + 2 * yMargin));
+                (int)(size.Width + 2 * xMargin), (int)(size.Height + 2 * yMargin));
             podesiKlizace();
         }
 
         private void podesiKlizace()
         {
+            SizeF zoomedElementSize = tabela.getScaledElementSizePxl(zoom / 100);
             panelTabela.HorizontalScroll.SmallChange =
-                (int)(tabela.getElementSizePxl().Width * zoom / 100 / 3);
+                (int)(zoomedElementSize.Width / 3);
             panelTabela.HorizontalScroll.LargeChange = panelTabela.Width;
             panelTabela.VerticalScroll.SmallChange =
-                (int)(tabela.getElementSizePxl().Height * zoom / 100 / 3);
+                (int)(zoomedElementSize.Height / 3);
             panelTabela.VerticalScroll.LargeChange = panelTabela.Height;
         }
 
@@ -259,8 +258,7 @@ namespace Gimnastika.UI
             pt.X = -pt.X;
             pt.Y = -pt.Y;
 
-            SizeF zoomedElementSize = new SizeF(
-                tabela.getElementSizePxl().Width * zoom / 100, tabela.getElementSizePxl().Height * zoom / 100);
+            SizeF zoomedElementSize = tabela.getScaledElementSizePxl(zoom / 100);
 
             switch (e.KeyCode)
             {
@@ -372,7 +370,7 @@ namespace Gimnastika.UI
                 "E = 0,50", "F = 0,60 (G = 0,70)"};
             for (int i = 0; i < 6; i++)
             {
-                ElementTableItem item = tabela.getElementItems(selectedSprava(), selectedGrupa())[0, i];
+                ElementTableItem item = tabela.getElementItemAt(selectedSprava(), selectedGrupa(), 1, i + 1);
                 RectangleF tezinaRect = new RectangleF(
                     xMargin + item.Location.X * zoom / 100, 0,
                     item.Size.Width * zoom / 100, tezineHeaderHeightPxl);
@@ -405,7 +403,7 @@ namespace Gimnastika.UI
             Point autoScrollPosition = panelTabela.AutoScrollPosition;
             RectangleF rect = new RectangleF(
                 new PointF(xMargin, tezineHeaderHeightPxl),
-                new SizeF(tabela.getTabelaWidth() * zoom / 100, grupaHeaderHeightPxl));
+                new SizeF(tabela.getScaledTabelaSize(selectedSprava(), selectedGrupa(), zoom / 100).Width, grupaHeaderHeightPxl));
             rect.Offset(autoScrollPosition.X, 0);
             g.DrawRectangle(pen, rect.X, rect.Y, rect.Width, rect.Height);
 
@@ -538,13 +536,14 @@ namespace Gimnastika.UI
             // zoom se dobija iz formule:
             // 2 * xMargin + getTabelaWidth() * zoom = panelTabela.Width
 
-            float width = 2 * xMargin + tabela.getTabelaWidth();
-            float height = 2 * yMargin + tabela.getTabelaHeight(selectedSprava(), selectedGrupa());
+            SizeF tabelaSize = tabela.getTabelaSize(selectedSprava(), selectedGrupa());
+            float width = 2 * xMargin + tabelaSize.Width;
+            float height = 2 * yMargin + tabelaSize.Height;
             float newZoom;
             if (width / height >= panelTabela.Width / panelTabela.Height)
             {
                 // tabela cela staje unutar prozora
-                newZoom = (panelTabela.Width - 2 * xMargin) / tabela.getTabelaWidth() * 100;
+                newZoom = (panelTabela.Width - 2 * xMargin) / tabelaSize.Width * 100;
             }
             else
             {
@@ -553,7 +552,7 @@ namespace Gimnastika.UI
                 // automatsko skrolovanje, klizaci se nalaze UNUTAR klijent
                 // oblasti)
                 newZoom = (panelTabela.Width - 2 * xMargin -
-                    SystemInformation.VerticalScrollBarWidth) / tabela.getTabelaWidth() * 100;
+                    SystemInformation.VerticalScrollBarWidth) / tabelaSize.Width * 100;
             }
             zumiraj(newZoom);
             fitWidth = true;
@@ -738,7 +737,7 @@ namespace Gimnastika.UI
                 clickedItem.Broj, Element.getTezina(clickedItem.Broj));
             if (form.ShowDialog() == DialogResult.OK)
             {
-                tabela.addElement(form.Element);
+                tabela.addElement(form.Element, false);
                 panelTabela.Invalidate();
                 panelTabela.Focus();
             }
@@ -891,11 +890,11 @@ namespace Gimnastika.UI
             if (form.ShowDialog() == DialogResult.OK)
             {
                 Element element = form.Element;
-                bool extend = element.Broj > tabela.getBrojVrsta(selectedSprava(), selectedGrupa()) * 6;
-                tabela.addElement(element);
+                tabela.addElement(element, false);
 
-                if (extend)
-                    odrediVirtuelnuClientOblast();
+                // Addind new element can extend the table, so we need to calculate virtual client area.
+                odrediVirtuelnuClientOblast();
+
                 scrollItemToClientCenter(element.Broj);
 
                 panelTabela.Invalidate();
@@ -957,8 +956,9 @@ namespace Gimnastika.UI
                         DAOFactoryFactory.DAOFactory.GetElementDAO().MakePersistent(element);
                         session.Transaction.Commit();
 
-                        tabela.createItem(element.Broj, element, element.Sprava, element.Grupa);
-                        tabela.createItem(from.Broj, null, from.Sprava, from.Grupa);
+                        tabela.createItem(element.Broj, element, element.Sprava, element.Grupa,
+                            izabrani.ContainsKey(element.Id));
+                        tabela.createItem(from.Broj, null, from.Sprava, from.Grupa, false);
                     }
                 }
                 finally

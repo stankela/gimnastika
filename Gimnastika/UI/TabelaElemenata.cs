@@ -14,18 +14,23 @@ namespace Gimnastika.UI
             return itemsMap[getElementiKey(s, g)];
         }
 
+        public ElementTableItem getElementItemAt(Sprava s, GrupaElementa g, int row, int column)
+        {
+            return itemsMap[getElementiKey(s, g)][row - 1, column - 1];
+        }
+
         // kljuc je sprava * (Grupa.Max + 1) + grupa
         private Dictionary<int, List<Element>> elementiMap = new Dictionary<int, List<Element>>();
         private Dictionary<int, ElementTableItem[,]> itemsMap = new Dictionary<int, ElementTableItem[,]>();
 
         // TODO: Neka elementItems bude 1-dimenzionalan niz
 
-        private TabelaElemenataForm form;
-
         private SizeF elementSizePxl;
-        public SizeF getElementSizePxl()
-        { 
-            return elementSizePxl;
+
+        public SizeF getScaledElementSizePxl(float scale)
+        {
+            return new SizeF(
+              elementSizePxl.Width * scale, elementSizePxl.Height * scale);
         }
 
         private Color itemBorderColor;
@@ -160,10 +165,9 @@ namespace Gimnastika.UI
             get { return headerGrupaFont; }
         }
 
-        public TabelaElemenata(List<Element> elementi, SizeF elementSizePxl, TabelaElemenataForm form)
+        public TabelaElemenata(List<Element> elementi, SizeF elementSizePxl)
         {
             this.elementSizePxl = elementSizePxl;
-            this.form = form;
             fillElementiMap(elementi);
             fillItemsMap();
 
@@ -209,19 +213,19 @@ namespace Gimnastika.UI
             return (int)sprava * ((int)GrupaElementa.Max + 1) + (int)grupa;
         }
 
-        public float getTabelaWidth()
+        public SizeF getTabelaSize(Sprava s, GrupaElementa g)
         {
-            return 6 * elementSizePxl.Width;
+            return new SizeF(6 * elementSizePxl.Width, getBrojVrsta(s, g) * elementSizePxl.Height);
         }
 
-        public int getBrojVrsta(Sprava s, GrupaElementa g)
+        public SizeF getScaledTabelaSize(Sprava s, GrupaElementa g, float scale)
+        {
+            return new SizeF(6 * elementSizePxl.Width * scale, getBrojVrsta(s, g) * elementSizePxl.Height * scale);
+        }
+
+        private int getBrojVrsta(Sprava s, GrupaElementa g)
         {
             return itemsMap[getElementiKey(s, g)].Length / 6;
-        }
-
-        public float getTabelaHeight(Sprava s, GrupaElementa g)
-        {
-            return getBrojVrsta(s, g) * elementSizePxl.Width;
         }
 
         private void createItems(Sprava sprava, GrupaElementa grupa)
@@ -251,7 +255,7 @@ namespace Gimnastika.UI
                     && elementi[elemIndex].isVarijanta())
                         elemIndex++;
                 }
-                createItem(broj, elem, sprava, grupa);
+                createItem(broj, elem, sprava, grupa, false);
             }
         }
 
@@ -270,6 +274,12 @@ namespace Gimnastika.UI
                     if (e.Grupa != grupa)
                         continue;
                 }
+                if (sprava == Sprava.Undefined && grupa == GrupaElementa.Undefined)
+                {
+                    // TODO: Ovo je samo za moje debagovanje - da otkrijem da li ikada moze da se desi ova situacija
+                    // zato sto u ovom slucaju element biva stavljen u listu result.
+                    MessageDialogs.showMessage("Greska u programu", "");
+                }
                 result.Add(e);
             }
 
@@ -283,10 +293,10 @@ namespace Gimnastika.UI
         // koja bi bila ideksirana po spravi i grupi. Tako bi se izbegla situacija da se dodaje element za jednu spravu i
         // grupu, a lista elementi sadrzi elemente za drugu spravu i  grupu.
 
-        public void addElement(Element e)
+        public void addElement(Element e, bool select)
         {
             insertElement(e);
-            createItem(e.Broj, e, e.Sprava, e.Grupa);
+            createItem(e.Broj, e, e.Sprava, e.Grupa, select);
         }
 
         private void insertElement(Element e)
@@ -302,7 +312,7 @@ namespace Gimnastika.UI
                 el.Add(e);
         }
 
-        public void createItem(int broj, Element element, Sprava sprava, GrupaElementa grupa)
+        public void createItem(int broj, Element element, Sprava sprava, GrupaElementa grupa, bool select)
         {
             if (broj > getBrojVrsta(sprava, grupa) * 6)
                 extendItems(broj, sprava, grupa);
@@ -314,8 +324,7 @@ namespace Gimnastika.UI
                 new PointF(j * elementSizePxl.Width, i * elementSizePxl.Height),
                 elementSizePxl, this);
             itemsMap[getElementiKey(sprava, grupa)][i, j] = item;
-            if (element != null && form.izabrani.ContainsKey(element.Id))
-                item.Selected = true;
+            item.Selected = select;
         }
 
         private void extendItems(int broj, Sprava sprava, GrupaElementa grupa)
@@ -333,7 +342,7 @@ namespace Gimnastika.UI
                 int from = oldBrojVrsta * 6 + 1;
                 int to = newBrojVrsta * 6;
                 for (int k = from; k <= to; k++)
-                    createItem(k, null, sprava, grupa);
+                    createItem(k, null, sprava, grupa, false);
             }
         }
 
@@ -395,7 +404,7 @@ namespace Gimnastika.UI
         {
             List<Element> el = elementiMap[getElementiKey(element.Sprava, element.Grupa)];
             el.Remove(element);
-            createItem(element.Broj, null, element.Sprava, element.Grupa);            
+            createItem(element.Broj, null, element.Sprava, element.Grupa, false);            
         }
 
         public int getPageCount()
