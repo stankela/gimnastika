@@ -22,6 +22,10 @@ namespace Gimnastika.UI
 
         private void initUI()
         {
+            cmbSprava.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbSprava.Items.AddRange(Sprave.getSpraveNazivi());
+            cmbSprava.SelectedIndex = 0;
+
             checkBoxesGrupe = new CheckBox[] { chbSveGrupe, chb1, chb2, chb3, chb4, chb5 };
             checkBoxesTezine = new CheckBox[] { chbSveTezine, chbA, chbB, chbC, chbD, chbE,
                 chbE, chbF, chbG};
@@ -147,21 +151,7 @@ namespace Gimnastika.UI
 
         public Sprava selectedSprava()
         {
-            if (rbtParter.Checked)
-                return Sprava.Parter;
-            else if (rbtKonj.Checked)
-                return Sprava.Konj;
-            else if (rbtKarike.Checked)
-                return Sprava.Karike;
-            else if (rbtPreskok.Checked)
-                return Sprava.Preskok;
-            else if (rbtRazboj.Checked)
-                return Sprava.Razboj;
-            else if (rbtVratilo.Checked)
-                return Sprava.Vratilo;
-            else
-                return Sprava.Undefined;
-
+            return Sprave.parse(cmbSprava.SelectedItem.ToString());
         }
     }
 }

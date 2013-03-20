@@ -44,16 +44,9 @@ namespace Gimnastika.UI
             this.chbB = new System.Windows.Forms.CheckBox();
             this.chbA = new System.Windows.Forms.CheckBox();
             this.chbSveTezine = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.rbtParter = new System.Windows.Forms.RadioButton();
-            this.rbtKonj = new System.Windows.Forms.RadioButton();
-            this.rbtKarike = new System.Windows.Forms.RadioButton();
-            this.rbtPreskok = new System.Windows.Forms.RadioButton();
-            this.rbtRazboj = new System.Windows.Forms.RadioButton();
-            this.rbtVratilo = new System.Windows.Forms.RadioButton();
+            this.cmbSprava = new System.Windows.Forms.ComboBox();
             this.groupBoxGrupa.SuspendLayout();
             this.groupBoxTezina.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxGrupa
@@ -64,7 +57,7 @@ namespace Gimnastika.UI
             this.groupBoxGrupa.Controls.Add(this.chb2);
             this.groupBoxGrupa.Controls.Add(this.chb1);
             this.groupBoxGrupa.Controls.Add(this.chbSveGrupe);
-            this.groupBoxGrupa.Location = new System.Drawing.Point(266, 12);
+            this.groupBoxGrupa.Location = new System.Drawing.Point(130, 39);
             this.groupBoxGrupa.Name = "groupBoxGrupa";
             this.groupBoxGrupa.Size = new System.Drawing.Size(136, 174);
             this.groupBoxGrupa.TabIndex = 5;
@@ -141,7 +134,7 @@ namespace Gimnastika.UI
             this.groupBoxTezina.Controls.Add(this.chbB);
             this.groupBoxTezina.Controls.Add(this.chbA);
             this.groupBoxTezina.Controls.Add(this.chbSveTezine);
-            this.groupBoxTezina.Location = new System.Drawing.Point(133, 12);
+            this.groupBoxTezina.Location = new System.Drawing.Point(3, 39);
             this.groupBoxTezina.Name = "groupBoxTezina";
             this.groupBoxTezina.Size = new System.Drawing.Size(112, 213);
             this.groupBoxTezina.TabIndex = 4;
@@ -228,100 +221,27 @@ namespace Gimnastika.UI
             this.chbSveTezine.Text = "Sve tezine";
             this.chbSveTezine.UseVisualStyleBackColor = true;
             // 
-            // panel1
+            // cmbSprava
             // 
-            this.panel1.Controls.Add(this.rbtVratilo);
-            this.panel1.Controls.Add(this.rbtRazboj);
-            this.panel1.Controls.Add(this.rbtPreskok);
-            this.panel1.Controls.Add(this.rbtKarike);
-            this.panel1.Controls.Add(this.rbtKonj);
-            this.panel1.Controls.Add(this.rbtParter);
-            this.panel1.Location = new System.Drawing.Point(20, 12);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(92, 213);
-            this.panel1.TabIndex = 6;
-            // 
-            // rbtParter
-            // 
-            this.rbtParter.AutoSize = true;
-            this.rbtParter.Location = new System.Drawing.Point(13, 18);
-            this.rbtParter.Name = "rbtParter";
-            this.rbtParter.Size = new System.Drawing.Size(53, 17);
-            this.rbtParter.TabIndex = 0;
-            this.rbtParter.TabStop = true;
-            this.rbtParter.Text = "Parter";
-            this.rbtParter.UseVisualStyleBackColor = true;
-            // 
-            // rbtKonj
-            // 
-            this.rbtKonj.AutoSize = true;
-            this.rbtKonj.Location = new System.Drawing.Point(13, 42);
-            this.rbtKonj.Name = "rbtKonj";
-            this.rbtKonj.Size = new System.Drawing.Size(46, 17);
-            this.rbtKonj.TabIndex = 1;
-            this.rbtKonj.TabStop = true;
-            this.rbtKonj.Text = "Konj";
-            this.rbtKonj.UseVisualStyleBackColor = true;
-            // 
-            // rbtKarike
-            // 
-            this.rbtKarike.AutoSize = true;
-            this.rbtKarike.Location = new System.Drawing.Point(13, 65);
-            this.rbtKarike.Name = "rbtKarike";
-            this.rbtKarike.Size = new System.Drawing.Size(55, 17);
-            this.rbtKarike.TabIndex = 2;
-            this.rbtKarike.TabStop = true;
-            this.rbtKarike.Text = "Karike";
-            this.rbtKarike.UseVisualStyleBackColor = true;
-            // 
-            // rbtPreskok
-            // 
-            this.rbtPreskok.AutoSize = true;
-            this.rbtPreskok.Location = new System.Drawing.Point(13, 88);
-            this.rbtPreskok.Name = "rbtPreskok";
-            this.rbtPreskok.Size = new System.Drawing.Size(64, 17);
-            this.rbtPreskok.TabIndex = 3;
-            this.rbtPreskok.TabStop = true;
-            this.rbtPreskok.Text = "Preskok";
-            this.rbtPreskok.UseVisualStyleBackColor = true;
-            // 
-            // rbtRazboj
-            // 
-            this.rbtRazboj.AutoSize = true;
-            this.rbtRazboj.Location = new System.Drawing.Point(13, 111);
-            this.rbtRazboj.Name = "rbtRazboj";
-            this.rbtRazboj.Size = new System.Drawing.Size(58, 17);
-            this.rbtRazboj.TabIndex = 4;
-            this.rbtRazboj.TabStop = true;
-            this.rbtRazboj.Text = "Razboj";
-            this.rbtRazboj.UseVisualStyleBackColor = true;
-            // 
-            // rbtVratilo
-            // 
-            this.rbtVratilo.AutoSize = true;
-            this.rbtVratilo.Location = new System.Drawing.Point(13, 134);
-            this.rbtVratilo.Name = "rbtVratilo";
-            this.rbtVratilo.Size = new System.Drawing.Size(54, 17);
-            this.rbtVratilo.TabIndex = 5;
-            this.rbtVratilo.TabStop = true;
-            this.rbtVratilo.Text = "Vratilo";
-            this.rbtVratilo.UseVisualStyleBackColor = true;
+            this.cmbSprava.FormattingEnabled = true;
+            this.cmbSprava.Location = new System.Drawing.Point(3, 3);
+            this.cmbSprava.Name = "cmbSprava";
+            this.cmbSprava.Size = new System.Drawing.Size(121, 21);
+            this.cmbSprava.TabIndex = 6;
             // 
             // SelektujElementeControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.cmbSprava);
             this.Controls.Add(this.groupBoxGrupa);
             this.Controls.Add(this.groupBoxTezina);
             this.Name = "SelektujElementeControl";
-            this.Size = new System.Drawing.Size(424, 238);
+            this.Size = new System.Drawing.Size(274, 261);
             this.groupBoxGrupa.ResumeLayout(false);
             this.groupBoxGrupa.PerformLayout();
             this.groupBoxTezina.ResumeLayout(false);
             this.groupBoxTezina.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -344,13 +264,7 @@ namespace Gimnastika.UI
         private System.Windows.Forms.CheckBox chbB;
         private System.Windows.Forms.CheckBox chbA;
         private System.Windows.Forms.CheckBox chbSveTezine;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RadioButton rbtVratilo;
-        private System.Windows.Forms.RadioButton rbtRazboj;
-        private System.Windows.Forms.RadioButton rbtPreskok;
-        private System.Windows.Forms.RadioButton rbtKarike;
-        private System.Windows.Forms.RadioButton rbtKonj;
-        private System.Windows.Forms.RadioButton rbtParter;
+        private System.Windows.Forms.ComboBox cmbSprava;
 
     }
 }

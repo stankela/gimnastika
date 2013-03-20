@@ -31,6 +31,63 @@ namespace Gimnastika.Domain
             return new Sprava[] { Sprava.Parter, Sprava.Konj, Sprava.Karike,
                 Sprava.Preskok, Sprava.Razboj, Sprava.Vratilo };
         }
+
+        public static string[] getSpraveNazivi()
+        {
+            Sprava[] sprave = getSprave();
+            string[] result = new string[sprave.Length];
+            for (int i = 0; i < sprave.Length; i++)
+                result[i] = Sprave.toString(sprave[i]);
+            return result;
+        }
+
+        public static string toString(Sprava sprava)
+        {
+            switch (sprava)
+            {
+                case Sprava.Parter:
+                    return "Parter";
+
+                case Sprava.Konj:
+                    return "Konj sa hvataljkama";
+
+                case Sprava.Karike:
+                    return "Karike";
+
+                case Sprava.Preskok:
+                    return "Preskok";
+
+                case Sprava.Razboj:
+                    return "Razboj";
+
+                case Sprava.Vratilo:
+                    return "Vratilo";
+
+                case Sprava.Undefined:
+                    return "Nepoznata sprava";
+
+                default:
+                    throw new ArgumentException("Nedozvoljena vrednost za spravu.");
+            }
+        }
+
+        public static Sprava parse(string sprava)
+        {
+            Sprava result = Sprava.Undefined;
+            Sprava[] sprave = (Sprava[])Enum.GetValues(typeof(Sprava));
+            foreach (Sprava s in sprave)
+            {
+                if (toString(s).ToUpper() == sprava.ToUpper())
+                {
+                    result = s;
+                    break;
+                }
+            }
+            if (result == Sprava.Undefined && sprava.ToUpper() == "KONJ")
+                result = Sprava.Konj;
+            return result;
+        }
+
     }
 
     public enum TezinaElementa

@@ -179,6 +179,7 @@ namespace Gimnastika.UI
                 string nazivGim = element.NazivPoGimnasticaru;
 
                 float nazivHeigth = 0.0f;
+                // TODO2: Probaj da razdvojis srpski i engleski naziv (linijom ili malim razmakom)
                 if (naziv != "")
                 {
                     float xNaziv = rect.X + g.MeasureString(number + new String(' ', 3), f).Width;

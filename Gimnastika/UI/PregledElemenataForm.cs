@@ -116,6 +116,7 @@ namespace Gimnastika.UI
                 g.FillRectangle(tabela.ItemBackroundBrush, rect);
                 g.DrawRectangle(tabela.ItemBorderPen, rect.X, rect.Y, rect.Width, rect.Height);
             }
+            drawTezinaGrupa();
         }
 
         private void panelSlika_Resize(object sender, EventArgs e)
@@ -233,13 +234,46 @@ namespace Gimnastika.UI
         private void drawItem()
         {
             panelSlika.Invalidate();
-            if (currentIndex >= 0)
-                setItemNumberTextBox(currentIndex + 1);
+            setItemNumberTextBox();
+            drawTezinaGrupa();
         }
 
-        private void setItemNumberTextBox(int num)
+        private void setItemNumberTextBox()
         {
-            textBox1.Text = String.Format("{0} od {1}", num, items.Count);
+            if (currentIndex >= 0)
+                textBox1.Text = String.Format("{0} od {1}", currentIndex + 1, items.Count);
+            else
+                textBox1.Text = String.Format("{0}", currentIndex + 1);
+        }
+
+        private void drawTezinaGrupa()
+        {
+            Graphics g = panelSlika.CreateGraphics();
+            string text = String.Empty;
+            if (currentIndex >= 0)
+            {
+                Element e = items[currentIndex].Element;
+                string grupa = e.Grupa.ToString();
+                if (e.Grupa == GrupaElementa.II)
+                    grupa = "I I";
+                else if (e.Grupa == GrupaElementa.III)
+                    grupa = "I I I";
+                else if (e.Grupa == GrupaElementa.IV)
+                    grupa = "I V";
+                text = e.Tezina.ToString() + ",  " + grupa;
+            }
+            Pen pen = tabela.HeaderBorderPen;
+            Brush brush = tabela.HeaderTezinaTextBrush;
+            Font f = tabela.HeaderTezinaFont;
+
+            Rectangle rect = new Rectangle(0, 0, 100, 50);
+            g.FillRectangle(tabela.ItemBackroundBrush, rect);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width, rect.Height);
+
+            StringFormat fmt = new StringFormat();
+            fmt.Alignment = fmt.LineAlignment = StringAlignment.Center;
+            g.DrawString(text, f, brush, rect, fmt);
+            g.Dispose();
         }
 
         private void btnPrevious_Click(object sender, EventArgs e)
@@ -253,7 +287,7 @@ namespace Gimnastika.UI
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            if (currentIndex < items.Count -1)
+            if (currentIndex != -1 && currentIndex < items.Count -1)
             {
                 currentIndex++;
                 drawItem();
@@ -262,7 +296,7 @@ namespace Gimnastika.UI
 
         private void btnLast_Click(object sender, EventArgs e)
         {
-            if (currentIndex < items.Count - 1)
+            if (currentIndex != -1 && currentIndex < items.Count - 1)
             {
                 currentIndex = items.Count - 1;
                 drawItem();
@@ -289,14 +323,8 @@ namespace Gimnastika.UI
                 }
 
                 if (num >= 1 && num <= items.Count)
-                {
                     currentIndex = num - 1;
-                    drawItem();
-                }
-                else
-                {
-                    setItemNumberTextBox(currentIndex + 1);
-                }
+                drawItem();
             }
         }
 
@@ -325,8 +353,9 @@ namespace Gimnastika.UI
                 MessageDialogs.showMessage("Ne postoje elementi za zadate kriterijume.", this.Text);
             }
             else
-                currentIndex = 0;            
-            drawItem();
+                currentIndex = 0;
+            panelSlika_Resize(null, null);
+            setItemNumberTextBox();
         }
 
     }
