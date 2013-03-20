@@ -108,6 +108,17 @@ namespace Gimnastika.UI
             }
         }
 
+        private Brush itemBackroundBrush = null;
+        public Brush ItemBackroundBrush
+        {
+            get
+            {
+                if (itemBackroundBrush == null)
+                    itemBackroundBrush = new SolidBrush(tabelaBackColor);
+                return itemBackroundBrush;
+            }
+        }
+
         private Font itemFont;
         public Font ItemFont
         {

@@ -77,7 +77,7 @@ namespace Gimnastika.UI
                     Graphics g = CreateGraphics();
                     float elementSizeMM = Math.Min(210 / 4, 297 / 6);
                     SizeF elementSizePxl = (Size)Point.Round(
-                        mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
+                        Utils.mmToPixel(g, new PointF(elementSizeMM, elementSizeMM)));
                     
                     tabela = new TabelaElemenata(sviElementi, elementSizePxl);
 
@@ -87,9 +87,9 @@ namespace Gimnastika.UI
                     float grupaHeaderHeightMM = 5;
 
                     tezineHeaderHeightPxl = Point.Round(
-                        mmToPixel(g, new PointF(0, tezineHeaderHeightMM))).Y;
+                        Utils.mmToPixel(g, new PointF(0, tezineHeaderHeightMM))).Y;
                     grupaHeaderHeightPxl = Point.Round(
-                        mmToPixel(g, new PointF(0, grupaHeaderHeightMM))).Y;
+                        Utils.mmToPixel(g, new PointF(0, grupaHeaderHeightMM))).Y;
                     g.Dispose();
 
                     panelHeader.Height = tezineHeaderHeightPxl + grupaHeaderHeightPxl + 1;
@@ -127,6 +127,7 @@ namespace Gimnastika.UI
 
         private void initUI()
         {
+            btnPrint.Enabled = false;
             Text = "Tabela elemenata";
 
             cmbSprava.Items.Clear();
@@ -155,14 +156,6 @@ namespace Gimnastika.UI
             panelTabela.BackColor = tabela.TabelaBackColor;
 
             panelHeader.BackColor = tabela.TabelaBackColor;
-        }
-
-        private PointF mmToPixel(Graphics g, PointF mm)
-        {
-            PointF result = new PointF();
-            result.X = mm.X * g.DpiX / 25.4f;
-            result.Y = mm.Y * g.DpiY / 25.4f;
-            return result;
         }
 
         void promeniGrupu()

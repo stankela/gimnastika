@@ -144,5 +144,24 @@ namespace Gimnastika.UI
             else
                 chbSveGrupe.Checked = false;
         }
+
+        public Sprava selectedSprava()
+        {
+            if (rbtParter.Checked)
+                return Sprava.Parter;
+            else if (rbtKonj.Checked)
+                return Sprava.Konj;
+            else if (rbtKarike.Checked)
+                return Sprava.Karike;
+            else if (rbtPreskok.Checked)
+                return Sprava.Preskok;
+            else if (rbtRazboj.Checked)
+                return Sprava.Razboj;
+            else if (rbtVratilo.Checked)
+                return Sprava.Vratilo;
+            else
+                return Sprava.Undefined;
+
+        }
     }
 }

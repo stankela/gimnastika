@@ -152,6 +152,8 @@ namespace Gimnastika.UI
             RectangleF rect = new RectangleF(location, size);
             rect.Offset(autoScrollPosition.X, autoScrollPosition.Y);
 
+            g.FillRectangle(tabela.ItemBackroundBrush, rect);
+
             string number = broj.ToString() + '.';
 
             if (cutted)

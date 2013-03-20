@@ -113,6 +113,7 @@
     <Compile Include="Misc\Resursi.cs" />
     <Compile Include="Misc\SortComparer.cs" />
     <Compile Include="Misc\Strings.cs" />
+    <Compile Include="Misc\Utils.cs" />
     <Compile Include="Opcije.cs" />
     <Compile Include="Report\Izvestaj.cs" />
     <Compile Include="Report\TabelaIzvestaj.cs" />
@@ -228,17 +229,17 @@
     <Compile Include="UI\PraviloForm.designer.cs">
       <DependentUpon>PraviloForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\PregledElemenataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PregledElemenataForm.Designer.cs">
+      <DependentUpon>PregledElemenataForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\PreviewDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\PreviewDialog.designer.cs">
       <DependentUpon>PreviewDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\SelectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\SelectForm.designer.cs">
-      <DependentUpon>SelectForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\SelektujElementeControl.cs">
       <SubType>UserControl</SubType>
@@ -393,12 +394,12 @@
       <DependentUpon>PraviloForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\PregledElemenataForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PregledElemenataForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\PreviewDialog.resx">
       <DependentUpon>PreviewDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SelectForm.resx">
-      <DependentUpon>SelectForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\SelektujElementeControl.resx">

@@ -9,6 +9,7 @@ using Microsoft.Win32;
 
 using Gimnastika.Domain;
 using Gimnastika.Dao;
+using Gimnastika.Exceptions;
 
 namespace Gimnastika.UI
 {
@@ -27,20 +28,53 @@ namespace Gimnastika.UI
 
         private void mnPromenaElemenata_Click(object sender, EventArgs e)
         {
-            ElementsForm f = new ElementsForm();
-            f.ShowDialog();
+            try
+            {
+                ElementsForm f = new ElementsForm();
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
         private void mnPregledElemenata_Click(object sender, EventArgs e)
         {
-            SelectForm f = new SelectForm();
-            f.ShowDialog();
+            try
+            {
+                PregledElemenataForm f = new PregledElemenataForm();
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
         private void mnPromenaGimnasticara_Click(object sender, EventArgs e)
         {
-            GimnasticariForm f = new GimnasticariForm();
-            f.ShowDialog();
+            try
+            {
+                GimnasticariForm f = new GimnasticariForm();
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
         private void mnDatotekaKraj_Click(object sender, EventArgs e)
@@ -123,23 +157,56 @@ namespace Gimnastika.UI
 
         private void mnPravilaOcenjivanja_Click(object sender, EventArgs e)
         {
-            PravilaForm f = new PravilaForm();
-            f.ShowDialog();
+            try
+            {
+                PravilaForm f = new PravilaForm();
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
         private void mnTabelaElemenata_Click(object sender, EventArgs e)
         {
-            TabelaElemenataForm f = 
-                new TabelaElemenataForm(
-                    TabelaElemenataForm.TabelaElemenataFormRezimRada.Edit,
-                    Sprava.Undefined);
-            f.ShowDialog();
+            try
+            {
+                TabelaElemenataForm f =
+                    new TabelaElemenataForm(
+                        TabelaElemenataForm.TabelaElemenataFormRezimRada.Edit,
+                        Sprava.Undefined);
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
         private void mnNaziviGrupa_Click(object sender, EventArgs e)
         {
-            GrupeForm f = new GrupeForm();
-            f.ShowDialog();
+            try
+            {
+                GrupeForm f = new GrupeForm();
+                f.ShowDialog();
+            }
+            catch (BusinessException ex)
+            {
+                MessageDialogs.showMessage(ex.Message, this.Text);
+            }
+            catch (InfrastructureException ex)
+            {
+                MessageDialogs.showError(ex.Message, this.Text);
+            }
         }
 
     }
