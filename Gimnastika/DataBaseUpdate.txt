@@ -26,3 +26,9 @@ CREATE TABLE NaziviGrupa (
 INSERT INTO NaziviGrupa(Grupa, Sprava, Naziv, EngNaziv) SELECT Grupa, Sprava, Naziv, EngNaziv FROM Grupe
 
 DROP TABLE Grupe
+
+
+
+21 Mart 2013
+
+ALTER TABLE Elementi ADD COLUMN vrednost_preskoka real

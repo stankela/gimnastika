@@ -16,6 +16,7 @@
     <property name="Tezina" column="Tezina"/>
     <property name="Broj" column="Broj"/>
     <property name="PodBroj" column="PodBroj"/>
+    <property name="VrednostPreskoka" column="vrednost_preskoka"/>
     <many-to-one name="Parent" class="Element" column="ParentId" cascade="none"/>
     <set name="Varijante" cascade="all-delete-orphan" inverse="true">
       <key column="ParentId"/>

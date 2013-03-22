@@ -28,6 +28,7 @@ namespace Gimnastika.UI
         public PregledElemenataForm()
         {
             InitializeComponent();
+            this.Size = new Size(this.Size.Width, 550);
             try
             {
                 using (ISession session = NHibernateHelper.OpenSession())
@@ -266,7 +267,7 @@ namespace Gimnastika.UI
             Brush brush = tabela.HeaderTezinaTextBrush;
             Font f = tabela.HeaderTezinaFont;
 
-            Rectangle rect = new Rectangle(0, 0, 100, 50);
+            Rectangle rect = new Rectangle(0, 0, 80, 40);
             g.FillRectangle(tabela.ItemBackroundBrush, rect);
             g.DrawRectangle(pen, rect.X, rect.Y, rect.Width, rect.Height);
 

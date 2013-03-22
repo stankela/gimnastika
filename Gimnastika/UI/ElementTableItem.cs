@@ -148,6 +148,7 @@ namespace Gimnastika.UI
             }
             Font f = tabela.ItemFont;
             Font fBold = tabela.ItemBoldFont;
+            Font fVrednostPreskoka = tabela.VrednostPreskokaFont;
 
             RectangleF rect = new RectangleF(location, size);
             rect.Offset(autoScrollPosition.X, autoScrollPosition.Y);
@@ -223,11 +224,25 @@ namespace Gimnastika.UI
                 }
 
                 RectangleF vaRect = RectangleF.Empty;
+                if (element.Sprava == Sprava.Preskok && element.VrednostPreskoka != null)
+                {
+                    string vrednost = element.VrednostPreskoka.ToString();
+                    SizeF vrednostSize = g.MeasureString(vrednost, fVrednostPreskoka);
+                    PointF vrednostLoc = new PointF(rect.X, rect.Bottom - vrednostSize.Height);
+                    vaRect = new RectangleF(vrednostLoc, vrednostSize);
+                    //g.DrawRectangle(pen, vaRect.X, vaRect.Y, vaRect.Width, vaRect.Height);
+                    g.DrawString(vrednost, fVrednostPreskoka, brush, vaRect);
+                }
+
                 if (element.Varijante.Count > 0)
                 {
                     string va = "VA";
                     SizeF vaSize = g.MeasureString(va, f);
-                    PointF vaLoc = new PointF(rect.X, rect.Bottom - vaSize.Height);
+                    PointF vaLoc;
+                    if (vaRect != RectangleF.Empty)
+                        vaLoc = new PointF(vaRect.Right, rect.Bottom - vaSize.Height);
+                    else
+                        vaLoc = new PointF(rect.X, rect.Bottom - vaSize.Height);
                     vaRect = new RectangleF(vaLoc, vaSize);
                     g.DrawRectangle(pen, vaRect.X, vaRect.Y, vaRect.Width, vaRect.Height);
                     g.DrawString(va, f, brush, vaRect);
@@ -239,7 +254,7 @@ namespace Gimnastika.UI
                     SizeF viSize = g.MeasureString(vi, f);
                     PointF viLoc;
                     if (vaRect != RectangleF.Empty)
-                        viLoc = new PointF(vaRect.Right, vaRect.Top);
+                        viLoc = new PointF(vaRect.Right, rect.Bottom - viSize.Height);
                     else
                         viLoc = new PointF(rect.X, rect.Bottom - viSize.Height);
                     RectangleF viRect = new RectangleF(viLoc, viSize);

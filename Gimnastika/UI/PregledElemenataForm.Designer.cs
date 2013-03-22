@@ -30,13 +30,13 @@ namespace Gimnastika.UI
         {
             this.panelSlika = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.btnPrikazi = new System.Windows.Forms.Button();
+            this.btnZatvori = new System.Windows.Forms.Button();
             this.btnLast = new System.Windows.Forms.Button();
             this.btnNext = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.btnPrevious = new System.Windows.Forms.Button();
             this.btnFirst = new System.Windows.Forms.Button();
-            this.btnZatvori = new System.Windows.Forms.Button();
+            this.btnPrikazi = new System.Windows.Forms.Button();
             this.selektujElementeControl1 = new Gimnastika.UI.SelektujElementeControl();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -68,15 +68,15 @@ namespace Gimnastika.UI
             this.panel2.Size = new System.Drawing.Size(306, 446);
             this.panel2.TabIndex = 2;
             // 
-            // btnPrikazi
+            // btnZatvori
             // 
-            this.btnPrikazi.Location = new System.Drawing.Point(14, 277);
-            this.btnPrikazi.Name = "btnPrikazi";
-            this.btnPrikazi.Size = new System.Drawing.Size(136, 23);
-            this.btnPrikazi.TabIndex = 1;
-            this.btnPrikazi.Text = "Prikazi elemente";
-            this.btnPrikazi.UseVisualStyleBackColor = true;
-            this.btnPrikazi.Click += new System.EventHandler(this.btnPrikazi_Click);
+            this.btnZatvori.Location = new System.Drawing.Point(14, 383);
+            this.btnZatvori.Name = "btnZatvori";
+            this.btnZatvori.Size = new System.Drawing.Size(75, 23);
+            this.btnZatvori.TabIndex = 24;
+            this.btnZatvori.Text = "Zatvori";
+            this.btnZatvori.UseVisualStyleBackColor = true;
+            this.btnZatvori.Click += new System.EventHandler(this.btnZatvori_Click);
             // 
             // btnLast
             // 
@@ -128,15 +128,15 @@ namespace Gimnastika.UI
             this.btnFirst.UseVisualStyleBackColor = true;
             this.btnFirst.Click += new System.EventHandler(this.btnFirst_Click);
             // 
-            // btnZatvori
+            // btnPrikazi
             // 
-            this.btnZatvori.Location = new System.Drawing.Point(14, 383);
-            this.btnZatvori.Name = "btnZatvori";
-            this.btnZatvori.Size = new System.Drawing.Size(75, 23);
-            this.btnZatvori.TabIndex = 24;
-            this.btnZatvori.Text = "Zatvori";
-            this.btnZatvori.UseVisualStyleBackColor = true;
-            this.btnZatvori.Click += new System.EventHandler(this.btnZatvori_Click);
+            this.btnPrikazi.Location = new System.Drawing.Point(14, 277);
+            this.btnPrikazi.Name = "btnPrikazi";
+            this.btnPrikazi.Size = new System.Drawing.Size(136, 23);
+            this.btnPrikazi.TabIndex = 1;
+            this.btnPrikazi.Text = "Prikazi elemente";
+            this.btnPrikazi.UseVisualStyleBackColor = true;
+            this.btnPrikazi.Click += new System.EventHandler(this.btnPrikazi_Click);
             // 
             // selektujElementeControl1
             // 

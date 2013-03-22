@@ -204,6 +204,13 @@ namespace Gimnastika.Domain
             }
         }
 
+        private Nullable<float> vrednostPreskoka;
+        public virtual Nullable<float> VrednostPreskoka
+        {
+            get { return vrednostPreskoka; }
+            set { vrednostPreskoka = value; }
+        }
+
         private Element parent;
         public virtual Element Parent
         {

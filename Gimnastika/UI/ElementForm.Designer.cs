@@ -32,7 +32,6 @@ namespace Gimnastika.UI
             this.txtNazivGim = new System.Windows.Forms.TextBox();
             this.lblNazivGim = new System.Windows.Forms.Label();
             this.btnSlike = new System.Windows.Forms.Button();
-            this.pictureBoxSlika = new Gimnastika.UI.PictureBoxPlus();
             this.txtEngNaziv = new System.Windows.Forms.TextBox();
             this.lblEngNaziv = new System.Windows.Forms.Label();
             this.btnPromeniVarijantu = new System.Windows.Forms.Button();
@@ -58,12 +57,17 @@ namespace Gimnastika.UI
             this.txtNaziv = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.pictureBoxSlika = new Gimnastika.UI.PictureBoxPlus();
+            this.lblVrednost = new System.Windows.Forms.Label();
+            this.txtVrednostPreskoka = new System.Windows.Forms.TextBox();
             this.groupBoxElement.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSlika)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBoxElement
             // 
+            this.groupBoxElement.Controls.Add(this.txtVrednostPreskoka);
+            this.groupBoxElement.Controls.Add(this.lblVrednost);
             this.groupBoxElement.Controls.Add(this.txtNazivGim);
             this.groupBoxElement.Controls.Add(this.lblNazivGim);
             this.groupBoxElement.Controls.Add(this.btnSlike);
@@ -122,17 +126,6 @@ namespace Gimnastika.UI
             this.btnSlike.Text = "Slike ...";
             this.btnSlike.UseVisualStyleBackColor = true;
             this.btnSlike.Click += new System.EventHandler(this.btnSlike_Click);
-            // 
-            // pictureBoxSlika
-            // 
-            this.pictureBoxSlika.BackColor = System.Drawing.Color.White;
-            this.pictureBoxSlika.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBoxSlika.Location = new System.Drawing.Point(22, 190);
-            this.pictureBoxSlika.Name = "pictureBoxSlika";
-            this.pictureBoxSlika.NoDistort = false;
-            this.pictureBoxSlika.Size = new System.Drawing.Size(233, 148);
-            this.pictureBoxSlika.TabIndex = 50;
-            this.pictureBoxSlika.TabStop = false;
             // 
             // txtEngNaziv
             // 
@@ -367,6 +360,33 @@ namespace Gimnastika.UI
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // pictureBoxSlika
+            // 
+            this.pictureBoxSlika.BackColor = System.Drawing.Color.White;
+            this.pictureBoxSlika.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBoxSlika.Location = new System.Drawing.Point(22, 190);
+            this.pictureBoxSlika.Name = "pictureBoxSlika";
+            this.pictureBoxSlika.NoDistort = false;
+            this.pictureBoxSlika.Size = new System.Drawing.Size(233, 148);
+            this.pictureBoxSlika.TabIndex = 50;
+            this.pictureBoxSlika.TabStop = false;
+            // 
+            // lblVrednost
+            // 
+            this.lblVrednost.AutoSize = true;
+            this.lblVrednost.Location = new System.Drawing.Point(377, 138);
+            this.lblVrednost.Name = "lblVrednost";
+            this.lblVrednost.Size = new System.Drawing.Size(49, 13);
+            this.lblVrednost.TabIndex = 51;
+            this.lblVrednost.Text = "Vrednost";
+            // 
+            // txtVrednost
+            // 
+            this.txtVrednostPreskoka.Location = new System.Drawing.Point(377, 155);
+            this.txtVrednostPreskoka.Name = "txtVrednost";
+            this.txtVrednostPreskoka.Size = new System.Drawing.Size(49, 20);
+            this.txtVrednostPreskoka.TabIndex = 52;
+            // 
             // ElementForm
             // 
             this.AcceptButton = this.btnOK;
@@ -426,6 +446,8 @@ namespace Gimnastika.UI
         private System.Windows.Forms.Button btnSlike;
         private System.Windows.Forms.TextBox txtNazivGim;
         private System.Windows.Forms.Label lblNazivGim;
+        private System.Windows.Forms.TextBox txtVrednostPreskoka;
+        private System.Windows.Forms.Label lblVrednost;
 
     }
 }

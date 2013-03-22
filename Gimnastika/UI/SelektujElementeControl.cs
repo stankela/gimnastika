@@ -13,6 +13,7 @@ namespace Gimnastika.UI
     {
         private CheckBox[] checkBoxesGrupe;
         private CheckBox[] checkBoxesTezine;
+        private bool radioButton = true;
 
         public SelektujElementeControl()
         {
@@ -130,23 +131,43 @@ namespace Gimnastika.UI
         private void chbTezine_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox chb = (CheckBox)sender;
-            if (chb.Checked == false)
-                return;
-            if (chb == chbSveTezine)
-                resetujOstaleTezine(chb);
+            if (!radioButton)
+            {
+                if (chb.Checked == false)
+                    return;
+                if (chb == chbSveTezine)
+                    resetujOstaleTezine(chb);
+                else
+                    chbSveTezine.Checked = false;
+            }
             else
-                chbSveTezine.Checked = false;
+            {
+                if (chb.Checked == false)
+                    return;
+                else
+                    resetujOstaleTezine(chb);
+            }
         }
 
         private void chbGrupe_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox chb = (CheckBox)sender;
-            if (chb.Checked == false)
-                return;
-            if (chb == chbSveGrupe)
-                resetujOstaleGrupe(chb);
+            if (!radioButton)
+            {
+                if (chb.Checked == false)
+                    return;
+                if (chb == chbSveGrupe)
+                    resetujOstaleGrupe(chb);
+                else
+                    chbSveGrupe.Checked = false;
+            }
             else
-                chbSveGrupe.Checked = false;
+            {
+                if (chb.Checked == false)
+                    return;
+                else
+                    resetujOstaleGrupe(chb);
+            }
         }
 
         public Sprava selectedSprava()

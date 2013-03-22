@@ -131,6 +131,12 @@ namespace Gimnastika.UI
             get { return itemBoldFont; }
         }
 
+        private Font vrednostPreskokaFont;
+        public Font VrednostPreskokaFont
+        {
+            get { return vrednostPreskokaFont; }
+        }
+
         private Pen headerBorderPen;
         public Pen HeaderBorderPen
         {
@@ -189,6 +195,7 @@ namespace Gimnastika.UI
             itemTextSelectedColor = Color.Fuchsia;
             itemFont = new Font("Arial", 8);
             itemBoldFont = new Font("Arial", 8, FontStyle.Bold);
+            vrednostPreskokaFont = new Font("Arial", 10, FontStyle.Bold);
             headerBorderColor = SystemColors.WindowText;
             headerTezinaTextColor = Color.Blue;
             headerTezinaFont = new Font("Arial", 14, FontStyle.Bold | FontStyle.Italic);

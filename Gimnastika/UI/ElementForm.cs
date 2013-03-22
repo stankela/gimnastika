@@ -13,6 +13,7 @@ using System.IO;
 using NHibernate;
 using Gimnastika.Data;
 using NHibernate.Context;
+using System.Globalization;
 
 namespace Gimnastika.UI
 {
@@ -54,7 +55,7 @@ namespace Gimnastika.UI
                     CurrentSessionContext.Bind(session);
                     this.parent = parent;
                     this.varijanta = parent != null;
-                    initUI();
+                    initUI(sprava == Sprava.Preskok);
                     this.persistEntity = persistEntity;
 
                     if (elementId == null)
@@ -71,6 +72,12 @@ namespace Gimnastika.UI
                         saveOldData(element);
                         updateUIFromEntity(element);
                     }
+
+                    // TODO: Kada je sprava Undefined, moze da se desi da je combo sprava omogucen a textbox Vrednost
+                    // onemogucen. Ako se kasnije izabere Preskok za spravu, textbox Vrednost bi trebalo omoguciti.
+                    // Ova situacija moze da se desi u 2 od 4 konstruktora za ElementForm (u ostala 2 je cmbSprava
+                    // uvek onemogucen).
+                    cmbSprava.Enabled = sprava == Sprava.Undefined;
                     initHandlers();
                 }
             }
@@ -94,13 +101,15 @@ namespace Gimnastika.UI
                     CurrentSessionContext.Bind(session);
                     parent = varijanta.Parent;
                     this.varijanta = true;
-                    initUI();
+                    initUI(varijanta.Sprava == Sprava.Preskok);
                     persistEntity = false;
 
                     editMode = true;
                     element = varijanta;
                     saveOldData(element);
                     updateUIFromEntity(element);
+
+                    cmbSprava.Enabled = varijanta.Sprava == Sprava.Undefined;
                     initHandlers();
                 }
             }
@@ -161,7 +170,7 @@ namespace Gimnastika.UI
                     CurrentSessionContext.Bind(session);
                     this.varijanta = false;
                     this.parent = null;
-                    initUI();
+                    initUI(sprava == Sprava.Preskok);
                     this.persistEntity = true;
 
                     if (elementId == null)
@@ -212,7 +221,7 @@ namespace Gimnastika.UI
                     CurrentSessionContext.Bind(session);
                     this.varijanta = false;
                     this.parent = null;
-                    initUI();
+                    initUI(sprava == Sprava.Preskok);
 
                     this.element = null;
                     this.persistEntity = true;
@@ -298,7 +307,7 @@ namespace Gimnastika.UI
         }
 
         // inicijalizuj UI za novi element (koji moze da bude i nova varijanta)
-        private void initUI()
+        private void initUI(bool enableVrednost)
         {
             cmbSprava.Items.Clear();
             cmbSprava.Items.AddRange(Resursi.SpravaNazivTable);
@@ -319,6 +328,9 @@ namespace Gimnastika.UI
             cmbGrupa.SelectedIndex = -1;
             cmbTezina.SelectedIndex = -1;
             txtBroj.Text = String.Empty;
+            txtVrednostPreskoka.Text = String.Empty;
+
+            txtVrednostPreskoka.Enabled = enableVrednost;
 
             lstVideo.DisplayMember = "RelFileNamePath";
             lstVideo.Items.Clear();
@@ -366,6 +378,13 @@ namespace Gimnastika.UI
                 setComboGrupa(element.Grupa);
                 setComboTezina(element.Tezina);
                 txtBroj.Text = element.BrojPodBroj;
+                if (txtVrednostPreskoka.Enabled)
+                {
+                    if (element.Vrednost != null)
+                        txtVrednostPreskoka.Text = element.VrednostPreskoka.ToString();
+                    else
+                        txtVrednostPreskoka.Text = string.Empty;
+                }
             }
             else
             {
@@ -373,6 +392,7 @@ namespace Gimnastika.UI
                 cmbGrupa.Enabled = false;
                 cmbTezina.Enabled = false;
                 txtBroj.Enabled = false;
+                txtVrednostPreskoka.Enabled = false;
             }
             updateVideoUI();
             updateSlikeUI();
@@ -502,6 +522,9 @@ namespace Gimnastika.UI
                 case "Broj":
                     txtBroj.Focus();
                     break;
+                case "VrednostPreskoka":
+                    txtVrednostPreskoka.Focus();
+                    break;
                 case "Varijante":
                     lstVarijante.Focus();
                     break;
@@ -542,7 +565,22 @@ namespace Gimnastika.UI
                     notification.RegisterMessage(
                        "Broj", "Unesite broj elementa.");
                 }
+                if (txtVrednostPreskoka.Text.Trim() != String.Empty && !isFloat(txtVrednostPreskoka.Text))
+                {
+                    notification.RegisterMessage(
+                        "VrednostPreskoka", "Nepravilan format za vrednost.");
+                }
             }
+        }
+
+        private bool isFloat(string s)
+        {
+            // NOTE: NumberStyles.Float sprecava situaciju da se umesto zareza unese
+            // tacka (koja bi se tumacila kao celobrojni separator za grupe)
+            NumberStyles numStyles = NumberStyles.Float & ~NumberStyles.AllowExponent;
+
+            float dummy;
+            return float.TryParse(s, numStyles, null, out dummy);
         }
 
         private void add()
@@ -567,6 +605,13 @@ namespace Gimnastika.UI
             else
             {
                 setPolozajUTabliciFromUI();
+            }
+            if (txtVrednostPreskoka.Enabled)
+            {
+                if (txtVrednostPreskoka.Text.Trim() != String.Empty)
+                    element.VrednostPreskoka = float.Parse(txtVrednostPreskoka.Text);
+                else
+                    element.VrednostPreskoka = null;
             }
             if (!editMode && varijanta)
                 parent.dodajVarijantu(e);
@@ -696,6 +741,7 @@ namespace Gimnastika.UI
 
         private void chbTablicniElement_CheckedChanged(object sender, EventArgs e)
         {
+            // TODO: Vidi sta treba da se radi sa txtVrednostPreskoka u ovom metodu.
             if (chbTablicniElement.Checked)
             {
                 cmbGrupa.Enabled = true;
