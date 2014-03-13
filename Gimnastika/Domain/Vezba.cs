@@ -30,14 +30,14 @@ namespace Gimnastika.Domain
         public virtual Nullable<float> Odbitak
         {
             get { return odbitak = getOdbitakUkupno(); }
-            private set { odbitak = value; }
+            protected set { odbitak = value; }
         }
 
         private Nullable<float> penalizacija;
         public virtual Nullable<float> Penalizacija
         {
             get { return penalizacija = getPenalizacijaUkupno(); }
-            private set { penalizacija = value; }
+            protected set { penalizacija = value; }
         }
 
         private Gimnasticar gimnasticar;
@@ -58,7 +58,7 @@ namespace Gimnastika.Domain
         public virtual IList<ElementVezbe> Elementi
         {
             get { return elementi; }
-            private set { elementi = value; }
+            protected set { elementi = value; }
         }
 
         public virtual void DodajElement(ElementVezbe element)

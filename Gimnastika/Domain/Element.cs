@@ -159,7 +159,7 @@ namespace Gimnastika.Domain
         public virtual Sprava Sprava
         {
             get { return sprava; }
-            private set { sprava = value; }
+            protected set { sprava = value; }
         }
 
         private bool isTablicniElement;
@@ -173,21 +173,21 @@ namespace Gimnastika.Domain
         public virtual GrupaElementa Grupa
         {
             get { return grupa; }
-            private set { grupa = value; }
+            protected set { grupa = value; }
         }
 
         private TezinaElementa tezina;
         public virtual TezinaElementa Tezina
         {
             get { return tezina; }
-            private set { tezina = value; }
+            protected set { tezina = value; }
         }
 
         private short broj;
         public virtual short Broj
         {
             get { return broj; }
-            private set { broj = value; }
+            protected set { broj = value; }
         }
 
         private byte podBroj;
@@ -215,7 +215,7 @@ namespace Gimnastika.Domain
         public virtual Element Parent
         {
             get { return parent; }
-            private set { parent = value; }  // Metodi dodajVarijantu i ukloniVarijantu kontrolisu dvosmernu asocijaciju
+            protected set { parent = value; }  // Metodi dodajVarijantu i ukloniVarijantu kontrolisu dvosmernu asocijaciju
                                              // element <-----> varijanta
         }
 

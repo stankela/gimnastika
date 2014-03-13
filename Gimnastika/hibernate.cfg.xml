@@ -6,7 +6,7 @@
     <property name="connection.driver_class">NHibernate.Driver.SqlServerCeDriver</property>
     <property name="connection.connection_string">Data Source="../../gimnastika_podaci.sdf"</property>
     <property name="proxyfactory.factory_class">
-      NHibernate.ByteCode.LinFu.ProxyFactoryFactory, NHibernate.ByteCode.LinFu
+      NHibernate.Bytecode.DefaultProxyFactoryFactory, NHibernate
     </property>
     <property name="current_session_context_class">thread_static</property>
 

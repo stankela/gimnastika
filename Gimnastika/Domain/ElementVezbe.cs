@@ -56,35 +56,35 @@ namespace Gimnastika.Domain
         public virtual string Naziv
         {
             get { return naziv; }
-            private set { naziv = value; }
+            protected set { naziv = value; }
         }
 
         private string engleskiNaziv;
         public virtual string EngleskiNaziv
         {
             get { return engleskiNaziv; }
-            private set { engleskiNaziv = value; }
+            protected set { engleskiNaziv = value; }
         }
 
         private bool isTablicniElement;
         public virtual bool IsTablicniElement
         {
             get { return isTablicniElement; }
-            private set { isTablicniElement = value; }
+            protected set { isTablicniElement = value; }
         }
 
         private GrupaElementa grupa;
         public virtual GrupaElementa Grupa
         {
             get { return grupa; }
-            private set { grupa = value; }
+            protected set { grupa = value; }
         }
 
         private TezinaElementa tezina;
         public virtual TezinaElementa Tezina
         {
             get { return tezina; }
-            private set { tezina = value; }
+            protected set { tezina = value; }
         }
 
 
@@ -92,7 +92,7 @@ namespace Gimnastika.Domain
         public virtual short Broj
         {
             get { return broj; }
-            private set { broj = value; }
+            protected set { broj = value; }
         }
 
         private byte podBroj;
